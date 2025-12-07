@@ -178,6 +178,13 @@ export interface ExtensionManifest {
   description?: string | null;
   singleInstance?: boolean | null;
   displayMode?: "auto" | "window" | "iframe" | null;
+  /**
+   * Path to the migrations directory relative to the extension root.
+   * Contains Drizzle-style migrations with meta/_journal.json and *.sql files.
+   * These migrations will be applied when the extension is installed.
+   * Example: "database/migrations"
+   */
+  migrationsDir?: string | null;
 }
 
 // Config Types

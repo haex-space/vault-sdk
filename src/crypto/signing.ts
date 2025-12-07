@@ -4,7 +4,7 @@ import * as fs from "fs/promises";
 import * as fsSync from "fs";
 import * as path from "path";
 import archiver from "archiver";
-import { getExtensionDir } from "~/config";
+import { getExtensionDir, readHaextensionConfig } from "~/config";
 import { readManifest } from "~/manifest";
 
 export const EXTENSION_FILE_EXTENSION = ".xt";
@@ -183,6 +183,24 @@ export class ExtensionSigner {
         await fs.copyFile(configPath, path.join(tempDir, "haextension.config.json"));
       }
 
+      // Kopiere Migrations-Verzeichnis wenn migrationsDir im Manifest angegeben ist
+      if (manifest.migrationsDir) {
+        const config = readHaextensionConfig(process.cwd());
+        // Default: app/{migrationsDir} für Nuxt-Projekte
+        const migrationsSourceDir = config?.build?.migrationsSourceDir || `app/${manifest.migrationsDir}`;
+        const migrationsSourcePath = path.join(process.cwd(), migrationsSourceDir);
+
+        if (fsSync.existsSync(migrationsSourcePath)) {
+          const tempMigrationsPath = path.join(tempDir, manifest.migrationsDir);
+          await fs.mkdir(path.dirname(tempMigrationsPath), { recursive: true });
+          const { execSync } = await import("child_process");
+          execSync(`cp -r "${migrationsSourcePath}" "${tempMigrationsPath}"`, { stdio: "ignore" });
+          console.log(`✓ Migrations copied from ${migrationsSourceDir} to ${manifest.migrationsDir}`);
+        } else {
+          console.warn(`⚠ Migrations directory not found: ${migrationsSourcePath}`);
+        }
+      }
+
       // Hash über das komplette temp Verzeichnis berechnen
       contentHash = await this.hashDirectory(tempDir);
     } finally {
@@ -245,6 +263,18 @@ export class ExtensionSigner {
       const configPath = path.join(process.cwd(), "haextension.config.json");
       if (fsSync.existsSync(configPath)) {
         archive.file(configPath, { name: "haextension.config.json" });
+      }
+
+      // Add migrations directory if migrationsDir is specified in manifest
+      if (manifest.migrationsDir) {
+        const config = readHaextensionConfig(process.cwd());
+        const migrationsSourceDir = config?.build?.migrationsSourceDir || `app/${manifest.migrationsDir}`;
+        const migrationsSourcePath = path.join(process.cwd(), migrationsSourceDir);
+
+        if (fsSync.existsSync(migrationsSourcePath)) {
+          archive.directory(migrationsSourcePath, manifest.migrationsDir);
+          console.log(`✓ Adding migrations to bundle: ${manifest.migrationsDir}`);
+        }
       }
 
       archive.finalize();

@@ -16,6 +16,14 @@ export interface HaextensionConfig {
   }
   build?: {
     distDir?: string
+    /**
+     * Source path for migrations directory (relative to project root).
+     * If manifest.migrationsDir is set, this directory will be copied
+     * to the bundle at the path specified in migrationsDir.
+     * Default: "app/{migrationsDir}" (for Nuxt projects)
+     * Example: "app/database/migrations" -> copies to "database/migrations" in bundle
+     */
+    migrationsSourceDir?: string
   }
 }
 

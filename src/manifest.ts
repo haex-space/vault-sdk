@@ -73,6 +73,7 @@ export function readManifest(options: ReadManifestOptions): ExtensionManifest | 
       description: parsed.description ?? null,
       singleInstance: parsed.singleInstance ?? null,
       displayMode: parsed.displayMode ?? null,
+      migrationsDir: parsed.migrationsDir ?? null,
     };
 
     console.log(`✓ [@haexhub/sdk] Loaded ${resolvedManifestPath}`);
