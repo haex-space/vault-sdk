@@ -8,3 +8,10 @@ export {
   getExtensionDir,
   type HaextensionConfig,
 } from './config';
+
+export {
+  readManifest,
+  type ReadManifestOptions,
+} from './manifest';
+
+export type { ExtensionManifest } from './types';
