@@ -21,6 +21,7 @@ import {
   DEFAULT_TIMEOUT,
   TABLE_SEPARATOR,
   HaexHubError,
+  getTableName,
 } from "./types";
 import { StorageAPI } from "./api/storage";
 import { DatabaseAPI } from "./api/database";
@@ -269,10 +270,9 @@ export class HaexVaultClient {
     this.validateTableName(tableName);
 
     const { publicKey, name } = this._extensionInfo;
-    const extensionName = name;
 
     // Return table name wrapped in double quotes to handle special characters (like hyphens in extension names)
-    return `"${publicKey}${TABLE_SEPARATOR}${extensionName}${TABLE_SEPARATOR}${tableName}"`;
+    return `"${getTableName(publicKey, name, tableName)}"`;
   }
 
   public getDependencyTableName(
@@ -285,7 +285,7 @@ export class HaexVaultClient {
     this.validateTableName(tableName);
 
     // Return table name wrapped in double quotes to handle special characters
-    return `"${publicKey}${TABLE_SEPARATOR}${extensionName}${TABLE_SEPARATOR}${tableName}"`;
+    return `"${getTableName(publicKey, extensionName, tableName)}"`;
   }
 
   public parseTableName(fullTableName: string): {

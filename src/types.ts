@@ -4,6 +4,35 @@ import { HAEXTENSION_EVENTS } from './events';
 export const DEFAULT_TIMEOUT = 30000; // 30 seconds in milliseconds
 export const TABLE_SEPARATOR = "__"; // Separator for table name components: {publicKey}__{extensionName}__{tableName}
 
+/**
+ * Build a fully qualified table name for extensions.
+ * Use this in Drizzle schemas to create table names at build time.
+ *
+ * @param publicKey - The extension's public key (from manifest.json)
+ * @param extensionName - The extension name (from manifest.json or package.json)
+ * @param tableName - The table name (e.g., "users", "items")
+ * @returns Fully qualified table name: `{publicKey}__{extensionName}__{tableName}`
+ *
+ * @example
+ * ```typescript
+ * import { getTableName } from "@haex-space/vault-sdk";
+ * import manifest from "../haextension/manifest.json";
+ * import pkg from "../package.json";
+ *
+ * const tableName = (name: string) =>
+ *   getTableName(manifest.publicKey, manifest.name || pkg.name, name);
+ *
+ * export const users = sqliteTable(tableName("users"), { ... });
+ * ```
+ */
+export function getTableName(
+  publicKey: string,
+  extensionName: string,
+  tableName: string
+): string {
+  return `${publicKey}${TABLE_SEPARATOR}${extensionName}${TABLE_SEPARATOR}${tableName}`;
+}
+
 // Core Protocol Types
 export interface HaexHubRequest {
   method: string;

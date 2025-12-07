@@ -38,6 +38,7 @@ export {
   ErrorCode,
   DEFAULT_TIMEOUT,
   TABLE_SEPARATOR,
+  getTableName,
 } from "./types";
 export { HaexHubError } from "./types";
 
