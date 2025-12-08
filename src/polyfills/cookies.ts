@@ -1,5 +1,5 @@
 /**
- * Cookie Polyfill for HaexHub Extensions
+ * Cookie Polyfill for HaexSpace Extensions
  *
  * Provides an in-memory cookie implementation when cookies are blocked
  * due to custom protocol restrictions (haex-extension://)
@@ -16,7 +16,7 @@ export function installCookiePolyfill(): void {
     document.cookie = "__cookie_test__=1";
     cookiesWork = document.cookie.indexOf("__cookie_test__") !== -1;
   } catch (e) {
-    console.warn("[HaexHub] Cookies blocked – using in-memory fallback");
+    console.warn("[HaexSpace] Cookies blocked – using in-memory fallback");
   }
 
   if (!cookiesWork) {
@@ -75,6 +75,6 @@ export function installCookiePolyfill(): void {
       configurable: true,
     });
 
-    console.log("[HaexHub] Cookie polyfill installed");
+    console.log("[HaexSpace] Cookie polyfill installed");
   }
 }

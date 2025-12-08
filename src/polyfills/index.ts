@@ -1,5 +1,5 @@
 /**
- * HaexHub Extension Polyfills
+ * HaexSpace Extension Polyfills
  *
  * Auto-initializing polyfills for localStorage, cookies, and history API
  * that work around restrictions in custom protocol contexts (haex-extension://)
@@ -14,7 +14,7 @@
  * You can also install them manually:
  *
  * ```typescript
- * import { installPolyfills } from '@haexhub/sdk/polyfills';
+ * import { installPolyfills } from '@haex-space/vault-sdk/polyfills';
  * installPolyfills();
  * ```
  */
@@ -32,7 +32,7 @@ export { installConsoleForwarding } from './consoleForwarding';
 export { installDebugDiagnostics } from './debug';
 
 /**
- * Install all HaexHub polyfills
+ * Install all HaexSpace polyfills
  *
  * This function is called automatically when the SDK is imported.
  * You usually don't need to call this manually.
@@ -58,7 +58,7 @@ export function installPolyfills(): void {
 
   // Note: Console forwarding is installed by HaexVaultClient when debug mode is enabled
 
-  console.log('[HaexHub] All polyfills loaded successfully');
+  console.log('[HaexSpace] All polyfills loaded successfully');
 
   // Run debug diagnostics
   installDebugDiagnostics();

@@ -140,15 +140,15 @@ export class HaexVaultClient {
     if (!this.setupHook) return;
 
     try {
-      this.log('[HaexHub] Running setup hook...');
+      this.log('[HaexSpace] Running setup hook...');
       await this.setupHook();
       this._setupCompleted = true;
-      this.log('[HaexHub] Setup completed successfully');
+      this.log('[HaexSpace] Setup completed successfully');
 
       // Notify subscribers that setup is complete
       this.notifySubscribers();
     } catch (error) {
-      this.log('[HaexHub] Setup failed:', error);
+      this.log('[HaexSpace] Setup failed:', error);
       throw error;
     }
   }
@@ -623,27 +623,27 @@ export class HaexVaultClient {
             listen: (event: string, handler: (event: any) => void) => Promise<() => void>;
           };
 
-          console.log("[HaexHub SDK] Setting up Tauri event listener for:", HAEXTENSION_EVENTS.CONTEXT_CHANGED);
+          console.log("[HaexSpace SDK] Setting up Tauri event listener for:", HAEXTENSION_EVENTS.CONTEXT_CHANGED);
 
           try {
             await listen(HAEXTENSION_EVENTS.CONTEXT_CHANGED, (event: any) => {
-              console.log("[HaexHub SDK] Received Tauri event:", HAEXTENSION_EVENTS.CONTEXT_CHANGED, event);
+              console.log("[HaexSpace SDK] Received Tauri event:", HAEXTENSION_EVENTS.CONTEXT_CHANGED, event);
               this.log("Received context change event:", event);
               if (event.payload?.context) {
                 this._context = event.payload.context;
-                console.log("[HaexHub SDK] Updated context to:", this._context);
+                console.log("[HaexSpace SDK] Updated context to:", this._context);
                 this.handleEvent({
                   type: HAEXTENSION_EVENTS.CONTEXT_CHANGED,
                   data: { context: this._context },
                   timestamp: Date.now(),
                 });
               } else {
-                console.warn("[HaexHub SDK] Event received but no context in payload:", event);
+                console.warn("[HaexSpace SDK] Event received but no context in payload:", event);
               }
             });
-            console.log("[HaexHub SDK] Context change listener registered successfully");
+            console.log("[HaexSpace SDK] Context change listener registered successfully");
           } catch (error) {
-            console.error("[HaexHub SDK] Failed to setup context change listener:", error);
+            console.error("[HaexSpace SDK] Failed to setup context change listener:", error);
             this.log("Failed to setup context change listener:", error);
           }
 
@@ -667,7 +667,7 @@ export class HaexVaultClient {
 
     this.isNativeWindow = false;
     this.initialized = true;
-    this.log("HaexHub SDK initialized in iframe mode");
+    this.log("HaexSpace SDK initialized in iframe mode");
 
     try {
       // Load extension info from manifest (if provided in config)
@@ -865,7 +865,7 @@ export class HaexVaultClient {
 
   private log(...args: unknown[]): void {
     if (this.config.debug) {
-      console.log("[HaexHub SDK]", ...args);
+      console.log("[HaexSpace SDK]", ...args);
     }
   }
 }

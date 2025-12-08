@@ -21,15 +21,15 @@ export function installBaseTag() {
 
   // Check if installation is already in progress (prevents duplicate runs)
   if (window.__HAEXHUB_BASE_TAG_INSTALLING__) {
-    console.log('[HaexHub] Base tag installation already in progress, skipping')
+    console.log('[HaexSpace] Base tag installation already in progress, skipping')
     return
   }
 
-  console.log('[HaexHub] Base tag installation starting')
+  console.log('[HaexSpace] Base tag installation starting')
 
   // Check if we're in an iframe (extension context)
   if (window.self === window.top) {
-    console.log('[HaexHub] Not in iframe, skipping base tag')
+    console.log('[HaexSpace] Not in iframe, skipping base tag')
     return
   }
 
@@ -38,7 +38,7 @@ export function installBaseTag() {
 
   // If base tag already has correct href (not just "/"), skip
   if (existingBaseTag && existingBaseTag.href && existingBaseTag.href !== window.location.origin + '/') {
-    console.log('[HaexHub] Base tag already configured, skipping')
+    console.log('[HaexSpace] Base tag already configured, skipping')
     return
   }
 
@@ -54,12 +54,12 @@ export function installBaseTag() {
   const lastSlashIndex = pathname.lastIndexOf('/')
   const basePath = lastSlashIndex !== -1 ? pathname.substring(0, lastSlashIndex + 1) : '/'
 
-  console.log('[HaexHub] Extracted base path from location:', basePath)
+  console.log('[HaexSpace] Extracted base path from location:', basePath)
 
   if (existingBaseTag) {
     // Update existing placeholder
     existingBaseTag.href = basePath
-    console.log(`[HaexHub] Base tag updated: ${existingBaseTag.href}`)
+    console.log(`[HaexSpace] Base tag updated: ${existingBaseTag.href}`)
   } else {
     // Create new base tag (fallback if placeholder wasn't injected)
     const baseTag = document.createElement('base')
@@ -69,9 +69,9 @@ export function installBaseTag() {
     const head = document.head || document.querySelector('head')
     if (head) {
       head.insertBefore(baseTag, head.firstChild)
-      console.log(`[HaexHub] Base tag created: ${baseTag.href}`)
+      console.log(`[HaexSpace] Base tag created: ${baseTag.href}`)
     } else {
-      console.warn('[HaexHub] No <head> found, cannot inject base tag')
+      console.warn('[HaexSpace] No <head> found, cannot inject base tag')
     }
   }
 }

@@ -1,5 +1,5 @@
 /**
- * Vite Plugin for HaexHub SDK
+ * Vite Plugin for HaexSpace SDK
  * Automatically injects polyfills into HTML files
  * Works with React, Vue, Svelte, and any other Vite-based project
  */
@@ -22,26 +22,26 @@ export interface VitePluginOptions {
 }
 
 /**
- * HaexHub Vite Plugin
+ * HaexSpace Vite Plugin
  * Injects browser API polyfills for extensions running in custom protocols
  *
  * @example
  * ```ts
  * // vite.config.ts
- * import { haexhubPlugin } from '@haexhub/sdk/vite'
+ * import { haexspacePlugin } from '@haex-space/vault-sdk/vite'
  *
  * export default {
- *   plugins: [haexhubPlugin()]
+ *   plugins: [haexspacePlugin()]
  * }
  * ```
  */
-export function haexhubPlugin(options: VitePluginOptions = {}): Plugin {
+export function haexspacePlugin(options: VitePluginOptions = {}): Plugin {
   const { injectPolyfills = true, configureCors = true } = options
 
   let polyfillCode: string | null = null
 
   return {
-    name: '@haexhub/sdk',
+    name: '@haex-space/vault-sdk',
     enforce: 'post', // Run after other plugins
 
     configResolved(config) {
@@ -49,16 +49,16 @@ export function haexhubPlugin(options: VitePluginOptions = {}): Plugin {
         try {
           // Get polyfill code from modular polyfills
           polyfillCode = getPolyfillCode()
-          console.log('✓ [@haexhub/sdk] Polyfills initialized')
+          console.log('✓ [@haex-space/vault-sdk] Polyfills initialized')
         } catch (error) {
-          console.error('[@haexhub/sdk] Failed to initialize:', error)
+          console.error('[@haex-space/vault-sdk] Failed to initialize:', error)
           throw error
         }
       }
 
       // Log CORS configuration
       if (configureCors && config.command === 'serve') {
-        console.log('✓ [@haexhub/sdk] CORS configured for HaexHub development')
+        console.log('✓ [@haex-space/vault-sdk] CORS configured for HaexSpace development')
         console.log('  - Allowing all origins (required for custom protocols)')
         console.log('  - Allowing credentials')
       }
@@ -67,7 +67,7 @@ export function haexhubPlugin(options: VitePluginOptions = {}): Plugin {
     configureServer(server) {
       if (!configureCors) return
 
-      // Add CORS middleware for HaexHub using shared CORS configuration
+      // Add CORS middleware for HaexSpace using shared CORS configuration
       server.middlewares.use((req, res, next) => {
         // Apply CORS headers (allows custom protocols like haex-extension://)
         applyCorsHeaders(res, req.headers.origin)
@@ -93,7 +93,7 @@ export function haexhubPlugin(options: VitePluginOptions = {}): Plugin {
         // Inject polyfill script directly after <head>
         const headPos = html.indexOf('<head>')
         if (headPos === -1) {
-          console.warn('[@haexhub/sdk] No <head> tag found in HTML')
+          console.warn('[@haex-space/vault-sdk] No <head> tag found in HTML')
           return html
         }
 
@@ -103,7 +103,7 @@ export function haexhubPlugin(options: VitePluginOptions = {}): Plugin {
         const polyfillScript = `<script>${polyfillCode}</script>`
         const modifiedHtml = html.slice(0, insertPos) + polyfillScript + html.slice(insertPos)
 
-        console.log('✓ [@haexhub/sdk] Polyfill injected into HTML')
+        console.log('✓ [@haex-space/vault-sdk] Polyfill injected into HTML')
 
         return modifiedHtml
       }
@@ -112,4 +112,4 @@ export function haexhubPlugin(options: VitePluginOptions = {}): Plugin {
 }
 
 // Default export for convenience
-export default haexhubPlugin
+export default haexspacePlugin

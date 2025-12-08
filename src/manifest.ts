@@ -36,7 +36,7 @@ export function readManifest(options: ReadManifestOptions): ExtensionManifest | 
       const packageJsonPath = resolvePath(rootDir, "package.json");
       packageJson = JSON.parse(readFileSync(packageJsonPath, "utf-8"));
     } catch (pkgError) {
-      console.warn(`[@haexhub/sdk] Warning: Could not read package.json`);
+      console.warn(`[@haex-space/vault-sdk] Warning: Could not read package.json`);
     }
 
     // Use manifest values with fallback to package.json
@@ -46,12 +46,12 @@ export function readManifest(options: ReadManifestOptions): ExtensionManifest | 
     const homepage = parsed.homepage ?? packageJson.homepage ?? null;
 
     if (!name) {
-      console.warn(`[@haexhub/sdk] Warning: No name found in manifest or package.json`);
+      console.warn(`[@haex-space/vault-sdk] Warning: No name found in manifest or package.json`);
       return null;
     }
 
     if (!version) {
-      console.warn(`[@haexhub/sdk] Warning: No version found in manifest or package.json`);
+      console.warn(`[@haex-space/vault-sdk] Warning: No version found in manifest or package.json`);
       return null;
     }
 
@@ -76,11 +76,11 @@ export function readManifest(options: ReadManifestOptions): ExtensionManifest | 
       migrationsDir: parsed.migrationsDir ?? null,
     };
 
-    console.log(`✓ [@haexhub/sdk] Loaded ${resolvedManifestPath}`);
+    console.log(`✓ [@haex-space/vault-sdk] Loaded ${resolvedManifestPath}`);
     return manifest;
   } catch (error) {
     console.warn(
-      `[@haexhub/sdk] Warning: manifest.json not found at ${resolvedManifestPath}, extension info will not be available`
+      `[@haex-space/vault-sdk] Warning: manifest.json not found at ${resolvedManifestPath}, extension info will not be available`
     );
     return null;
   }

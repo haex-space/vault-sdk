@@ -64,7 +64,7 @@ function interceptConsole(level: 'log' | 'info' | 'warn' | 'error' | 'debug') {
         )
       } catch (error) {
         // If forwarding fails, just log locally
-        originalConsole.error('[HaexHub] Failed to forward console message:', error)
+        originalConsole.error('[HaexSpace] Failed to forward console message:', error)
       }
     }
   }
@@ -82,7 +82,7 @@ export function installConsoleForwarding(debug: boolean = false): void {
 
   // Only install if debug mode is enabled
   if (!debug) {
-    console.log('[HaexHub] Console forwarding disabled (not in debug mode)')
+    console.log('[HaexSpace] Console forwarding disabled (not in debug mode)')
     return
   }
 
@@ -92,5 +92,5 @@ export function installConsoleForwarding(debug: boolean = false): void {
   interceptConsole('error')
   interceptConsole('debug')
 
-  console.log('[HaexHub] Console forwarding installed')
+  console.log('[HaexSpace] Console forwarding installed')
 }

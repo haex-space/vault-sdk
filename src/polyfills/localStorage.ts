@@ -1,5 +1,5 @@
 /**
- * localStorage Polyfill for HaexHub Extensions
+ * localStorage Polyfill for HaexSpace Extensions
  *
  * Provides an in-memory fallback when localStorage is blocked
  * due to custom protocol restrictions (haex-extension://)
@@ -10,7 +10,7 @@ export function installLocalStoragePolyfill(): void {
     return; // Skip in Node.js environment
   }
 
-  console.log('[HaexHub] Storage Polyfill loading immediately');
+  console.log('[HaexSpace] Storage Polyfill loading immediately');
 
   // Test if localStorage is available
   let localStorageWorks = false;
@@ -20,7 +20,7 @@ export function installLocalStoragePolyfill(): void {
     localStorage.removeItem(testKey);
     localStorageWorks = true;
   } catch (e) {
-    console.warn('[HaexHub] localStorage blocked – using in-memory fallback');
+    console.warn('[HaexSpace] localStorage blocked – using in-memory fallback');
   }
 
   // If blocked: Replace with In-Memory Storage
@@ -59,12 +59,12 @@ export function installLocalStoragePolyfill(): void {
       (window as any).localStorage = localStoragePoly;
     }
 
-    console.log('[HaexHub] localStorage replaced with in-memory polyfill');
+    console.log('[HaexSpace] localStorage replaced with in-memory polyfill');
   }
 }
 
 /**
- * sessionStorage Polyfill for HaexHub Extensions
+ * sessionStorage Polyfill for HaexSpace Extensions
  *
  * Provides a no-op implementation as session state doesn't work
  * reliably in custom protocol contexts
@@ -107,5 +107,5 @@ export function installSessionStoragePolyfill(): void {
     };
   }
 
-  console.log('[HaexHub] sessionStorage polyfill installed');
+  console.log('[HaexSpace] sessionStorage polyfill installed');
 }

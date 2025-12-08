@@ -21,7 +21,7 @@ export function getPolyfillCode(): string {
   const iife = `(function() {
   'use strict';
 
-  console.log('[HaexHub] Storage Polyfill loading immediately');
+  console.log('[HaexSpace] Storage Polyfill loading immediately');
 
   // localStorage Polyfill
   (${installLocalStoragePolyfill.toString()})();
@@ -37,7 +37,7 @@ export function getPolyfillCode(): string {
 
   // Note: Base tag is injected at build-time by Vite plugin, not at runtime
 
-  console.log('[HaexHub] All polyfills loaded successfully');
+  console.log('[HaexSpace] All polyfills loaded successfully');
 
   // Debug diagnostics for Android debugging
   (${installDebugDiagnostics.toString()})();

@@ -1,5 +1,5 @@
 /**
- * History API Polyfill for HaexHub Extensions
+ * History API Polyfill for HaexSpace Extensions
  *
  * Works around SecurityError when using pushState/replaceState
  * in custom protocol contexts (haex-extension://)
@@ -14,7 +14,7 @@ export function installHistoryPolyfill(): void {
 
   // Install after DOM is ready to avoid race conditions
   const install = () => {
-    console.log('[HaexHub] History Patch loading');
+    console.log('[HaexSpace] History Patch loading');
 
     const originalPushState = history.pushState;
     const originalReplaceState = history.replaceState;
@@ -27,11 +27,11 @@ export function installHistoryPolyfill(): void {
       title: string,
       url?: string | URL | null
     ): void {
-      console.log('[HaexHub] pushState called:', url, 'skip:', skipNextPush);
+      console.log('[HaexSpace] pushState called:', url, 'skip:', skipNextPush);
 
       if (skipNextPush) {
         skipNextPush = false;
-        console.log('[HaexHub] pushState skipped');
+        console.log('[HaexSpace] pushState skipped');
         return;
       }
 
@@ -43,7 +43,7 @@ export function installHistoryPolyfill(): void {
           const urlString = url.toString();
           let hashUrl = urlString.replace(/^\/#/, '');
           hashUrl = hashUrl.startsWith('#') ? hashUrl : '#' + hashUrl;
-          console.log('[HaexHub] SecurityError - setting hash to:', hashUrl);
+          console.log('[HaexSpace] SecurityError - setting hash to:', hashUrl);
           skipNextPush = true;
           window.location.hash = hashUrl.replace(/^#/, '');
           return; // Silent fallback
@@ -58,11 +58,11 @@ export function installHistoryPolyfill(): void {
       title: string,
       url?: string | URL | null
     ): void {
-      console.log('[HaexHub] replaceState called:', url, 'skip:', skipNextReplace);
+      console.log('[HaexSpace] replaceState called:', url, 'skip:', skipNextReplace);
 
       if (skipNextReplace) {
         skipNextReplace = false;
-        console.log('[HaexHub] replaceState skipped');
+        console.log('[HaexSpace] replaceState skipped');
         return;
       }
 
@@ -74,7 +74,7 @@ export function installHistoryPolyfill(): void {
           const urlString = url.toString();
           let hashUrl = urlString.replace(/^\/#/, '');
           hashUrl = hashUrl.startsWith('#') ? hashUrl : '#' + hashUrl;
-          console.log('[HaexHub] SecurityError - setting hash to:', hashUrl);
+          console.log('[HaexSpace] SecurityError - setting hash to:', hashUrl);
           skipNextReplace = true;
           window.location.hash = hashUrl.replace(/^#/, '');
           return; // Silent fallback
@@ -83,7 +83,7 @@ export function installHistoryPolyfill(): void {
       }
     };
 
-    console.log('[HaexHub] History API patched');
+    console.log('[HaexSpace] History API patched');
   };
 
   // Install after DOM is ready
