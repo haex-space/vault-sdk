@@ -1,6 +1,6 @@
 {
   "name": "@haex-space/vault-sdk",
-  "version": "2.3.1",
+  "version": "2.3.2",
   "description": "SDK for building Haex Vault extensions",
   "repository": {
     "type": "git",
@@ -117,6 +117,6 @@
   "dependencies": {
     "archiver": "^7.0.1",
     "commander": "^14.0.1",
-    "drizzle-orm": "^0.44.6"
+    "drizzle-orm": "^0.45.0"
   }
 }
