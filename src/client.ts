@@ -1,5 +1,6 @@
 import { HAEXTENSION_EVENTS } from './events';
 import { HAEXTENSION_METHODS } from './methods';
+import { HAEXSPACE_MESSAGE_TYPES } from './messages';
 import type {
   HaexHubRequest,
   HaexHubResponse,
@@ -688,7 +689,7 @@ export class HaexVaultClient {
         try {
           // Try to send debug info via postMessage
           window.parent.postMessage({
-            type: 'haexhub:debug',
+            type: HAEXSPACE_MESSAGE_TYPES.DEBUG,
             data: debugInfo
           }, '*');
         } catch (e) {

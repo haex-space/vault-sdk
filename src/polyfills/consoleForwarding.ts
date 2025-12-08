@@ -2,8 +2,10 @@
  * Console Forwarding Polyfill
  *
  * Forwards all console messages from the extension IFrame to the parent window
- * so they can be displayed in the HaexHub console tab
+ * so they can be displayed in the HaexSpace console tab
  */
+
+import { HAEXSPACE_MESSAGE_TYPES } from '../messages';
 
 export interface ConsoleMessage {
   timestamp: string
@@ -50,7 +52,7 @@ function interceptConsole(level: 'log' | 'info' | 'warn' | 'error' | 'debug') {
 
         window.parent.postMessage(
           {
-            type: 'console.forward',
+            type: HAEXSPACE_MESSAGE_TYPES.CONSOLE_FORWARD,
             data: {
               timestamp,
               level,

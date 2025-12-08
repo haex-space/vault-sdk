@@ -48,6 +48,9 @@ export { HAEXTENSION_EVENTS, type HaextensionEvent } from './events';
 // Export method constants
 export { HAEXTENSION_METHODS, type HaextensionMethod } from './methods';
 
+// Export message type constants
+export { HAEXSPACE_MESSAGE_TYPES, type HaexspaceMessageType } from './messages';
+
 // Export polyfill utilities for manual control if needed
 export {
   installPolyfills,
