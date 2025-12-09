@@ -64,6 +64,15 @@ export {
 // Export config type only (utilities are Node.js-only and exported separately)
 export type { HaextensionConfig } from './config';
 
+// Export browser-compatible signature verification
+export {
+  verifyExtensionSignature,
+  sortObjectKeysRecursively,
+  hexToBytes,
+  type VerifyResult,
+  type ZipFileEntry,
+} from './crypto/verify';
+
 import { HaexVaultClient } from "./client";
 import type { HaexHubConfig } from "./types";
 
