@@ -164,13 +164,24 @@ export class ExtensionSigner {
       const tempExtensionDir = path.join(tempDir, extensionDir);
       await fs.mkdir(tempExtensionDir, { recursive: true });
 
-      // Kopiere nur public.key, nicht private.key
-      const publicKeyPath = path.join(extensionDir, "public.key");
-      if (fsSync.existsSync(publicKeyPath)) {
-        await fs.copyFile(publicKeyPath, path.join(tempExtensionDir, "public.key"));
+      // Kopiere alle Dateien aus haextension/ außer private.key
+      // (manifest.json wird danach mit leerer Signatur überschrieben)
+      const haextensionFiles = await fs.readdir(extensionDir);
+      for (const file of haextensionFiles) {
+        if (file === 'private.key') continue;
+        const srcPath = path.join(extensionDir, file);
+        const destPath = path.join(tempExtensionDir, file);
+        const stat = await fs.stat(srcPath);
+        if (stat.isFile()) {
+          await fs.copyFile(srcPath, destPath);
+        } else if (stat.isDirectory()) {
+          const { execSync } = await import("child_process");
+          execSync(`cp -r "${srcPath}" "${destPath}"`, { stdio: "ignore" });
+        }
       }
 
       // Schreibe manifest.json mit leerer Signatur ins temp haextension Verzeichnis
+      // (überschreibt die vorher kopierte Version)
       const tempManifestPath = path.join(tempExtensionDir, "manifest.json");
       await fs.writeFile(
         tempManifestPath,
