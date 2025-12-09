@@ -414,8 +414,12 @@ export class ExtensionSigner {
         return file;
       });
 
-      // Sort files alphabetically
-      filesForHashing.sort((a, b) => a.path.localeCompare(b.path));
+      // Sort files alphabetically (byte-order, same as hashDirectory uses .sort())
+      filesForHashing.sort((a, b) => {
+        if (a.path < b.path) return -1;
+        if (a.path > b.path) return 1;
+        return 0;
+      });
 
       // Concatenate all file contents
       const totalLength = filesForHashing.reduce((sum, f) => sum + f.content.length, 0);
