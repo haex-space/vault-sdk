@@ -67,6 +67,8 @@
     "dev": "tsup --watch",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "release:patch": "node scripts/release.js patch",
     "release:minor": "node scripts/release.js minor",
     "release:major": "node scripts/release.js major",
@@ -88,6 +90,7 @@
     "tsup": "^8.0.2",
     "typescript": "^5.4.5",
     "vite": "^7.1.9",
+    "vitest": "^4.0.15",
     "vue": "^3.5.22"
   },
   "peerDependencies": {
