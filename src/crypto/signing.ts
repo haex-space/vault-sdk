@@ -245,8 +245,19 @@ export class ExtensionSigner {
         await fs.writeFile(manifestPath, originalManifestContent);
         console.log("content_hash:", contentHash);
         console.log(
-          `✓ Extension packaged!!: ${finalOutputPath} (${archive.pointer()} bytes)`
+          `✓ Extension packaged: ${finalOutputPath} (${archive.pointer()} bytes)`
         );
+
+        // Verify the signature of the created package
+        console.log("\n🔍 Verifying signature...");
+        const verifyResult = await this.verifyPackage(finalOutputPath);
+        if (!verifyResult.valid) {
+          console.error(`❌ Signature verification failed: ${verifyResult.error}`);
+          reject(new Error(`Signature verification failed: ${verifyResult.error}`));
+          return;
+        }
+        console.log("✓ Signature verified successfully!");
+
         resolve(finalOutputPath);
       });
 
@@ -352,5 +363,94 @@ export class ExtensionSigner {
     );
 
     return new Uint8Array(await webcrypto.subtle.exportKey("raw", publicKey));
+  }
+
+  /**
+   * Verifies the signature of a packaged extension (.xt file)
+   */
+  static async verifyPackage(packagePath: string): Promise<{ valid: boolean; error?: string }> {
+    const JSZip = (await import("jszip")).default;
+
+    try {
+      const zipBuffer = await fs.readFile(packagePath);
+      const zip = await JSZip.loadAsync(zipBuffer);
+
+      // Read manifest
+      const manifestFile = zip.file("haextension/manifest.json");
+      if (!manifestFile) {
+        return { valid: false, error: "manifest.json not found in package" };
+      }
+      const manifestContent = await manifestFile.async("string");
+      const manifest = JSON.parse(manifestContent);
+
+      const { publicKey: publicKeyHex, signature: signatureHex } = manifest;
+
+      if (!publicKeyHex || !signatureHex) {
+        return { valid: false, error: "Missing publicKey or signature in manifest" };
+      }
+
+      // Collect all files from ZIP
+      const files: { path: string; content: Uint8Array }[] = [];
+      for (const filePath of Object.keys(zip.files)) {
+        const entry = zip.files[filePath];
+        if (entry && !entry.dir) {
+          const content = await entry.async("uint8array");
+          files.push({ path: filePath, content });
+        }
+      }
+
+      // Prepare manifest for hashing (with empty signature)
+      const manifestForHashing = this.sortObjectKeysRecursively({
+        ...manifest,
+        signature: "",
+      });
+      const manifestBytes = new TextEncoder().encode(JSON.stringify(manifestForHashing, null, 2));
+
+      // Replace manifest content with canonical version
+      const filesForHashing = files.map(file => {
+        if (file.path === "haextension/manifest.json") {
+          return { path: file.path, content: manifestBytes };
+        }
+        return file;
+      });
+
+      // Sort files alphabetically
+      filesForHashing.sort((a, b) => a.path.localeCompare(b.path));
+
+      // Concatenate all file contents
+      const totalLength = filesForHashing.reduce((sum, f) => sum + f.content.length, 0);
+      const combined = new Uint8Array(totalLength);
+      let offset = 0;
+      for (const file of filesForHashing) {
+        combined.set(file.content, offset);
+        offset += file.content.length;
+      }
+
+      // Compute SHA-256 hash
+      const hashBuffer = await webcrypto.subtle.digest("SHA-256", combined);
+
+      // Import public key
+      const publicKeyBuffer = Buffer.from(publicKeyHex, "hex");
+      const publicKey = await webcrypto.subtle.importKey(
+        "raw",
+        publicKeyBuffer,
+        { name: "Ed25519", namedCurve: "Ed25519" },
+        false,
+        ["verify"]
+      );
+
+      // Verify signature
+      const signatureBuffer = Buffer.from(signatureHex, "hex");
+      const isValid = await webcrypto.subtle.verify(
+        "Ed25519",
+        publicKey,
+        signatureBuffer,
+        hashBuffer
+      );
+
+      return { valid: isValid, error: isValid ? undefined : "Signature does not match" };
+    } catch (err) {
+      return { valid: false, error: err instanceof Error ? err.message : "Unknown error" };
+    }
   }
 }

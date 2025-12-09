@@ -117,6 +117,7 @@
   "dependencies": {
     "archiver": "^7.0.1",
     "commander": "^14.0.1",
-    "drizzle-orm": "^0.45.0"
+    "drizzle-orm": "^0.45.0",
+    "jszip": "^3.10.1"
   }
 }
