@@ -19,6 +19,9 @@ export const HAEXTENSION_EVENTS = {
 
   /** Search request from HaexHub */
   SEARCH_REQUEST: 'haextension:search:request',
+
+  /** External request from authorized client (browser extension, CLI, server, etc.) */
+  EXTERNAL_REQUEST: 'haextension:external:request',
 } as const;
 
 export type HaextensionEvent = typeof HAEXTENSION_EVENTS[keyof typeof HAEXTENSION_EVENTS];

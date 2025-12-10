@@ -186,6 +186,50 @@ export interface SearchRequestEvent extends HaexHubEvent {
   };
 }
 
+/**
+ * External request from an authorized client (browser extension, CLI, server, etc.)
+ * These requests come through the WebSocket bridge and are routed to the appropriate extension.
+ */
+export interface ExternalRequestEvent extends HaexHubEvent {
+  type: typeof HAEXTENSION_EVENTS.EXTERNAL_REQUEST;
+  data: ExternalRequest;
+}
+
+/**
+ * External request payload
+ */
+export interface ExternalRequest {
+  /** Unique request ID for response correlation */
+  requestId: string;
+  /** Client's public key (Base64 SPKI format, used as identifier) */
+  publicKey: string;
+  /** Action/method to perform (extension-specific) */
+  action: string;
+  /** Request payload (extension-specific) */
+  payload: Record<string, unknown>;
+}
+
+/**
+ * External request response (sent back to the client)
+ */
+export interface ExternalResponse {
+  /** Request ID for correlation */
+  requestId: string;
+  /** Whether the request was successful */
+  success: boolean;
+  /** Response data (if successful) */
+  data?: unknown;
+  /** Error message (if failed) */
+  error?: string;
+}
+
+/**
+ * Handler function type for external requests
+ */
+export type ExternalRequestHandler = (
+  request: ExternalRequest
+) => Promise<ExternalResponse> | ExternalResponse;
+
 export type EventCallback = (event: HaexHubEvent) => void;
 
 // Manifest Types

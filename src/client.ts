@@ -16,6 +16,10 @@ import type {
   DatabaseQueryResult,
   MigrationResult,
   Migration,
+  ExternalRequest,
+  ExternalResponse,
+  ExternalRequestHandler,
+  ExternalRequestEvent,
 } from "./types";
 import {
   ErrorCode,
@@ -45,6 +49,7 @@ export class HaexVaultClient {
     }
   > = new Map();
   private eventListeners: Map<string, Set<EventCallback>> = new Map();
+  private externalRequestHandlers: Map<string, ExternalRequestHandler> = new Map();
   private messageHandler: ((event: MessageEvent) => void) | null = null;
   private initialized = false;
   private requestCounter = 0;
@@ -420,6 +425,46 @@ export class HaexVaultClient {
     });
   }
 
+  /**
+   * Register a handler for external requests (from browser extensions, CLI, servers, etc.)
+   *
+   * @param action - The action/method name to handle (e.g., "get-logins", "get-totp")
+   * @param handler - Function that processes the request and returns a response
+   * @returns Unsubscribe function to remove the handler
+   *
+   * @example
+   * ```typescript
+   * client.onExternalRequest("get-logins", async (request) => {
+   *   const entries = await getMatchingEntries(request.payload.url);
+   *   return {
+   *     requestId: request.requestId,
+   *     success: true,
+   *     data: { entries }
+   *   };
+   * });
+   * ```
+   */
+  public onExternalRequest(
+    action: string,
+    handler: ExternalRequestHandler
+  ): () => void {
+    this.externalRequestHandlers.set(action, handler);
+    this.log(`[ExternalRequest] Registered handler for action: ${action}`);
+
+    return () => {
+      this.externalRequestHandlers.delete(action);
+      this.log(`[ExternalRequest] Unregistered handler for action: ${action}`);
+    };
+  }
+
+  /**
+   * Send a response to an external request back to haex-vault
+   * This is called internally after a handler processes a request
+   */
+  public async respondToExternalRequest(response: ExternalResponse): Promise<void> {
+    await this.request("external.respond", response as unknown as Record<string, unknown>);
+  }
+
   public async request<T = unknown>(
     method: string,
     params: Record<string, unknown> = {}
@@ -553,6 +598,14 @@ export class HaexVaultClient {
           migrations: params.migrations as Array<{ name: string; sql: string }>,
         });
 
+      case "external.respond":
+        return invoke<T>("webview_extension_external_respond", {
+          requestId: params.requestId as string,
+          success: params.success as boolean,
+          data: params.data,
+          error: params.error as string | undefined,
+        });
+
       default:
         throw new HaexHubError(
           ErrorCode.METHOD_NOT_FOUND,
@@ -645,6 +698,24 @@ export class HaexVaultClient {
           } catch (error) {
             console.error("[HaexSpace SDK] Failed to setup context change listener:", error);
             this.log("Failed to setup context change listener:", error);
+          }
+
+          // Listen for external requests via Tauri events
+          try {
+            await listen(HAEXTENSION_EVENTS.EXTERNAL_REQUEST, (event: any) => {
+              this.log("Received external request event:", event);
+              if (event.payload) {
+                this.handleEvent({
+                  type: HAEXTENSION_EVENTS.EXTERNAL_REQUEST,
+                  data: event.payload,
+                  timestamp: Date.now(),
+                });
+              }
+            });
+            console.log("[HaexSpace SDK] External request listener registered successfully");
+          } catch (error) {
+            console.error("[HaexSpace SDK] Failed to setup external request listener:", error);
+            this.log("Failed to setup external request listener:", error);
           }
 
           this.resolveReady();
@@ -791,7 +862,44 @@ export class HaexVaultClient {
       this.notifySubscribers();
     }
 
+    // Handle external requests from authorized clients
+    if (event.type === HAEXTENSION_EVENTS.EXTERNAL_REQUEST) {
+      const externalEvent = event as ExternalRequestEvent;
+      this.handleExternalRequest(externalEvent.data);
+      return; // Don't emit to regular event listeners
+    }
+
     this.emitEvent(event);
+  }
+
+  private async handleExternalRequest(request: ExternalRequest): Promise<void> {
+    this.log(`[ExternalRequest] Received request: ${request.action} from ${request.publicKey.substring(0, 20)}...`);
+
+    const handler = this.externalRequestHandlers.get(request.action);
+
+    if (!handler) {
+      this.log(`[ExternalRequest] No handler for action: ${request.action}`);
+      // Send error response back
+      await this.respondToExternalRequest({
+        requestId: request.requestId,
+        success: false,
+        error: `No handler registered for action: ${request.action}`,
+      });
+      return;
+    }
+
+    try {
+      const response = await handler(request);
+      await this.respondToExternalRequest(response);
+      this.log(`[ExternalRequest] Response sent for: ${request.action}`);
+    } catch (error) {
+      this.log(`[ExternalRequest] Handler error:`, error);
+      await this.respondToExternalRequest({
+        requestId: request.requestId,
+        success: false,
+        error: error instanceof Error ? error.message : String(error),
+      });
+    }
   }
 
   private emitEvent(event: HaexHubEvent): void {

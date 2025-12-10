@@ -29,6 +29,10 @@ export type {
   SearchResult,
   ContextChangedEvent,
   SearchRequestEvent,
+  ExternalRequestEvent,
+  ExternalRequest,
+  ExternalResponse,
+  ExternalRequestHandler,
   WebRequestOptions,
   WebResponse,
 } from "./types";
