@@ -77,6 +77,21 @@ export {
   type ZipFileEntry,
 } from './crypto/verify';
 
+// Export vault key crypto utilities
+export {
+  deriveKeyFromPassword,
+  generateVaultKey,
+  encryptString,
+  decryptString,
+  encryptVaultKey,
+  decryptVaultKey,
+  decryptVaultName,
+  encryptCrdtData,
+  decryptCrdtData,
+  arrayBufferToBase64,
+  base64ToArrayBuffer,
+} from './crypto/vaultKey';
+
 import { HaexVaultClient } from "./client";
 import type { HaexHubConfig } from "./types";
 
