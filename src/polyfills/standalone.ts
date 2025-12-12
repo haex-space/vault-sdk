@@ -9,6 +9,7 @@ import {
 import { installCookiePolyfill } from './cookies'
 import { installHistoryPolyfill } from './history'
 import { installDebugDiagnostics } from './debug'
+import { HAEXSPACE_MESSAGE_TYPES } from '../messages'
 
 /**
  * Get the standalone polyfill code as a string
@@ -18,8 +19,12 @@ import { installDebugDiagnostics } from './debug'
  */
 export function getPolyfillCode(): string {
   // Convert functions to string and wrap in IIFE
+  // We need to inject the HAEXSPACE_MESSAGE_TYPES constant since it's used by installDebugDiagnostics
   const iife = `(function() {
   'use strict';
+
+  // Message types constant (injected from HAEXSPACE_MESSAGE_TYPES)
+  var HAEXSPACE_MESSAGE_TYPES = ${JSON.stringify(HAEXSPACE_MESSAGE_TYPES)};
 
   console.log('[HaexSpace] Storage Polyfill loading immediately');
 
