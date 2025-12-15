@@ -259,6 +259,67 @@ export async function encryptCrdtData(
 }
 
 /**
+ * Wraps (encrypts) a key with another key using AES-GCM
+ * Used for key hierarchies (e.g., master key -> space key -> file key)
+ * Returns: nonce (12 bytes) + ciphertext as Uint8Array
+ */
+export async function wrapKey(
+  keyToWrap: Uint8Array,
+  wrappingKey: Uint8Array,
+): Promise<Uint8Array> {
+  const cryptoKey = await crypto.subtle.importKey(
+    'raw',
+    new Uint8Array(wrappingKey),
+    { name: ALGORITHM },
+    false,
+    ['encrypt'],
+  )
+
+  const nonce = crypto.getRandomValues(new Uint8Array(12))
+
+  const ciphertext = await crypto.subtle.encrypt(
+    { name: ALGORITHM, iv: nonce },
+    cryptoKey,
+    new Uint8Array(keyToWrap),
+  )
+
+  // Combine nonce + ciphertext
+  const result = new Uint8Array(12 + ciphertext.byteLength)
+  result.set(nonce, 0)
+  result.set(new Uint8Array(ciphertext), 12)
+
+  return result
+}
+
+/**
+ * Unwraps (decrypts) a key with another key using AES-GCM
+ * Expects: nonce (12 bytes) + ciphertext as Uint8Array
+ */
+export async function unwrapKey(
+  wrappedKey: Uint8Array,
+  wrappingKey: Uint8Array,
+): Promise<Uint8Array> {
+  const cryptoKey = await crypto.subtle.importKey(
+    'raw',
+    new Uint8Array(wrappingKey),
+    { name: ALGORITHM },
+    false,
+    ['decrypt'],
+  )
+
+  const nonce = wrappedKey.slice(0, 12)
+  const ciphertext = wrappedKey.slice(12)
+
+  const plaintext = await crypto.subtle.decrypt(
+    { name: ALGORITHM, iv: nonce },
+    cryptoKey,
+    ciphertext,
+  )
+
+  return new Uint8Array(plaintext)
+}
+
+/**
  * Decrypts CRDT log data with the vault key
  */
 export async function decryptCrdtData<T = object>(

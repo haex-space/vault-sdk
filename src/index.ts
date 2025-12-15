@@ -108,6 +108,8 @@ export {
   decryptVaultName,
   encryptCrdtData,
   decryptCrdtData,
+  wrapKey,
+  unwrapKey,
   arrayBufferToBase64,
   base64ToArrayBuffer,
 } from './crypto/vaultKey';
