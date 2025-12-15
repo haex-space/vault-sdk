@@ -43,10 +43,10 @@ export interface HaexHubRequest {
 export interface HaexHubResponse<T = unknown> {
   id: string;
   result?: T;
-  error?: HaexHubError;
+  error?: HaexVaultSdkErrorData;
 }
 
-export interface HaexHubError {
+export interface HaexVaultSdkErrorData {
   code: ErrorCode;
   message: string;
   details?: Record<string, unknown>;
@@ -311,14 +311,14 @@ export enum ErrorCode {
   WEB_ERROR = "WEB_ERROR",
 }
 
-export class HaexHubError extends Error {
+export class HaexVaultSdkError extends Error {
   constructor(
     public code: ErrorCode,
     public messageKey: string,
     public details?: Record<string, unknown>
   ) {
     super(messageKey);
-    this.name = "HaexHubError";
+    this.name = "HaexVaultSdkError";
   }
 
   /**

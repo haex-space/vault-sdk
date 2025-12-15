@@ -64,7 +64,7 @@ export {
   TABLE_SEPARATOR,
   getTableName,
 } from "./types";
-export { HaexHubError } from "./types";
+export { HaexVaultSdkError } from "./types";
 
 // Export event constants
 export { HAEXTENSION_EVENTS, type HaextensionEvent } from './events';
@@ -74,6 +74,9 @@ export { HAEXTENSION_METHODS, type HaextensionMethod } from './methods';
 
 // Export message type constants
 export { HAEXSPACE_MESSAGE_TYPES, type HaexspaceMessageType } from './messages';
+
+// Export Tauri command constants (for use in other projects like haex-vault)
+export { TAURI_COMMANDS, type TauriCommand } from './commands';
 
 // Export polyfill utilities for manual control if needed
 export {

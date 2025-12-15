@@ -1,0 +1,87 @@
+/**
+ * Tauri Command Names
+ *
+ * Central definition of all Tauri invoke command names.
+ * These must match the #[tauri::command] function names in Rust.
+ */
+
+export const TAURI_COMMANDS = {
+  database: {
+    query: "webview_extension_db_query",
+    execute: "webview_extension_db_execute",
+    registerMigrations: "webview_extension_db_register_migrations",
+  },
+
+  permissions: {
+    checkWeb: "webview_extension_check_web_permission",
+    checkDatabase: "webview_extension_check_database_permission",
+    checkFilesystem: "webview_extension_check_filesystem_permission",
+  },
+
+  web: {
+    open: "webview_extension_web_open",
+    fetch: "webview_extension_web_request",
+  },
+
+  filesystem: {
+    saveFile: "webview_extension_fs_save_file",
+    openFile: "webview_extension_fs_open_file",
+    showImage: "webview_extension_fs_show_image",
+  },
+
+  external: {
+    respond: "webview_extension_external_respond",
+  },
+
+  extension: {
+    getInfo: "webview_extension_get_info",
+    getContext: "webview_extension_context_get",
+  },
+
+  filesync: {
+    // Spaces
+    listSpaces: "filesync_list_spaces",
+    createSpace: "filesync_create_space",
+    deleteSpace: "filesync_delete_space",
+
+    // Files
+    listFiles: "filesync_list_files",
+    getFile: "filesync_get_file",
+    uploadFile: "filesync_upload_file",
+    downloadFile: "filesync_download_file",
+    deleteFile: "filesync_delete_file",
+
+    // Backends
+    listBackends: "filesync_list_backends",
+    addBackend: "filesync_add_backend",
+    removeBackend: "filesync_remove_backend",
+    testBackend: "filesync_test_backend",
+
+    // Sync Rules
+    listSyncRules: "filesync_list_sync_rules",
+    addSyncRule: "filesync_add_sync_rule",
+    removeSyncRule: "filesync_remove_sync_rule",
+
+    // Sync Operations
+    getSyncStatus: "filesync_get_sync_status",
+    triggerSync: "filesync_trigger_sync",
+    pauseSync: "filesync_pause_sync",
+    resumeSync: "filesync_resume_sync",
+
+    // Conflict Resolution
+    resolveConflict: "filesync_resolve_conflict",
+
+    // UI Helpers
+    selectFolder: "filesync_select_folder",
+  },
+} as const;
+
+// Type helper to extract command string literals
+export type TauriCommand =
+  | (typeof TAURI_COMMANDS.database)[keyof typeof TAURI_COMMANDS.database]
+  | (typeof TAURI_COMMANDS.permissions)[keyof typeof TAURI_COMMANDS.permissions]
+  | (typeof TAURI_COMMANDS.web)[keyof typeof TAURI_COMMANDS.web]
+  | (typeof TAURI_COMMANDS.filesystem)[keyof typeof TAURI_COMMANDS.filesystem]
+  | (typeof TAURI_COMMANDS.external)[keyof typeof TAURI_COMMANDS.external]
+  | (typeof TAURI_COMMANDS.extension)[keyof typeof TAURI_COMMANDS.extension]
+  | (typeof TAURI_COMMANDS.filesync)[keyof typeof TAURI_COMMANDS.filesync];
