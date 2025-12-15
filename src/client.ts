@@ -465,17 +465,19 @@ export class HaexVaultClient {
     await this.request("external.respond", response as unknown as Record<string, unknown>);
   }
 
-  public async request<T = unknown>(
+  public async request<T = unknown, P = Record<string, unknown>>(
     method: string,
-    params: Record<string, unknown> = {}
+    params?: P
   ): Promise<T> {
+    const resolvedParams = (params ?? {}) as Record<string, unknown>;
+
     // Native window mode: Use Tauri invoke() for direct backend communication
     if (this.isNativeWindow && typeof (window as any).__TAURI__ !== 'undefined') {
-      return this.invoke<T>(method, params);
+      return this.invoke<T>(method, resolvedParams);
     }
 
     // iframe mode: Use postMessage for communication through parent window
-    return this.postMessage<T>(method, params);
+    return this.postMessage<T>(method, resolvedParams);
   }
 
   private async postMessage<T>(

@@ -22,6 +22,43 @@ export const HAEXTENSION_METHODS = {
     saveFile: 'haextension:filesystem:save-file',
     openFile: 'haextension:filesystem:open-file',
     showImage: 'haextension:filesystem:show-image',
+
+    sync: {
+      // Spaces
+      listSpaces: 'haextension:filesystem:sync:list-spaces',
+      createSpace: 'haextension:filesystem:sync:create-space',
+      deleteSpace: 'haextension:filesystem:sync:delete-space',
+
+      // Files
+      listFiles: 'haextension:filesystem:sync:list-files',
+      getFile: 'haextension:filesystem:sync:get-file',
+      uploadFile: 'haextension:filesystem:sync:upload-file',
+      downloadFile: 'haextension:filesystem:sync:download-file',
+      deleteFile: 'haextension:filesystem:sync:delete-file',
+
+      // Backends
+      listBackends: 'haextension:filesystem:sync:list-backends',
+      addBackend: 'haextension:filesystem:sync:add-backend',
+      removeBackend: 'haextension:filesystem:sync:remove-backend',
+      testBackend: 'haextension:filesystem:sync:test-backend',
+
+      // Sync Rules
+      listSyncRules: 'haextension:filesystem:sync:list-sync-rules',
+      addSyncRule: 'haextension:filesystem:sync:add-sync-rule',
+      removeSyncRule: 'haextension:filesystem:sync:remove-sync-rule',
+
+      // Sync Operations
+      getSyncStatus: 'haextension:filesystem:sync:get-sync-status',
+      triggerSync: 'haextension:filesystem:sync:trigger-sync',
+      pauseSync: 'haextension:filesystem:sync:pause-sync',
+      resumeSync: 'haextension:filesystem:sync:resume-sync',
+
+      // Conflict Resolution
+      resolveConflict: 'haextension:filesystem:sync:resolve-conflict',
+
+      // UI Helpers
+      selectFolder: 'haextension:filesystem:sync:select-folder',
+    },
   },
 
   storage: {

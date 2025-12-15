@@ -1,5 +1,6 @@
 import type { HaexVaultClient } from "../client";
 import { HAEXTENSION_METHODS } from "../methods";
+import { FileSyncAPI } from "./filesync";
 
 export interface SaveFileOptions {
   /**
@@ -67,7 +68,11 @@ export interface ShowImageResult {
 }
 
 export class FilesystemAPI {
-  constructor(private client: HaexVaultClient) {}
+  public readonly sync: FileSyncAPI;
+
+  constructor(private client: HaexVaultClient) {
+    this.sync = new FileSyncAPI(client);
+  }
 
   /**
    * Opens a save file dialog and saves the provided data to the selected location

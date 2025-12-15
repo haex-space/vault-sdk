@@ -5,8 +5,28 @@ import './polyfills';
 export { HaexVaultClient } from "./client";
 export { DatabaseAPI } from "./api/database";
 export { FilesystemAPI } from "./api/filesystem";
+export { FileSyncAPI } from "./api/filesync";
 export { WebAPI } from "./api/web";
 export { PermissionsAPI } from "./api/permissions";
+export type {
+  FileSpace,
+  FileInfo,
+  FileSyncState,
+  StorageBackendInfo,
+  StorageBackendType,
+  S3BackendConfig,
+  SyncRule,
+  SyncDirection,
+  SyncStatus,
+  SyncError,
+  SyncProgress,
+  CreateSpaceOptions,
+  AddBackendOptions,
+  AddSyncRuleOptions,
+  ListFilesOptions,
+  UploadFileOptions,
+  DownloadFileOptions,
+} from "./api/filesync";
 
 export type {
   HaexHubRequest,
