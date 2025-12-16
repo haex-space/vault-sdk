@@ -69,6 +69,7 @@ export {
   TABLE_SEPARATOR,
   getTableName,
   ExternalConnectionState,
+  ExternalConnectionErrorCode,
   isExternalClientConnected,
   canExternalClientSendRequests,
 } from "./types";

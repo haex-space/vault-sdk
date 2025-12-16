@@ -307,6 +307,31 @@ export enum ExternalConnectionState {
 }
 
 /**
+ * Error codes for external client connections.
+ * Used to identify specific error conditions for i18n in the frontend.
+ */
+export enum ExternalConnectionErrorCode {
+  /** No error */
+  NONE = 'none',
+  /** Client is not authorized (rejected or not yet approved) */
+  CLIENT_NOT_AUTHORIZED = 'client_not_authorized',
+  /** Client was blocked by the user */
+  CLIENT_BLOCKED = 'client_blocked',
+  /** Connection to haex-vault failed (not running or network error) */
+  CONNECTION_FAILED = 'connection_failed',
+  /** Connection timed out */
+  CONNECTION_TIMEOUT = 'connection_timeout',
+  /** WebSocket connection was closed unexpectedly */
+  CONNECTION_CLOSED = 'connection_closed',
+  /** Failed to decrypt message (invalid key or corrupted data) */
+  DECRYPTION_FAILED = 'decryption_failed',
+  /** Invalid message format received */
+  INVALID_MESSAGE = 'invalid_message',
+  /** Unknown or unspecified error */
+  UNKNOWN = 'unknown',
+}
+
+/**
  * Full connection status including state, client ID, and any error
  */
 export interface ExternalConnection {
@@ -314,8 +339,10 @@ export interface ExternalConnection {
   state: ExternalConnectionState;
   /** Client identifier (derived from public key) */
   clientId: string | null;
-  /** Error message if connection failed */
-  error: string | null;
+  /** Error code for i18n (use this for translations) */
+  errorCode: ExternalConnectionErrorCode;
+  /** Error message (original message, for logging/debugging) */
+  errorMessage: string | null;
 }
 
 /**
