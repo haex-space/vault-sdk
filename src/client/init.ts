@@ -124,6 +124,8 @@ async function setupTauriEventListeners(
   // Listen for external requests
   try {
     await listen(EXTERNAL_EVENTS.REQUEST, (event) => {
+      console.log("[HaexVault SDK] ====== EXTERNAL REQUEST RECEIVED ======");
+      console.log("[HaexVault SDK] Event payload:", JSON.stringify(event.payload, null, 2));
       log("Received external request event:", event);
       if (event.payload) {
         onEvent({
@@ -131,6 +133,8 @@ async function setupTauriEventListeners(
           data: event.payload,
           timestamp: Date.now(),
         });
+      } else {
+        console.warn("[HaexVault SDK] External request event has no payload!");
       }
     });
     console.log("[HaexVault SDK] External request listener registered successfully");

@@ -55,6 +55,9 @@ export async function handleExternalRequest(
   respond: (response: ExternalResponse) => Promise<void>,
   log: LogFn
 ): Promise<void> {
+  console.log("[SDK Debug] handleExternalRequest called!");
+  console.log("[SDK Debug] Request:", JSON.stringify(request, null, 2));
+  console.log("[SDK Debug] Available handlers:", Array.from(handlers.keys()));
   log(`[ExternalRequest] Received request: ${request.action} from ${request.publicKey.substring(0, 20)}...`);
 
   const handler = handlers.get(request.action);
