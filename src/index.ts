@@ -57,6 +57,7 @@ export type {
   BlockedClient,
   PendingAuthorization,
   ExternalAuthDecision,
+  ExternalConnection,
   WebRequestOptions,
   WebResponse,
 } from "./types";
@@ -67,6 +68,9 @@ export {
   DEFAULT_TIMEOUT,
   TABLE_SEPARATOR,
   getTableName,
+  ExternalConnectionState,
+  isExternalClientConnected,
+  canExternalClientSendRequests,
 } from "./types";
 export { HaexVaultSdkError } from "./types";
 

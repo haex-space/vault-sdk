@@ -285,6 +285,58 @@ export interface PendingAuthorization {
  */
 export type ExternalAuthDecision = 'allow' | 'deny';
 
+// ============================================================================
+// External Bridge Connection Types
+// ============================================================================
+
+/**
+ * Connection state for external clients connecting to haex-vault via WebSocket.
+ * Used by browser extensions, CLI tools, servers, and other external clients.
+ */
+export enum ExternalConnectionState {
+  /** Not connected to haex-vault */
+  DISCONNECTED = 'disconnected',
+  /** Attempting to establish connection */
+  CONNECTING = 'connecting',
+  /** WebSocket connected but not yet authorized */
+  CONNECTED = 'connected',
+  /** Connected and waiting for user approval in haex-vault */
+  PENDING_APPROVAL = 'pending_approval',
+  /** Connected and authorized to communicate */
+  PAIRED = 'paired',
+}
+
+/**
+ * Full connection status including state, client ID, and any error
+ */
+export interface ExternalConnection {
+  /** Current connection state */
+  state: ExternalConnectionState;
+  /** Client identifier (derived from public key) */
+  clientId: string | null;
+  /** Error message if connection failed */
+  error: string | null;
+}
+
+/**
+ * Check if external client connection state indicates an active connection
+ * (connected, pending approval, or paired)
+ */
+export function isExternalClientConnected(state: ExternalConnectionState): boolean {
+  return (
+    state === ExternalConnectionState.CONNECTED ||
+    state === ExternalConnectionState.PENDING_APPROVAL ||
+    state === ExternalConnectionState.PAIRED
+  );
+}
+
+/**
+ * Check if external client can send requests (only when paired/authorized)
+ */
+export function canExternalClientSendRequests(state: ExternalConnectionState): boolean {
+  return state === ExternalConnectionState.PAIRED;
+}
+
 export type EventCallback = (event: HaexHubEvent) => void;
 
 // Manifest Types
