@@ -267,6 +267,16 @@ export interface BlockedClient {
 }
 
 /**
+ * Extension requested by an external client
+ */
+export interface RequestedExtension {
+  /** Extension name (e.g., "haex-pass") */
+  name: string;
+  /** Extension's public key (hex string from manifest) */
+  extensionPublicKey: string;
+}
+
+/**
  * Pending authorization request waiting for user approval
  */
 export interface PendingAuthorization {
@@ -276,8 +286,8 @@ export interface PendingAuthorization {
   clientName: string;
   /** Client's public key (base64) */
   publicKey: string;
-  /** Requested extension ID */
-  extensionId: string;
+  /** Extensions the client wants to access (pre-selected in authorization dialog) */
+  requestedExtensions: RequestedExtension[];
 }
 
 /**

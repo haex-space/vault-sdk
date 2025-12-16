@@ -55,6 +55,7 @@ export type {
   ExternalRequestHandler,
   AuthorizedClient,
   BlockedClient,
+  RequestedExtension,
   PendingAuthorization,
   ExternalAuthDecision,
   SessionAuthorization,
