@@ -30,7 +30,29 @@ export const TAURI_COMMANDS = {
   },
 
   external: {
-    respond: "webview_extension_external_respond",
+    // Response handling (called by extensions)
+    respond: "external_respond",
+
+    // Bridge server management
+    bridgeStart: "external_bridge_start",
+    bridgeStop: "external_bridge_stop",
+    bridgeGetStatus: "external_bridge_get_status",
+
+    // Client authorization (unified API with remember flag)
+    clientAllow: "external_client_allow",
+    clientBlock: "external_client_block",
+
+    // Authorized clients management
+    getAuthorizedClients: "external_get_authorized_clients",
+    revokeClient: "external_revoke_client",
+
+    // Blocked clients management
+    getBlockedClients: "external_get_blocked_clients",
+    unblockClient: "external_unblock_client",
+    isClientBlocked: "external_is_client_blocked",
+
+    // Pending authorizations
+    getPendingAuthorizations: "external_get_pending_authorizations",
   },
 
   extension: {
@@ -74,6 +96,7 @@ export const TAURI_COMMANDS = {
     // UI Helpers
     selectFolder: "filesync_select_folder",
   },
+
 } as const;
 
 // Type helper to extract command string literals

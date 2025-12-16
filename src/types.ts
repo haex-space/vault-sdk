@@ -1,4 +1,4 @@
-import { HAEXTENSION_EVENTS } from './events';
+import { HAEXTENSION_EVENTS, EXTERNAL_EVENTS } from './events';
 
 // Constants
 export const DEFAULT_TIMEOUT = 30000; // 30 seconds in milliseconds
@@ -191,7 +191,7 @@ export interface SearchRequestEvent extends HaexHubEvent {
  * These requests come through the WebSocket bridge and are routed to the appropriate extension.
  */
 export interface ExternalRequestEvent extends HaexHubEvent {
-  type: typeof HAEXTENSION_EVENTS.EXTERNAL_REQUEST;
+  type: typeof EXTERNAL_EVENTS.REQUEST;
   data: ExternalRequest;
 }
 
@@ -229,6 +229,61 @@ export interface ExternalResponse {
 export type ExternalRequestHandler = (
   request: ExternalRequest
 ) => Promise<ExternalResponse> | ExternalResponse;
+
+/**
+ * An authorized external client stored in the database
+ */
+export interface AuthorizedClient {
+  /** Row ID */
+  id: string;
+  /** Unique client identifier (public key fingerprint) */
+  clientId: string;
+  /** Human-readable client name */
+  clientName: string;
+  /** Client's public key (base64) */
+  publicKey: string;
+  /** Extension ID this client can access */
+  extensionId: string;
+  /** When the client was authorized (ISO 8601) */
+  authorizedAt: string | null;
+  /** Last time the client connected (ISO 8601) */
+  lastSeen: string | null;
+}
+
+/**
+ * A blocked external client stored in the database
+ */
+export interface BlockedClient {
+  /** Row ID */
+  id: string;
+  /** Unique client identifier (public key fingerprint) */
+  clientId: string;
+  /** Human-readable client name */
+  clientName: string;
+  /** Client's public key (base64) */
+  publicKey: string;
+  /** When the client was blocked (ISO 8601) */
+  blockedAt: string | null;
+}
+
+/**
+ * Pending authorization request waiting for user approval
+ */
+export interface PendingAuthorization {
+  /** Unique client identifier */
+  clientId: string;
+  /** Human-readable client name */
+  clientName: string;
+  /** Client's public key (base64) */
+  publicKey: string;
+  /** Requested extension ID */
+  extensionId: string;
+}
+
+/**
+ * Decision type for external authorization prompts
+ */
+export type ExternalAuthDecision = 'allow' | 'deny';
 
 export type EventCallback = (event: HaexHubEvent) => void;
 

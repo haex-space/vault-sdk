@@ -53,6 +53,10 @@ export type {
   ExternalRequest,
   ExternalResponse,
   ExternalRequestHandler,
+  AuthorizedClient,
+  BlockedClient,
+  PendingAuthorization,
+  ExternalAuthDecision,
   WebRequestOptions,
   WebResponse,
 } from "./types";
@@ -67,7 +71,7 @@ export {
 export { HaexVaultSdkError } from "./types";
 
 // Export event constants
-export { HAEXTENSION_EVENTS, type HaextensionEvent } from './events';
+export { HAEXTENSION_EVENTS, type HaextensionEvent, EXTERNAL_EVENTS, type ExternalEvent } from './events';
 
 // Export method constants
 export { HAEXTENSION_METHODS, type HaextensionMethod } from './methods';
