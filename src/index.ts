@@ -57,6 +57,7 @@ export type {
   BlockedClient,
   PendingAuthorization,
   ExternalAuthDecision,
+  SessionAuthorization,
   ExternalConnection,
   WebRequestOptions,
   WebResponse,

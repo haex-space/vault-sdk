@@ -42,9 +42,13 @@ export const TAURI_COMMANDS = {
     clientAllow: "external_client_allow",
     clientBlock: "external_client_block",
 
-    // Authorized clients management
+    // Authorized clients management (permanent - stored in database)
     getAuthorizedClients: "external_get_authorized_clients",
     revokeClient: "external_revoke_client",
+
+    // Session-based authorizations (temporary - cleared when haex-vault restarts)
+    getSessionAuthorizations: "external_get_session_authorizations",
+    revokeSessionAuthorization: "external_revoke_session_authorization",
 
     // Blocked clients management
     getBlockedClients: "external_get_blocked_clients",

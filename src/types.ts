@@ -285,6 +285,17 @@ export interface PendingAuthorization {
  */
 export type ExternalAuthDecision = 'allow' | 'deny';
 
+/**
+ * Session-based authorization entry (for "allow once" authorizations)
+ * These are stored in-memory and cleared when haex-vault restarts.
+ */
+export interface SessionAuthorization {
+  /** Unique client identifier (public key fingerprint) */
+  clientId: string;
+  /** Extension ID this client can access */
+  extensionId: string;
+}
+
 // ============================================================================
 // External Bridge Connection Types
 // ============================================================================
