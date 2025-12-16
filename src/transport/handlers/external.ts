@@ -12,9 +12,12 @@ export const externalHandlers: InvokeHandlerMap = {
     command: TAURI_COMMANDS.external.respond,
     args: (p: ExternalRespondParams) => ({
       requestId: p.requestId,
-      success: p.success,
-      data: p.data,
-      error: p.error,
+      response: {
+        requestId: p.requestId,
+        success: p.success,
+        data: p.data,
+        error: p.error,
+      },
     }),
   },
 };
