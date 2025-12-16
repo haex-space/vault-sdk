@@ -5,7 +5,7 @@
  * or from Tauri events (native mode).
  */
 
-import { HAEXTENSION_EVENTS } from "../events";
+import { HAEXTENSION_EVENTS, EXTERNAL_EVENTS } from "../events";
 import type {
   HaexHubResponse,
   HaexHubEvent,
@@ -120,7 +120,7 @@ export function processEvent(
   }
 
   // Handle external requests from authorized clients
-  if (event.type === HAEXTENSION_EVENTS.EXTERNAL_REQUEST) {
+  if (event.type === EXTERNAL_EVENTS.REQUEST) {
     const externalEvent = event as ExternalRequestEvent;
     onExternalRequest(externalEvent);
     return; // Don't emit to regular event listeners

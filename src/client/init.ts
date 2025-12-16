@@ -6,7 +6,7 @@
  * - IFrame mode (mobile/web)
  */
 
-import { HAEXTENSION_EVENTS } from "../events";
+import { HAEXTENSION_EVENTS, EXTERNAL_EVENTS } from "../events";
 import { HAEXTENSION_METHODS } from "../methods";
 import { HAEXSPACE_MESSAGE_TYPES } from "../messages";
 import { ErrorCode, HaexVaultSdkError } from "../types";
@@ -123,11 +123,11 @@ async function setupTauriEventListeners(
 
   // Listen for external requests
   try {
-    await listen(HAEXTENSION_EVENTS.EXTERNAL_REQUEST, (event) => {
+    await listen(EXTERNAL_EVENTS.REQUEST, (event) => {
       log("Received external request event:", event);
       if (event.payload) {
         onEvent({
-          type: HAEXTENSION_EVENTS.EXTERNAL_REQUEST,
+          type: EXTERNAL_EVENTS.REQUEST,
           data: event.payload,
           timestamp: Date.now(),
         });
