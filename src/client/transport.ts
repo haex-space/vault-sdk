@@ -87,6 +87,9 @@ export async function sendInvoke<T>(
 
   if (handler) {
     const args = handler.args(params);
+    console.log("[SDK Debug] Handler found for method:", method);
+    console.log("[SDK Debug] Handler command:", handler.command);
+    console.log("[SDK Debug] Transformed args:", JSON.stringify(args, null, 2));
     return invoke<T>(handler.command, args);
   }
 
