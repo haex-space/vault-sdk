@@ -30,8 +30,8 @@ export const TAURI_COMMANDS = {
   },
 
   external: {
-    // Response handling (called by extensions)
-    respond: "external_respond",
+    // Response handling (called by extensions running in WebView)
+    respond: "webview_extension_external_respond",
 
     // Bridge server management
     bridgeStart: "external_bridge_start",
