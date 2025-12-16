@@ -93,5 +93,6 @@ export async function respondToExternalRequest(
   response: ExternalResponse,
   request: RequestFn
 ): Promise<void> {
+  console.log("[SDK Debug] respondToExternalRequest called with:", JSON.stringify(response, null, 2));
   await request("external.respond", response as unknown as Record<string, unknown>);
 }
