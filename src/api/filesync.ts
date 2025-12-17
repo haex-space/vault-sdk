@@ -46,7 +46,7 @@ export interface StorageBackendInfo {
   createdAt: string;
 }
 
-export type StorageBackendType = "s3" | "r2" | "minio" | "gdrive" | "dropbox";
+export type StorageBackendType = "s3" | "r2" | "minio" | "supabase" | "gdrive" | "dropbox";
 
 export interface S3BackendConfig {
   type: "s3" | "r2" | "minio";
@@ -56,6 +56,19 @@ export interface S3BackendConfig {
   accessKeyId: string;
   secretAccessKey: string;
 }
+
+export interface SupabaseBackendConfig {
+  type: "supabase";
+  /** Supabase project URL (e.g., https://xxx.supabase.co) */
+  projectUrl: string;
+  /** Supabase service role key (for server-side access) */
+  serviceRoleKey: string;
+  /** Storage bucket name */
+  bucket: string;
+}
+
+/** Backend configuration - can be S3-compatible or Supabase */
+export type BackendConfig = S3BackendConfig | SupabaseBackendConfig;
 
 export interface SyncRule {
   id: string;
@@ -98,9 +111,8 @@ export interface CreateSpaceOptions {
 }
 
 export interface AddBackendOptions {
-  type: StorageBackendType;
   name: string;
-  config: S3BackendConfig;
+  config: BackendConfig;
 }
 
 export interface AddSyncRuleOptions {

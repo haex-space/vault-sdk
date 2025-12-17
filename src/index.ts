@@ -15,6 +15,8 @@ export type {
   StorageBackendInfo,
   StorageBackendType,
   S3BackendConfig,
+  SupabaseBackendConfig,
+  BackendConfig,
   SyncRule,
   SyncDirection,
   SyncStatus,
