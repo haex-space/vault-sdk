@@ -1,12 +1,12 @@
 /**
- * Svelte Integration for HaexHub SDK
+ * Svelte Integration for HaexVault SDK
  *
  * Provides Svelte stores that automatically update
  * for extension info and application context.
  *
  * @example
  * ```typescript
- * import { haexHub, extensionInfo, context } from '@haexhub/sdk/svelte';
+ * import { haexVaultSdk, extensionInfo, context } from '@haex-space/vault-sdk/svelte';
  *
  * // In Svelte components - automatically reactive!
  * <script>
@@ -33,13 +33,13 @@ const contextStore = writable<ApplicationContext | null>(null);
 const isSetupCompleteStore = writable<boolean>(false);
 
 /**
- * Initialize the HaexHub SDK for Svelte
+ * Initialize the HaexVault SDK for Svelte
  *
  * Call this once at app startup (e.g., in your root +layout.svelte)
  *
  * @param config - Optional SDK configuration
  */
-export function initHaexHub(config: HaexHubConfig = {}) {
+export function initHaexVaultSdk(config: HaexHubConfig = {}) {
   if (!clientInstance) {
     clientInstance = createHaexVaultClient(config);
 
@@ -85,32 +85,32 @@ export const context: Readable<ApplicationContext | null> = svelteReadonly(conte
 export const isSetupComplete: Readable<boolean> = svelteReadonly(isSetupCompleteStore);
 
 /**
- * Get the raw HaexHub client instance
+ * Get the HaexVault SDK client instance
  *
  * Access db, storage, and other SDK methods
  */
-export const haexHub = {
+export const haexVaultSdk = {
   get client(): HaexVaultClient | null {
     return clientInstance;
   },
   get db() {
-    if (!clientInstance) throw new Error('HaexHub SDK not initialized. Call initHaexHub() first.');
+    if (!clientInstance) throw new Error('HaexVault SDK not initialized. Call initHaexVaultSdk() first.');
     return clientInstance.orm;
   },
   get storage() {
-    if (!clientInstance) throw new Error('HaexHub SDK not initialized. Call initHaexHub() first.');
+    if (!clientInstance) throw new Error('HaexVault SDK not initialized. Call initHaexVaultSdk() first.');
     return clientInstance.storage;
   },
   getTableName(tableName: string): string {
-    if (!clientInstance) throw new Error('HaexHub SDK not initialized. Call initHaexHub() first.');
+    if (!clientInstance) throw new Error('HaexVault SDK not initialized. Call initHaexVaultSdk() first.');
     return clientInstance.getTableName(tableName);
   },
 };
 
 /**
- * Get the raw HaexHub client instance (non-reactive)
+ * Get the HaexVault SDK client instance (non-reactive)
  * Useful for direct API calls without Svelte store overhead
  */
-export function getHaexVaultClient(): HaexVaultClient | null {
+export function getHaexVaultSdk(): HaexVaultClient | null {
   return clientInstance;
 }

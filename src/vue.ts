@@ -1,14 +1,14 @@
 /**
- * Vue 3 Integration for HaexHub SDK
+ * Vue 3 Integration for HaexVault SDK
  *
  * Provides a Vue composable that automatically creates reactive refs
  * for extension info and application context.
  *
  * @example
  * ```typescript
- * import { useHaexHub } from '@haexhub/sdk/vue';
+ * import { useHaexVaultSdk } from '@haex-space/vault-sdk/vue';
  *
- * const { extensionInfo, context, db, storage } = useHaexHub();
+ * const { extensionInfo, context, db, storage } = useHaexVaultSdk();
  *
  * // Use directly in templates - automatically reactive!
  * console.log(extensionInfo.value);
@@ -29,7 +29,7 @@ let context: Ref<ApplicationContext | null> | null = null;
 let isSetupComplete: Ref<boolean> | null = null;
 
 /**
- * Vue 3 composable for HaexHub SDK
+ * Vue 3 composable for HaexVault SDK
  *
  * Creates a singleton SDK client with reactive properties that automatically
  * update when the SDK receives new data from the parent application.
@@ -37,7 +37,7 @@ let isSetupComplete: Ref<boolean> | null = null;
  * @param config - Optional SDK configuration
  * @returns Reactive SDK instance with extensionInfo, context, db, and storage
  */
-export function useHaexHub(config: HaexHubConfig = {}) {
+export function useHaexVaultSdk(config: HaexHubConfig = {}) {
   // Initialize SDK only once
   if (!clientInstance) {
     clientInstance = createHaexVaultClient(config);
@@ -75,9 +75,9 @@ export function useHaexHub(config: HaexHubConfig = {}) {
 }
 
 /**
- * Get the raw HaexHub client instance (non-reactive)
+ * Get the raw HaexVault SDK client instance (non-reactive)
  * Useful for direct API calls without Vue reactivity overhead
  */
-export function getHaexVaultClient(): HaexVaultClient | null {
+export function getHaexVaultSdk(): HaexVaultClient | null {
   return clientInstance;
 }

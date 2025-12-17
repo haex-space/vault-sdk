@@ -1,15 +1,15 @@
 /**
- * React Integration for HaexHub SDK
+ * React Integration for HaexVault SDK
  *
  * Provides a React hook that automatically creates reactive state
  * for extension info and application context.
  *
  * @example
  * ```typescript
- * import { useHaexHub } from '@haexhub/sdk/react';
+ * import { useHaexVaultSdk } from '@haex-space/vault-sdk/react';
  *
  * function MyComponent() {
- *   const { extensionInfo, context, db, storage } = useHaexHub();
+ *   const { extensionInfo, context, db, storage } = useHaexVaultSdk();
  *
  *   // Use directly in JSX - automatically reactive!
  *   return <div>{extensionInfo?.name}</div>;
@@ -26,7 +26,7 @@ import type { ExtensionInfo, ApplicationContext, HaexHubConfig } from './types';
 let clientInstance: HaexVaultClient | null = null;
 
 /**
- * React hook for HaexHub SDK
+ * React hook for HaexVault SDK
  *
  * Creates a singleton SDK client with reactive state that automatically
  * updates when the SDK receives new data from the parent application.
@@ -34,7 +34,7 @@ let clientInstance: HaexVaultClient | null = null;
  * @param config - Optional SDK configuration
  * @returns SDK instance with extensionInfo, context, db, and storage
  */
-export function useHaexHub(config: HaexHubConfig = {}) {
+export function useHaexVaultSdk(config: HaexHubConfig = {}) {
   // Initialize SDK only once
   if (!clientInstance) {
     clientInstance = createHaexVaultClient(config);
@@ -80,9 +80,9 @@ export function useHaexHub(config: HaexHubConfig = {}) {
 }
 
 /**
- * Get the raw HaexHub client instance (non-reactive)
+ * Get the raw HaexVault SDK client instance (non-reactive)
  * Useful for direct API calls without React state overhead
  */
-export function getHaexVaultClient(): HaexVaultClient | null {
+export function getHaexVaultSdk(): HaexVaultClient | null {
   return clientInstance;
 }
