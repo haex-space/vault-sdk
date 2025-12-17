@@ -2,6 +2,36 @@ import type { HaexVaultSdk } from "~/client";
 import { HAEXTENSION_METHODS } from "~/methods";
 
 // ============================================================================
+// Constants
+// ============================================================================
+
+/** File sync state constants */
+export const FILE_SYNC_STATE = {
+  SYNCED: "synced",
+  SYNCING: "syncing",
+  LOCAL_ONLY: "localOnly",
+  REMOTE_ONLY: "remoteOnly",
+  CONFLICT: "conflict",
+  ERROR: "error",
+} as const;
+
+/** Sync direction constants */
+export const SYNC_DIRECTION = {
+  UP: "up",
+  DOWN: "down",
+  BOTH: "both",
+} as const;
+
+/** Storage backend type constants */
+export const STORAGE_BACKEND_TYPE = {
+  S3: "s3",
+  R2: "r2",
+  MINIO: "minio",
+  GDRIVE: "gdrive",
+  DROPBOX: "dropbox",
+} as const;
+
+// ============================================================================
 // Types
 // ============================================================================
 
@@ -46,7 +76,7 @@ export interface StorageBackendInfo {
   createdAt: string;
 }
 
-export type StorageBackendType = "s3" | "r2" | "minio" | "supabase" | "gdrive" | "dropbox";
+export type StorageBackendType = "s3" | "r2" | "minio" | "gdrive" | "dropbox";
 
 export interface S3BackendConfig {
   type: "s3" | "r2" | "minio";
@@ -57,18 +87,8 @@ export interface S3BackendConfig {
   secretAccessKey: string;
 }
 
-export interface SupabaseBackendConfig {
-  type: "supabase";
-  /** Supabase project URL (e.g., https://xxx.supabase.co) */
-  projectUrl: string;
-  /** Supabase service role key (for server-side access) */
-  serviceRoleKey: string;
-  /** Storage bucket name */
-  bucket: string;
-}
-
-/** Backend configuration - can be S3-compatible or Supabase */
-export type BackendConfig = S3BackendConfig | SupabaseBackendConfig;
+/** Backend configuration for S3-compatible storage */
+export type BackendConfig = S3BackendConfig;
 
 export interface SyncRule {
   id: string;

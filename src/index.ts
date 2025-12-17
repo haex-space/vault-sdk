@@ -15,7 +15,6 @@ export type {
   StorageBackendInfo,
   StorageBackendType,
   S3BackendConfig,
-  SupabaseBackendConfig,
   BackendConfig,
   SyncRule,
   SyncDirection,
@@ -28,6 +27,12 @@ export type {
   ListFilesOptions,
   UploadFileOptions,
   DownloadFileOptions,
+} from "./api/filesync";
+
+export {
+  FILE_SYNC_STATE,
+  SYNC_DIRECTION,
+  STORAGE_BACKEND_TYPE,
 } from "./api/filesync";
 
 export type {
