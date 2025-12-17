@@ -122,8 +122,6 @@ async function setupTauriEventListeners(
   }
 
   // Listen for external requests
-  console.log("[HaexVault SDK] Setting up Tauri event listener for:", EXTERNAL_EVENTS.REQUEST);
-  console.log("[HaexVault SDK] listen function:", typeof listen, listen);
   try {
     await listen(EXTERNAL_EVENTS.REQUEST, (event) => {
       console.log("[HaexVault SDK] ====== EXTERNAL REQUEST RECEIVED ======");
