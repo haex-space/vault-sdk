@@ -1,4 +1,4 @@
-import type { HaexVaultClient } from "../client";
+import type { HaexVaultSdk } from "../client";
 import { HAEXTENSION_METHODS } from "../methods";
 import { FileSyncAPI } from "./filesync";
 
@@ -70,7 +70,7 @@ export interface ShowImageResult {
 export class FilesystemAPI {
   public readonly sync: FileSyncAPI;
 
-  constructor(private client: HaexVaultClient) {
+  constructor(private client: HaexVaultSdk) {
     this.sync = new FileSyncAPI(client);
   }
 

@@ -2,7 +2,7 @@
 // This ensures localStorage, cookies, and history work in custom protocols
 import './polyfills';
 
-export { HaexVaultClient } from "./client";
+export { HaexVaultSdk } from "./client";
 export { DatabaseAPI } from "./api/database";
 export { FilesystemAPI } from "./api/filesystem";
 export { FileSyncAPI } from "./api/filesync";
@@ -128,11 +128,11 @@ export {
   base64ToArrayBuffer,
 } from './crypto/vaultKey';
 
-import { HaexVaultClient } from "./client";
+import { HaexVaultSdk } from "./client";
 import type { HaexHubConfig } from "./types";
 
-export function createHaexVaultClient(
+export function createHaexVaultSdk(
   config: HaexHubConfig = {}
 ) {
-  return new HaexVaultClient(config);
+  return new HaexVaultSdk(config);
 }

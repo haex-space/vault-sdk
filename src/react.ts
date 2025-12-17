@@ -18,12 +18,12 @@
  */
 
 import { useState, useEffect } from 'react';
-import { createHaexVaultClient } from './index';
-import { HaexVaultClient } from './client';
+import { createHaexVaultSdk } from './index';
+import { HaexVaultSdk } from './client';
 import type { ExtensionInfo, ApplicationContext, HaexHubConfig } from './types';
 
 // Shared SDK client instance - initialized once at module level
-let clientInstance: HaexVaultClient | null = null;
+let clientInstance: HaexVaultSdk | null = null;
 
 /**
  * React hook for HaexVault SDK
@@ -37,7 +37,7 @@ let clientInstance: HaexVaultClient | null = null;
 export function useHaexVaultSdk(config: HaexHubConfig = {}) {
   // Initialize SDK only once
   if (!clientInstance) {
-    clientInstance = createHaexVaultClient(config);
+    clientInstance = createHaexVaultSdk(config);
   }
 
   const [extensionInfo, setExtensionInfo] = useState<ExtensionInfo | null>(
@@ -83,6 +83,6 @@ export function useHaexVaultSdk(config: HaexHubConfig = {}) {
  * Get the raw HaexVault SDK client instance (non-reactive)
  * Useful for direct API calls without React state overhead
  */
-export function getHaexVaultSdk(): HaexVaultClient | null {
+export function getHaexVaultSdk(): HaexVaultSdk | null {
   return clientInstance;
 }

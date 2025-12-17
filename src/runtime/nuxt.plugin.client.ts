@@ -1,6 +1,6 @@
 import { defineNuxtPlugin } from "nuxt/app";
 import { shallowRef, type ShallowRef } from "vue";
-import { HaexVaultClient } from "~/client";
+import { HaexVaultSdk } from "~/client";
 import type { ExtensionManifest, ApplicationContext } from "~/types";
 
 export default defineNuxtPlugin(async (nuxtApp) => {
@@ -8,7 +8,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   const manifest = nuxtApp.$config.public.haexVaultManifest as ExtensionManifest | null;
 
   // 1. Erstelle die Client-Instanz
-  const client = new HaexVaultClient({
+  const client = new HaexVaultSdk({
     // @ts-ignore
     debug: nuxtApp.payload.config.public.debug ?? false,
     manifest: manifest || undefined,
@@ -68,7 +68,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
 
 // Export type for type declarations
 export type HaexVaultNuxtPlugin = {
-  client: HaexVaultClient;
+  client: HaexVaultSdk;
   state: ShallowRef<{
     isReady: boolean;
     isSetupComplete: boolean;

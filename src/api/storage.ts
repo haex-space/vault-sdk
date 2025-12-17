@@ -1,8 +1,8 @@
-import type { HaexVaultClient } from "~/client";
+import type { HaexVaultSdk } from "~/client";
 import { HAEXTENSION_METHODS } from "~/methods";
 
 export class StorageAPI {
-  constructor(private client: HaexVaultClient) {}
+  constructor(private client: HaexVaultSdk) {}
 
   async getItem(key: string): Promise<string | null> {
     return this.client.request<string | null>(HAEXTENSION_METHODS.storage.getItem, { key });

@@ -7,7 +7,7 @@
  * These polyfills are automatically installed when you import the SDK:
  *
  * ```typescript
- * import { createHaexVaultClient } from '@haex-space/vault-sdk';
+ * import { createHaexVaultSdk } from '@haex-space/vault-sdk';
  * // Polyfills are active!
  * ```
  *
@@ -56,7 +56,7 @@ export function installPolyfills(): void {
   // Note: Base tag is injected at build-time by Vite plugin, no runtime setup needed
   // Runtime base tag setup is disabled to prevent conflicts
 
-  // Note: Console forwarding is installed by HaexVaultClient when debug mode is enabled
+  // Note: Console forwarding is installed by HaexVaultSdk when debug mode is enabled
 
   console.log('[HaexSpace] All polyfills loaded successfully');
 

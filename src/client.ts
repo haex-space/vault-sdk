@@ -47,7 +47,7 @@ import {
 import { createDrizzleInstance, queryRaw, executeRaw } from "./client/database";
 import { registerExternalHandler, handleExternalRequest, respondToExternalRequest } from "./client/external";
 
-export class HaexVaultClient {
+export class HaexVaultSdk {
   // Configuration
   private readonly config: ClientConfig;
 

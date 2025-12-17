@@ -1,9 +1,9 @@
-import type { HaexVaultClient } from "../client";
+import type { HaexVaultSdk } from "../client";
 import type { DatabaseQueryResult, MigrationResult, Migration } from "../types";
 import { HAEXTENSION_METHODS } from "../methods";
 
 export class DatabaseAPI {
-  constructor(private client: HaexVaultClient) {}
+  constructor(private client: HaexVaultSdk) {}
 
   async query<T>(query: string, params?: unknown[]): Promise<T[]> {
     const result = await this.client.request<DatabaseQueryResult>(

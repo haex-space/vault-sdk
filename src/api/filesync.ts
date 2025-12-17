@@ -1,4 +1,4 @@
-import type { HaexVaultClient } from "~/client";
+import type { HaexVaultSdk } from "~/client";
 import { HAEXTENSION_METHODS } from "~/methods";
 
 // ============================================================================
@@ -138,7 +138,7 @@ export interface DownloadFileOptions {
  * Access via: client.filesystem.sync.*
  */
 export class FileSyncAPI {
-  constructor(private client: HaexVaultClient) {}
+  constructor(private client: HaexVaultSdk) {}
 
   // --------------------------------------------------------------------------
   // Spaces

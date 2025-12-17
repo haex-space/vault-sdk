@@ -18,12 +18,12 @@
 
 import { ref, readonly } from 'vue';
 import type { Ref } from 'vue';
-import { createHaexVaultClient } from './index';
-import { HaexVaultClient } from './client';
+import { createHaexVaultSdk } from './index';
+import { HaexVaultSdk } from './client';
 import type { ExtensionInfo, ApplicationContext, HaexHubConfig } from './types';
 
 // Shared reactive SDK instance - initialized once at module level
-let clientInstance: HaexVaultClient | null = null;
+let clientInstance: HaexVaultSdk | null = null;
 let extensionInfo: Ref<ExtensionInfo | null> | null = null;
 let context: Ref<ApplicationContext | null> | null = null;
 let isSetupComplete: Ref<boolean> | null = null;
@@ -40,7 +40,7 @@ let isSetupComplete: Ref<boolean> | null = null;
 export function useHaexVaultSdk(config: HaexHubConfig = {}) {
   // Initialize SDK only once
   if (!clientInstance) {
-    clientInstance = createHaexVaultClient(config);
+    clientInstance = createHaexVaultSdk(config);
     extensionInfo = ref<ExtensionInfo | null>(clientInstance.extensionInfo);
     context = ref<ApplicationContext | null>(clientInstance.context);
     isSetupComplete = ref<boolean>(false);
@@ -78,6 +78,6 @@ export function useHaexVaultSdk(config: HaexHubConfig = {}) {
  * Get the raw HaexVault SDK client instance (non-reactive)
  * Useful for direct API calls without Vue reactivity overhead
  */
-export function getHaexVaultSdk(): HaexVaultClient | null {
+export function getHaexVaultSdk(): HaexVaultSdk | null {
   return clientInstance;
 }
