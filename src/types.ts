@@ -77,6 +77,8 @@ export interface ApplicationContext {
     | "android"
     | "windows"
     | undefined;
+  /** Unique device identifier (UUID) for multi-device sync */
+  deviceId: string | undefined;
 }
 
 // Search Types
