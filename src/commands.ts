@@ -86,6 +86,7 @@ export const TAURI_COMMANDS = {
     // Sync Rules
     listSyncRules: "filesync_list_sync_rules",
     addSyncRule: "filesync_add_sync_rule",
+    updateSyncRule: "filesync_update_sync_rule",
     removeSyncRule: "filesync_remove_sync_rule",
 
     // Sync Operations

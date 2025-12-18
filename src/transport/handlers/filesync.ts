@@ -98,6 +98,11 @@ export const filesyncHandlers: InvokeHandlerMap = {
     args: (p: FileSyncRuleParams) => ({ request: p }),
   },
 
+  [HAEXTENSION_METHODS.filesystem.sync.updateSyncRule]: {
+    command: TAURI_COMMANDS.filesync.updateSyncRule,
+    args: (p: FileSyncRuleParams) => ({ request: p }),
+  },
+
   [HAEXTENSION_METHODS.filesystem.sync.removeSyncRule]: {
     command: TAURI_COMMANDS.filesync.removeSyncRule,
     args: (p: FileSyncRuleParams) => ({ ruleId: p.ruleId }),
