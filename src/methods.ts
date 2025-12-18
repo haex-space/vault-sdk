@@ -45,6 +45,7 @@ export const HAEXTENSION_METHODS = {
       // Sync Rules
       listSyncRules: 'haextension:filesystem:sync:list-sync-rules',
       addSyncRule: 'haextension:filesystem:sync:add-sync-rule',
+      updateSyncRule: 'haextension:filesystem:sync:update-sync-rule',
       removeSyncRule: 'haextension:filesystem:sync:remove-sync-rule',
 
       // Sync Operations

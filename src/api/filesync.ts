@@ -142,6 +142,13 @@ export interface AddSyncRuleOptions {
   direction?: SyncDirection;
 }
 
+export interface UpdateSyncRuleOptions {
+  ruleId: string;
+  backendIds?: string[];
+  direction?: SyncDirection;
+  enabled?: boolean;
+}
+
 export interface ListFilesOptions {
   spaceId: string;
   path?: string;
@@ -318,6 +325,16 @@ export class FileSyncAPI {
   async addSyncRuleAsync(options: AddSyncRuleOptions): Promise<SyncRule> {
     return this.client.request<SyncRule, AddSyncRuleOptions>(
       HAEXTENSION_METHODS.filesystem.sync.addSyncRule,
+      options
+    );
+  }
+
+  /**
+   * Update a sync rule
+   */
+  async updateSyncRuleAsync(options: UpdateSyncRuleOptions): Promise<SyncRule> {
+    return this.client.request<SyncRule, UpdateSyncRuleOptions>(
+      HAEXTENSION_METHODS.filesystem.sync.updateSyncRule,
       options
     );
   }

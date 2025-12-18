@@ -24,6 +24,7 @@ export type {
   CreateSpaceOptions,
   AddBackendOptions,
   AddSyncRuleOptions,
+  UpdateSyncRuleOptions,
   ListFilesOptions,
   UploadFileOptions,
   DownloadFileOptions,
