@@ -65,42 +65,42 @@ export const TAURI_COMMANDS = {
   },
 
   filesync: {
-    // Spaces
-    listSpaces: "filesync_list_spaces",
-    createSpace: "filesync_create_space",
-    deleteSpace: "filesync_delete_space",
+    // Spaces (webview_* commands extract extension info from WebviewWindow)
+    listSpaces: "webview_filesync_list_spaces",
+    createSpace: "webview_filesync_create_space",
+    deleteSpace: "webview_filesync_delete_space",
 
     // Files
-    listFiles: "filesync_list_files",
-    getFile: "filesync_get_file",
-    uploadFile: "filesync_upload_file",
-    downloadFile: "filesync_download_file",
-    deleteFile: "filesync_delete_file",
+    listFiles: "webview_filesync_list_files",
+    getFile: "webview_filesync_get_file",
+    uploadFile: "webview_filesync_upload_file",
+    downloadFile: "webview_filesync_download_file",
+    deleteFile: "webview_filesync_delete_file",
 
     // Backends
-    listBackends: "filesync_list_backends",
-    addBackend: "filesync_add_backend",
-    removeBackend: "filesync_remove_backend",
-    testBackend: "filesync_test_backend",
+    listBackends: "webview_filesync_list_backends",
+    addBackend: "webview_filesync_add_backend",
+    removeBackend: "webview_filesync_remove_backend",
+    testBackend: "webview_filesync_test_backend",
 
     // Sync Rules
-    listSyncRules: "filesync_list_sync_rules",
-    addSyncRule: "filesync_add_sync_rule",
-    updateSyncRule: "filesync_update_sync_rule",
-    removeSyncRule: "filesync_remove_sync_rule",
+    listSyncRules: "webview_filesync_list_sync_rules",
+    addSyncRule: "webview_filesync_add_sync_rule",
+    updateSyncRule: "webview_filesync_update_sync_rule",
+    removeSyncRule: "webview_filesync_remove_sync_rule",
 
     // Sync Operations
-    getSyncStatus: "filesync_get_sync_status",
-    triggerSync: "filesync_trigger_sync",
-    pauseSync: "filesync_pause_sync",
-    resumeSync: "filesync_resume_sync",
+    getSyncStatus: "webview_filesync_get_sync_status",
+    triggerSync: "webview_filesync_trigger_sync",
+    pauseSync: "webview_filesync_pause_sync",
+    resumeSync: "webview_filesync_resume_sync",
 
     // Conflict Resolution
-    resolveConflict: "filesync_resolve_conflict",
+    resolveConflict: "webview_filesync_resolve_conflict",
 
-    // UI Helpers
+    // UI Helpers (selectFolder doesn't need extension info)
     selectFolder: "filesync_select_folder",
-    scanLocal: "filesync_scan_local",
+    scanLocal: "webview_filesync_scan_local",
   },
 
 } as const;
