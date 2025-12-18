@@ -26,8 +26,10 @@ export type {
   AddSyncRuleOptions,
   UpdateSyncRuleOptions,
   ListFilesOptions,
+  ScanLocalOptions,
   UploadFileOptions,
   DownloadFileOptions,
+  LocalFileInfo,
 } from "./api/filesync";
 
 export {
