@@ -13,6 +13,7 @@ import type {
   FileSyncBackendParams,
   FileSyncRuleParams,
   FileSyncConflictParams,
+  FileSyncScanLocalParams,
 } from "./types";
 
 export const filesyncHandlers: InvokeHandlerMap = {
@@ -145,5 +146,10 @@ export const filesyncHandlers: InvokeHandlerMap = {
   [HAEXTENSION_METHODS.filesystem.sync.selectFolder]: {
     command: TAURI_COMMANDS.filesync.selectFolder,
     args: () => ({}),
+  },
+
+  [HAEXTENSION_METHODS.filesystem.sync.scanLocal]: {
+    command: TAURI_COMMANDS.filesync.scanLocal,
+    args: (p: FileSyncScanLocalParams) => ({ request: p }),
   },
 };

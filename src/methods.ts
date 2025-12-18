@@ -59,6 +59,7 @@ export const HAEXTENSION_METHODS = {
 
       // UI Helpers
       selectFolder: 'haextension:filesystem:sync:select-folder',
+      scanLocal: 'haextension:filesystem:sync:scan-local',
     },
   },
 

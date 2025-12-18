@@ -90,6 +90,11 @@ export interface FileSyncConflictParams {
   resolution: "local" | "remote" | "keepBoth";
 }
 
+export interface FileSyncScanLocalParams {
+  ruleId: string;
+  subpath?: string;
+}
+
 // ============================================================================
 // Handler Types
 // ============================================================================

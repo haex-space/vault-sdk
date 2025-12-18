@@ -60,6 +60,26 @@ export interface FileInfo {
   updatedAt: string;
 }
 
+/** Local file info (unencrypted, scanned from local filesystem) */
+export interface LocalFileInfo {
+  /** Unique ID (hash of rule_id + relative path) */
+  id: string;
+  /** File name */
+  name: string;
+  /** Full local path */
+  path: string;
+  /** Relative path from sync root */
+  relativePath: string;
+  /** MIME type (null for directories) */
+  mimeType: string | null;
+  /** File size in bytes */
+  size: number;
+  /** Whether this is a directory */
+  isDirectory: boolean;
+  /** Last modified timestamp (ISO 8601) */
+  modifiedAt: string | null;
+}
+
 export type FileSyncState =
   | "synced"
   | "syncing"
@@ -155,6 +175,13 @@ export interface ListFilesOptions {
   recursive?: boolean;
 }
 
+export interface ScanLocalOptions {
+  /** Sync rule ID to scan */
+  ruleId: string;
+  /** Optional subpath within the sync root to scan */
+  subpath?: string;
+}
+
 export interface UploadFileOptions {
   spaceId: string;
   localPath: string;
@@ -221,6 +248,17 @@ export class FileSyncAPI {
   async listFilesAsync(options: ListFilesOptions): Promise<FileInfo[]> {
     return this.client.request<FileInfo[], ListFilesOptions>(
       HAEXTENSION_METHODS.filesystem.sync.listFiles,
+      options
+    );
+  }
+
+  /**
+   * Scan local files in a sync rule folder
+   * Returns unencrypted local files for display in the UI
+   */
+  async scanLocalAsync(options: ScanLocalOptions): Promise<LocalFileInfo[]> {
+    return this.client.request<LocalFileInfo[], ScanLocalOptions>(
+      HAEXTENSION_METHODS.filesystem.sync.scanLocal,
       options
     );
   }

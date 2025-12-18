@@ -100,6 +100,7 @@ export const TAURI_COMMANDS = {
 
     // UI Helpers
     selectFolder: "filesync_select_folder",
+    scanLocal: "filesync_scan_local",
   },
 
 } as const;
