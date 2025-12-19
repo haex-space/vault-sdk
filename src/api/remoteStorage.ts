@@ -1,5 +1,6 @@
 import type { HaexVaultSdk } from "~/client";
 import { HAEXTENSION_METHODS } from "~/methods";
+import { arrayBufferToBase64, base64ToArrayBuffer } from "~/crypto/vaultKey";
 
 // ============================================================================
 // Types
@@ -96,7 +97,7 @@ export class RemoteStorageAPI {
    * @param data - Data to upload
    */
   async upload(backendId: string, key: string, data: Uint8Array): Promise<void> {
-    const base64 = btoa(String.fromCharCode(...data));
+    const base64 = arrayBufferToBase64(data);
     await this.client.request(HAEXTENSION_METHODS.remoteStorage.upload, {
       backendId,
       key,
@@ -115,12 +116,7 @@ export class RemoteStorageAPI {
       HAEXTENSION_METHODS.remoteStorage.download,
       { backendId, key }
     );
-    const binary = atob(base64);
-    const bytes = new Uint8Array(binary.length);
-    for (let i = 0; i < binary.length; i++) {
-      bytes[i] = binary.charCodeAt(i);
-    }
-    return bytes;
+    return base64ToArrayBuffer(base64);
   }
 
   /**
