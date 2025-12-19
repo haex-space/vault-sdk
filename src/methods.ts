@@ -22,45 +22,57 @@ export const HAEXTENSION_METHODS = {
     saveFile: 'haextension:filesystem:save-file',
     openFile: 'haextension:filesystem:open-file',
     showImage: 'haextension:filesystem:show-image',
+  },
 
-    sync: {
-      // Spaces
-      listSpaces: 'haextension:filesystem:sync:list-spaces',
-      createSpace: 'haextension:filesystem:sync:create-space',
-      deleteSpace: 'haextension:filesystem:sync:delete-space',
+  filesync: {
+    // Spaces
+    listSpaces: 'haextension:filesync:list-spaces',
+    createSpace: 'haextension:filesync:create-space',
+    deleteSpace: 'haextension:filesync:delete-space',
 
-      // Files
-      listFiles: 'haextension:filesystem:sync:list-files',
-      getFile: 'haextension:filesystem:sync:get-file',
-      uploadFile: 'haextension:filesystem:sync:upload-file',
-      downloadFile: 'haextension:filesystem:sync:download-file',
-      deleteFile: 'haextension:filesystem:sync:delete-file',
+    // Files
+    listFiles: 'haextension:filesync:list-files',
+    getFile: 'haextension:filesync:get-file',
+    uploadFile: 'haextension:filesync:upload-file',
+    downloadFile: 'haextension:filesync:download-file',
+    deleteFile: 'haextension:filesync:delete-file',
 
-      // Backends
-      listBackends: 'haextension:filesystem:sync:list-backends',
-      addBackend: 'haextension:filesystem:sync:add-backend',
-      removeBackend: 'haextension:filesystem:sync:remove-backend',
-      testBackend: 'haextension:filesystem:sync:test-backend',
+    // Backends
+    listBackends: 'haextension:filesync:list-backends',
+    addBackend: 'haextension:filesync:add-backend',
+    removeBackend: 'haextension:filesync:remove-backend',
+    testBackend: 'haextension:filesync:test-backend',
 
-      // Sync Rules
-      listSyncRules: 'haextension:filesystem:sync:list-sync-rules',
-      addSyncRule: 'haextension:filesystem:sync:add-sync-rule',
-      updateSyncRule: 'haextension:filesystem:sync:update-sync-rule',
-      removeSyncRule: 'haextension:filesystem:sync:remove-sync-rule',
+    // Sync Rules
+    listSyncRules: 'haextension:filesync:list-sync-rules',
+    addSyncRule: 'haextension:filesync:add-sync-rule',
+    updateSyncRule: 'haextension:filesync:update-sync-rule',
+    removeSyncRule: 'haextension:filesync:remove-sync-rule',
 
-      // Sync Operations
-      getSyncStatus: 'haextension:filesystem:sync:get-sync-status',
-      triggerSync: 'haextension:filesystem:sync:trigger-sync',
-      pauseSync: 'haextension:filesystem:sync:pause-sync',
-      resumeSync: 'haextension:filesystem:sync:resume-sync',
+    // Sync Operations
+    getSyncStatus: 'haextension:filesync:get-sync-status',
+    triggerSync: 'haextension:filesync:trigger-sync',
+    pauseSync: 'haextension:filesync:pause-sync',
+    resumeSync: 'haextension:filesync:resume-sync',
 
-      // Conflict Resolution
-      resolveConflict: 'haextension:filesystem:sync:resolve-conflict',
+    // Conflict Resolution
+    resolveConflict: 'haextension:filesync:resolve-conflict',
 
-      // UI Helpers
-      selectFolder: 'haextension:filesystem:sync:select-folder',
-      scanLocal: 'haextension:filesystem:sync:scan-local',
-    },
+    // UI Helpers
+    selectFolder: 'haextension:filesync:select-folder',
+    scanLocal: 'haextension:filesync:scan-local',
+
+    // Sync Queue (persistent upload/download queue)
+    addToQueue: 'haextension:filesync:add-to-queue',
+    getQueue: 'haextension:filesync:get-queue',
+    getQueueSummary: 'haextension:filesync:get-queue-summary',
+    startQueueEntry: 'haextension:filesync:start-queue-entry',
+    completeQueueEntry: 'haextension:filesync:complete-queue-entry',
+    failQueueEntry: 'haextension:filesync:fail-queue-entry',
+    retryFailedQueue: 'haextension:filesync:retry-failed-queue',
+    removeQueueEntry: 'haextension:filesync:remove-queue-entry',
+    clearQueue: 'haextension:filesync:clear-queue',
+    recoverQueue: 'haextension:filesync:recover-queue',
   },
 
   storage: {

@@ -95,6 +95,21 @@ export interface FileSyncScanLocalParams {
   subpath?: string;
 }
 
+export interface FileSyncQueueParams {
+  ruleId?: string;
+  entryId?: string;
+  errorMessage?: string;
+  files?: Array<{
+    localPath: string;
+    relativePath: string;
+    fileSize: number;
+  }>;
+  operation?: 'upload' | 'download';
+  priority?: number;
+  status?: string;
+  includeCompleted?: boolean;
+}
+
 // ============================================================================
 // Handler Types
 // ============================================================================

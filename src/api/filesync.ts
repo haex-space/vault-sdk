@@ -226,6 +226,109 @@ export interface DownloadFileOptions {
 }
 
 // ============================================================================
+// Queue Types
+// ============================================================================
+
+/** Queue operation type */
+export type QueueOperation = 'upload' | 'download';
+
+/** Queue entry status */
+export type QueueStatus = 'pending' | 'inProgress' | 'completed' | 'failed';
+
+/** Queue operation constants */
+export const QUEUE_OPERATION = {
+  UPLOAD: 'upload' as const,
+  DOWNLOAD: 'download' as const,
+};
+
+/** Queue status constants */
+export const QUEUE_STATUS = {
+  PENDING: 'pending' as const,
+  IN_PROGRESS: 'inProgress' as const,
+  COMPLETED: 'completed' as const,
+  FAILED: 'failed' as const,
+};
+
+/** A sync queue entry representing a pending or in-progress file operation */
+export interface SyncQueueEntry {
+  id: string;
+  /** Device ID this entry belongs to */
+  deviceId: string;
+  /** Sync rule ID */
+  ruleId: string;
+  /** Full local path */
+  localPath: string;
+  /** Relative path from sync root (used as remote path) */
+  relativePath: string;
+  /** Operation type (upload/download) */
+  operation: QueueOperation;
+  /** Current status */
+  status: QueueStatus;
+  /** Priority (lower = higher priority) */
+  priority: number;
+  /** File size in bytes */
+  fileSize: number;
+  /** Error message if failed */
+  errorMessage: string | null;
+  /** Number of retry attempts */
+  retryCount: number;
+  /** When the entry was created */
+  createdAt: string;
+  /** When processing started */
+  startedAt: string | null;
+  /** When processing completed */
+  completedAt: string | null;
+}
+
+/** Request to add files to the sync queue */
+export interface AddToQueueOptions {
+  /** Sync rule ID */
+  ruleId: string;
+  /** Files to add */
+  files: QueueFileEntry[];
+  /** Operation type */
+  operation: QueueOperation;
+  /** Priority (optional, default 100) */
+  priority?: number;
+}
+
+/** A file entry for adding to the queue */
+export interface QueueFileEntry {
+  /** Full local path */
+  localPath: string;
+  /** Relative path from sync root */
+  relativePath: string;
+  /** File size in bytes */
+  fileSize: number;
+}
+
+/** Request to get queue entries */
+export interface GetQueueOptions {
+  /** Filter by rule ID (optional) */
+  ruleId?: string;
+  /** Filter by status (optional) */
+  status?: QueueStatus;
+  /** Include completed entries (default: false) */
+  includeCompleted?: boolean;
+}
+
+/** Aggregated queue status */
+export interface QueueSummary {
+  /** Number of pending items */
+  pendingCount: number;
+  /** Number of in-progress items */
+  inProgressCount: number;
+  /** Number of completed items */
+  completedCount: number;
+  /** Number of failed items */
+  failedCount: number;
+  /** Total bytes pending (sum of file_size for pending items) */
+  pendingBytes: number;
+  /** Currently processing entry (if any) */
+  currentEntry: SyncQueueEntry | null;
+}
+
+// ============================================================================
 // FileSyncAPI
 // ============================================================================
 
@@ -246,7 +349,7 @@ export class FileSyncAPI {
    */
   async listSpacesAsync(): Promise<FileSpace[]> {
     return this.client.request<FileSpace[]>(
-      HAEXTENSION_METHODS.filesystem.sync.listSpaces
+      HAEXTENSION_METHODS.filesync.listSpaces
     );
   }
 
@@ -255,7 +358,7 @@ export class FileSyncAPI {
    */
   async createSpaceAsync(options: CreateSpaceOptions): Promise<FileSpace> {
     return this.client.request<FileSpace, CreateSpaceOptions>(
-      HAEXTENSION_METHODS.filesystem.sync.createSpace,
+      HAEXTENSION_METHODS.filesync.createSpace,
       options
     );
   }
@@ -264,7 +367,7 @@ export class FileSyncAPI {
    * Delete a file space
    */
   async deleteSpaceAsync(spaceId: string): Promise<void> {
-    await this.client.request(HAEXTENSION_METHODS.filesystem.sync.deleteSpace, {
+    await this.client.request(HAEXTENSION_METHODS.filesync.deleteSpace, {
       spaceId,
     });
   }
@@ -278,7 +381,7 @@ export class FileSyncAPI {
    */
   async listFilesAsync(options: ListFilesOptions): Promise<FileInfo[]> {
     return this.client.request<FileInfo[], ListFilesOptions>(
-      HAEXTENSION_METHODS.filesystem.sync.listFiles,
+      HAEXTENSION_METHODS.filesync.listFiles,
       options
     );
   }
@@ -289,7 +392,7 @@ export class FileSyncAPI {
    */
   async scanLocalAsync(options: ScanLocalOptions): Promise<LocalFileInfo[]> {
     return this.client.request<LocalFileInfo[], ScanLocalOptions>(
-      HAEXTENSION_METHODS.filesystem.sync.scanLocal,
+      HAEXTENSION_METHODS.filesync.scanLocal,
       options
     );
   }
@@ -299,7 +402,7 @@ export class FileSyncAPI {
    */
   async getFileAsync(fileId: string): Promise<FileInfo | null> {
     return this.client.request<FileInfo | null>(
-      HAEXTENSION_METHODS.filesystem.sync.getFile,
+      HAEXTENSION_METHODS.filesync.getFile,
       { fileId }
     );
   }
@@ -309,7 +412,7 @@ export class FileSyncAPI {
    */
   async uploadFileAsync(options: UploadFileOptions): Promise<FileInfo> {
     return this.client.request<FileInfo, UploadFileOptions>(
-      HAEXTENSION_METHODS.filesystem.sync.uploadFile,
+      HAEXTENSION_METHODS.filesync.uploadFile,
       options
     );
   }
@@ -319,7 +422,7 @@ export class FileSyncAPI {
    */
   async downloadFileAsync(options: DownloadFileOptions): Promise<void> {
     await this.client.request<void, DownloadFileOptions>(
-      HAEXTENSION_METHODS.filesystem.sync.downloadFile,
+      HAEXTENSION_METHODS.filesync.downloadFile,
       options
     );
   }
@@ -328,7 +431,7 @@ export class FileSyncAPI {
    * Delete a file from the sync system
    */
   async deleteFileAsync(fileId: string): Promise<void> {
-    await this.client.request(HAEXTENSION_METHODS.filesystem.sync.deleteFile, {
+    await this.client.request(HAEXTENSION_METHODS.filesync.deleteFile, {
       fileId,
     });
   }
@@ -342,7 +445,7 @@ export class FileSyncAPI {
    */
   async listBackendsAsync(): Promise<StorageBackendInfo[]> {
     return this.client.request<StorageBackendInfo[]>(
-      HAEXTENSION_METHODS.filesystem.sync.listBackends
+      HAEXTENSION_METHODS.filesync.listBackends
     );
   }
 
@@ -351,7 +454,7 @@ export class FileSyncAPI {
    */
   async addBackendAsync(options: AddBackendOptions): Promise<StorageBackendInfo> {
     return this.client.request<StorageBackendInfo, AddBackendOptions>(
-      HAEXTENSION_METHODS.filesystem.sync.addBackend,
+      HAEXTENSION_METHODS.filesync.addBackend,
       options
     );
   }
@@ -360,7 +463,7 @@ export class FileSyncAPI {
    * Remove a storage backend
    */
   async removeBackendAsync(backendId: string): Promise<void> {
-    await this.client.request(HAEXTENSION_METHODS.filesystem.sync.removeBackend, {
+    await this.client.request(HAEXTENSION_METHODS.filesync.removeBackend, {
       backendId,
     });
   }
@@ -370,7 +473,7 @@ export class FileSyncAPI {
    */
   async testBackendAsync(backendId: string): Promise<boolean> {
     return this.client.request<boolean>(
-      HAEXTENSION_METHODS.filesystem.sync.testBackend,
+      HAEXTENSION_METHODS.filesync.testBackend,
       { backendId }
     );
   }
@@ -384,7 +487,7 @@ export class FileSyncAPI {
    */
   async listSyncRulesAsync(): Promise<SyncRule[]> {
     return this.client.request<SyncRule[]>(
-      HAEXTENSION_METHODS.filesystem.sync.listSyncRules
+      HAEXTENSION_METHODS.filesync.listSyncRules
     );
   }
 
@@ -393,7 +496,7 @@ export class FileSyncAPI {
    */
   async addSyncRuleAsync(options: AddSyncRuleOptions): Promise<SyncRule> {
     return this.client.request<SyncRule, AddSyncRuleOptions>(
-      HAEXTENSION_METHODS.filesystem.sync.addSyncRule,
+      HAEXTENSION_METHODS.filesync.addSyncRule,
       options
     );
   }
@@ -403,7 +506,7 @@ export class FileSyncAPI {
    */
   async updateSyncRuleAsync(options: UpdateSyncRuleOptions): Promise<SyncRule> {
     return this.client.request<SyncRule, UpdateSyncRuleOptions>(
-      HAEXTENSION_METHODS.filesystem.sync.updateSyncRule,
+      HAEXTENSION_METHODS.filesync.updateSyncRule,
       options
     );
   }
@@ -412,7 +515,7 @@ export class FileSyncAPI {
    * Remove a sync rule
    */
   async removeSyncRuleAsync(ruleId: string): Promise<void> {
-    await this.client.request(HAEXTENSION_METHODS.filesystem.sync.removeSyncRule, {
+    await this.client.request(HAEXTENSION_METHODS.filesync.removeSyncRule, {
       ruleId,
     });
   }
@@ -426,7 +529,7 @@ export class FileSyncAPI {
    */
   async getSyncStatusAsync(): Promise<SyncStatus> {
     return this.client.request<SyncStatus>(
-      HAEXTENSION_METHODS.filesystem.sync.getSyncStatus
+      HAEXTENSION_METHODS.filesync.getSyncStatus
     );
   }
 
@@ -434,21 +537,21 @@ export class FileSyncAPI {
    * Trigger a manual sync
    */
   async triggerSyncAsync(): Promise<void> {
-    await this.client.request(HAEXTENSION_METHODS.filesystem.sync.triggerSync);
+    await this.client.request(HAEXTENSION_METHODS.filesync.triggerSync);
   }
 
   /**
    * Pause syncing
    */
   async pauseSyncAsync(): Promise<void> {
-    await this.client.request(HAEXTENSION_METHODS.filesystem.sync.pauseSync);
+    await this.client.request(HAEXTENSION_METHODS.filesync.pauseSync);
   }
 
   /**
    * Resume syncing
    */
   async resumeSyncAsync(): Promise<void> {
-    await this.client.request(HAEXTENSION_METHODS.filesystem.sync.resumeSync);
+    await this.client.request(HAEXTENSION_METHODS.filesync.resumeSync);
   }
 
   // --------------------------------------------------------------------------
@@ -462,7 +565,7 @@ export class FileSyncAPI {
     fileId: string,
     resolution: "local" | "remote" | "keepBoth"
   ): Promise<void> {
-    await this.client.request(HAEXTENSION_METHODS.filesystem.sync.resolveConflict, {
+    await this.client.request(HAEXTENSION_METHODS.filesync.resolveConflict, {
       fileId,
       resolution,
     });
@@ -477,7 +580,100 @@ export class FileSyncAPI {
    */
   async selectFolderAsync(): Promise<string | null> {
     return this.client.request<string | null>(
-      HAEXTENSION_METHODS.filesystem.sync.selectFolder
+      HAEXTENSION_METHODS.filesync.selectFolder
     );
+  }
+
+  // --------------------------------------------------------------------------
+  // Sync Queue
+  // --------------------------------------------------------------------------
+
+  /**
+   * Add files to the sync queue
+   */
+  async addToQueueAsync(options: AddToQueueOptions): Promise<SyncQueueEntry[]> {
+    return this.client.request<SyncQueueEntry[], AddToQueueOptions>(
+      HAEXTENSION_METHODS.filesync.addToQueue,
+      options
+    );
+  }
+
+  /**
+   * Get queue entries for the current device
+   */
+  async getQueueAsync(options?: GetQueueOptions): Promise<SyncQueueEntry[]> {
+    return this.client.request<SyncQueueEntry[], GetQueueOptions | undefined>(
+      HAEXTENSION_METHODS.filesync.getQueue,
+      options
+    );
+  }
+
+  /**
+   * Get aggregated queue summary for the current device
+   */
+  async getQueueSummaryAsync(): Promise<QueueSummary> {
+    return this.client.request<QueueSummary>(
+      HAEXTENSION_METHODS.filesync.getQueueSummary
+    );
+  }
+
+  /**
+   * Mark a queue entry as started (in_progress)
+   */
+  async startQueueEntryAsync(entryId: string): Promise<void> {
+    await this.client.request(HAEXTENSION_METHODS.filesync.startQueueEntry, {
+      entryId,
+    });
+  }
+
+  /**
+   * Mark a queue entry as completed
+   */
+  async completeQueueEntryAsync(entryId: string): Promise<void> {
+    await this.client.request(HAEXTENSION_METHODS.filesync.completeQueueEntry, {
+      entryId,
+    });
+  }
+
+  /**
+   * Mark a queue entry as failed
+   */
+  async failQueueEntryAsync(entryId: string, errorMessage: string): Promise<void> {
+    await this.client.request(HAEXTENSION_METHODS.filesync.failQueueEntry, {
+      entryId,
+      errorMessage,
+    });
+  }
+
+  /**
+   * Retry all failed queue entries (reset to pending)
+   */
+  async retryFailedQueueAsync(): Promise<void> {
+    await this.client.request(HAEXTENSION_METHODS.filesync.retryFailedQueue);
+  }
+
+  /**
+   * Remove a queue entry
+   */
+  async removeQueueEntryAsync(entryId: string): Promise<void> {
+    await this.client.request(HAEXTENSION_METHODS.filesync.removeQueueEntry, {
+      entryId,
+    });
+  }
+
+  /**
+   * Clear all queue entries for a sync rule
+   */
+  async clearQueueAsync(ruleId: string): Promise<void> {
+    await this.client.request(HAEXTENSION_METHODS.filesync.clearQueue, {
+      ruleId,
+    });
+  }
+
+  /**
+   * Reset in_progress entries to pending (for recovery after crash)
+   */
+  async recoverQueueAsync(): Promise<void> {
+    await this.client.request(HAEXTENSION_METHODS.filesync.recoverQueue);
   }
 }

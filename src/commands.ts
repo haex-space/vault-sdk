@@ -101,6 +101,18 @@ export const TAURI_COMMANDS = {
     // UI Helpers (selectFolder doesn't need extension info)
     selectFolder: "filesync_select_folder",
     scanLocal: "webview_filesync_scan_local",
+
+    // Sync Queue
+    addToQueue: "webview_filesync_add_to_queue",
+    getQueue: "webview_filesync_get_queue",
+    getQueueSummary: "webview_filesync_get_queue_summary",
+    startQueueEntry: "webview_filesync_start_queue_entry",
+    completeQueueEntry: "webview_filesync_complete_queue_entry",
+    failQueueEntry: "webview_filesync_fail_queue_entry",
+    retryFailedQueue: "webview_filesync_retry_failed_queue",
+    removeQueueEntry: "webview_filesync_remove_queue_entry",
+    clearQueue: "webview_filesync_clear_queue",
+    recoverQueue: "webview_filesync_recover_queue",
   },
 
 } as const;

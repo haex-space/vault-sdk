@@ -31,6 +31,14 @@ export type {
   UploadFileOptions,
   DownloadFileOptions,
   LocalFileInfo,
+  // Queue types
+  QueueOperation,
+  QueueStatus,
+  SyncQueueEntry,
+  AddToQueueOptions,
+  QueueFileEntry,
+  GetQueueOptions,
+  QueueSummary,
 } from "./api/filesync";
 
 export {
@@ -38,6 +46,9 @@ export {
   SYNC_DIRECTION,
   STORAGE_BACKEND_TYPE,
   CONFLICT_STRATEGY,
+  // Queue constants
+  QUEUE_OPERATION,
+  QUEUE_STATUS,
 } from "./api/filesync";
 
 export type {
