@@ -36,57 +36,6 @@ export const HAEXTENSION_METHODS = {
     copy: 'haextension:filesystem:copy',
   },
 
-  filesync: {
-    // Spaces
-    listSpaces: 'haextension:filesync:list-spaces',
-    createSpace: 'haextension:filesync:create-space',
-    deleteSpace: 'haextension:filesync:delete-space',
-
-    // Files
-    listFiles: 'haextension:filesync:list-files',
-    getFile: 'haextension:filesync:get-file',
-    uploadFile: 'haextension:filesync:upload-file',
-    downloadFile: 'haextension:filesync:download-file',
-    deleteFile: 'haextension:filesync:delete-file',
-
-    // Backends
-    listBackends: 'haextension:filesync:list-backends',
-    addBackend: 'haextension:filesync:add-backend',
-    removeBackend: 'haextension:filesync:remove-backend',
-    testBackend: 'haextension:filesync:test-backend',
-
-    // Sync Rules
-    listSyncRules: 'haextension:filesync:list-sync-rules',
-    addSyncRule: 'haextension:filesync:add-sync-rule',
-    updateSyncRule: 'haextension:filesync:update-sync-rule',
-    removeSyncRule: 'haextension:filesync:remove-sync-rule',
-
-    // Sync Operations
-    getSyncStatus: 'haextension:filesync:get-sync-status',
-    triggerSync: 'haextension:filesync:trigger-sync',
-    pauseSync: 'haextension:filesync:pause-sync',
-    resumeSync: 'haextension:filesync:resume-sync',
-
-    // Conflict Resolution
-    resolveConflict: 'haextension:filesync:resolve-conflict',
-
-    // UI Helpers
-    selectFolder: 'haextension:filesync:select-folder',
-    scanLocal: 'haextension:filesync:scan-local',
-
-    // Sync Queue (persistent upload/download queue)
-    addToQueue: 'haextension:filesync:add-to-queue',
-    getQueue: 'haextension:filesync:get-queue',
-    getQueueSummary: 'haextension:filesync:get-queue-summary',
-    startQueueEntry: 'haextension:filesync:start-queue-entry',
-    completeQueueEntry: 'haextension:filesync:complete-queue-entry',
-    failQueueEntry: 'haextension:filesync:fail-queue-entry',
-    retryFailedQueue: 'haextension:filesync:retry-failed-queue',
-    removeQueueEntry: 'haextension:filesync:remove-queue-entry',
-    clearQueue: 'haextension:filesync:clear-queue',
-    recoverQueue: 'haextension:filesync:recover-queue',
-  },
-
   storage: {
     getItem: 'haextension:storage:get-item',
     setItem: 'haextension:storage:set-item',

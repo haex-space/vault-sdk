@@ -11,7 +11,6 @@ export type {
   SelectFolderOptions,
   SelectFileOptions,
 } from "./api/filesystem";
-export { FileSyncAPI } from "./api/filesync";
 export { WebAPI } from "./api/web";
 export { PermissionsAPI } from "./api/permissions";
 export { RemoteStorageAPI } from "./api/remoteStorage";
@@ -21,48 +20,6 @@ export type {
   AddBackendRequest as RemoteAddBackendRequest,
   StorageObjectInfo as RemoteStorageObjectInfo,
 } from "./api/remoteStorage";
-export type {
-  FileSpace,
-  FileInfo,
-  FileSyncState,
-  StorageBackendInfo,
-  StorageBackendType,
-  S3BackendConfig,
-  BackendConfig,
-  SyncRule,
-  SyncDirection,
-  ConflictStrategy,
-  SyncStatus,
-  SyncError,
-  SyncProgress,
-  CreateSpaceOptions,
-  AddBackendOptions,
-  AddSyncRuleOptions,
-  UpdateSyncRuleOptions,
-  ListFilesOptions,
-  ScanLocalOptions,
-  UploadFileOptions,
-  DownloadFileOptions,
-  LocalFileInfo,
-  // Queue types
-  QueueOperation,
-  QueueStatus,
-  SyncQueueEntry,
-  AddToQueueOptions,
-  QueueFileEntry,
-  GetQueueOptions,
-  QueueSummary,
-} from "./api/filesync";
-
-export {
-  FILE_SYNC_STATE,
-  SYNC_DIRECTION,
-  STORAGE_BACKEND_TYPE,
-  CONFLICT_STRATEGY,
-  // Queue constants
-  QUEUE_OPERATION,
-  QUEUE_STATUS,
-} from "./api/filesync";
 
 export type {
   HaexHubRequest,
