@@ -18,6 +18,7 @@ export type {
   BackendConfig,
   SyncRule,
   SyncDirection,
+  ConflictStrategy,
   SyncStatus,
   SyncError,
   SyncProgress,
@@ -36,6 +37,7 @@ export {
   FILE_SYNC_STATE,
   SYNC_DIRECTION,
   STORAGE_BACKEND_TYPE,
+  CONFLICT_STRATEGY,
 } from "./api/filesync";
 
 export type {

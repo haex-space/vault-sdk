@@ -112,16 +112,39 @@ export type BackendConfig = S3BackendConfig;
 
 export interface SyncRule {
   id: string;
+  /** Device ID this sync rule belongs to (local paths are device-specific) */
+  deviceId: string;
   spaceId: string;
   localPath: string;
   backendIds: string[];
   direction: SyncDirection;
   enabled: boolean;
+  /** Gitignore-like patterns for files/folders to exclude from sync */
+  ignorePatterns: string[];
+  /** Default conflict resolution strategy for this sync rule */
+  conflictStrategy: ConflictStrategy;
   createdAt: string;
   updatedAt: string;
 }
 
 export type SyncDirection = "up" | "down" | "both";
+
+/** Conflict resolution strategy for sync rules */
+export type ConflictStrategy = "local" | "remote" | "newer" | "ask" | "keepBoth";
+
+/** Conflict strategy constants */
+export const CONFLICT_STRATEGY: Record<string, ConflictStrategy> = {
+  /** Always prefer local version */
+  LOCAL: "local",
+  /** Always prefer remote version */
+  REMOTE: "remote",
+  /** Prefer newer version (Last-Writer-Wins) */
+  NEWER: "newer",
+  /** Ask user to resolve each conflict manually */
+  ASK: "ask",
+  /** Keep both versions (create conflict copy) */
+  KEEP_BOTH: "keepBoth",
+};
 
 export interface SyncStatus {
   isSyncing: boolean;
@@ -160,6 +183,10 @@ export interface AddSyncRuleOptions {
   localPath: string;
   backendIds: string[];
   direction?: SyncDirection;
+  /** Gitignore-like patterns for files/folders to exclude from sync */
+  ignorePatterns?: string[];
+  /** Default conflict resolution strategy (defaults to 'ask') */
+  conflictStrategy?: ConflictStrategy;
 }
 
 export interface UpdateSyncRuleOptions {
@@ -167,6 +194,10 @@ export interface UpdateSyncRuleOptions {
   backendIds?: string[];
   direction?: SyncDirection;
   enabled?: boolean;
+  /** Gitignore-like patterns for files/folders to exclude from sync */
+  ignorePatterns?: string[];
+  /** Default conflict resolution strategy */
+  conflictStrategy?: ConflictStrategy;
 }
 
 export interface ListFilesOptions {
