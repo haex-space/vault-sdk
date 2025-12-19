@@ -83,6 +83,20 @@ export const HAEXTENSION_METHODS = {
     keys: 'haextension:storage:keys',
   },
 
+  // Remote Storage API (S3, WebDAV, FTP, etc.)
+  remoteStorage: {
+    // Backend Management
+    listBackends: 'haextension:remote-storage:list-backends',
+    addBackend: 'haextension:remote-storage:add-backend',
+    removeBackend: 'haextension:remote-storage:remove-backend',
+    testBackend: 'haextension:remote-storage:test-backend',
+    // Storage Operations
+    upload: 'haextension:remote-storage:upload',
+    download: 'haextension:remote-storage:download',
+    delete: 'haextension:remote-storage:delete',
+    list: 'haextension:remote-storage:list',
+  },
+
   web: {
     fetch: 'haextension:web:fetch',
   },

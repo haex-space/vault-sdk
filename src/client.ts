@@ -25,6 +25,7 @@ import { DatabaseAPI } from "./api/database";
 import { FilesystemAPI } from "./api/filesystem";
 import { WebAPI } from "./api/web";
 import { PermissionsAPI } from "./api/permissions";
+import { RemoteStorageAPI } from "./api/remoteStorage";
 import { installConsoleForwarding } from "./polyfills/consoleForwarding";
 import type { SqliteRemoteDatabase } from "drizzle-orm/sqlite-proxy";
 
@@ -81,6 +82,7 @@ export class HaexVaultSdk {
   public readonly filesystem: FilesystemAPI;
   public readonly web: WebAPI;
   public readonly permissions: PermissionsAPI;
+  public readonly remoteStorage: RemoteStorageAPI;
 
   constructor(config: HaexHubConfig = {}) {
     this.config = {
@@ -94,6 +96,7 @@ export class HaexVaultSdk {
     this.filesystem = new FilesystemAPI(this);
     this.web = new WebAPI(this);
     this.permissions = new PermissionsAPI(this);
+    this.remoteStorage = new RemoteStorageAPI(this);
 
     installConsoleForwarding(this.config.debug);
 

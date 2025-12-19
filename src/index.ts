@@ -8,6 +8,13 @@ export { FilesystemAPI } from "./api/filesystem";
 export { FileSyncAPI } from "./api/filesync";
 export { WebAPI } from "./api/web";
 export { PermissionsAPI } from "./api/permissions";
+export { RemoteStorageAPI } from "./api/remoteStorage";
+export type {
+  StorageBackendInfo as RemoteStorageBackendInfo,
+  S3Config as RemoteS3Config,
+  AddBackendRequest as RemoteAddBackendRequest,
+  StorageObjectInfo as RemoteStorageObjectInfo,
+} from "./api/remoteStorage";
 export type {
   FileSpace,
   FileInfo,

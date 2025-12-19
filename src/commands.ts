@@ -64,6 +64,21 @@ export const TAURI_COMMANDS = {
     getContext: "webview_extension_context_get",
   },
 
+  storage: {
+    // Backend Management (generic, shared by all extensions)
+    // These commands don't use webview_ prefix because storage backends are global,
+    // not extension-specific. All extensions share the same storage backends.
+    listBackends: "storage_list_backends",
+    addBackend: "storage_add_backend",
+    removeBackend: "storage_remove_backend",
+    testBackend: "storage_test_backend",
+    // Storage Operations
+    upload: "storage_upload",
+    download: "storage_download",
+    delete: "storage_delete",
+    list: "storage_list",
+  },
+
   filesync: {
     // Spaces (webview_* commands extract extension info from WebviewWindow)
     listSpaces: "webview_filesync_list_spaces",
@@ -125,4 +140,5 @@ export type TauriCommand =
   | (typeof TAURI_COMMANDS.filesystem)[keyof typeof TAURI_COMMANDS.filesystem]
   | (typeof TAURI_COMMANDS.external)[keyof typeof TAURI_COMMANDS.external]
   | (typeof TAURI_COMMANDS.extension)[keyof typeof TAURI_COMMANDS.extension]
+  | (typeof TAURI_COMMANDS.storage)[keyof typeof TAURI_COMMANDS.storage]
   | (typeof TAURI_COMMANDS.filesync)[keyof typeof TAURI_COMMANDS.filesync];
