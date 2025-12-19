@@ -83,6 +83,7 @@ export const TAURI_COMMANDS = {
     // not extension-specific. All extensions share the same storage backends.
     listBackends: "storage_list_backends",
     addBackend: "storage_add_backend",
+    updateBackend: "storage_update_backend",
     removeBackend: "storage_remove_backend",
     testBackend: "storage_test_backend",
     // Storage Operations
