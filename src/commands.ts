@@ -92,57 +92,6 @@ export const TAURI_COMMANDS = {
     list: "storage_list",
   },
 
-  filesync: {
-    // Spaces (webview_* commands extract extension info from WebviewWindow)
-    listSpaces: "webview_filesync_list_spaces",
-    createSpace: "webview_filesync_create_space",
-    deleteSpace: "webview_filesync_delete_space",
-
-    // Files
-    listFiles: "webview_filesync_list_files",
-    getFile: "webview_filesync_get_file",
-    uploadFile: "webview_filesync_upload_file",
-    downloadFile: "webview_filesync_download_file",
-    deleteFile: "webview_filesync_delete_file",
-
-    // Backends
-    listBackends: "webview_filesync_list_backends",
-    addBackend: "webview_filesync_add_backend",
-    removeBackend: "webview_filesync_remove_backend",
-    testBackend: "webview_filesync_test_backend",
-
-    // Sync Rules
-    listSyncRules: "webview_filesync_list_sync_rules",
-    addSyncRule: "webview_filesync_add_sync_rule",
-    updateSyncRule: "webview_filesync_update_sync_rule",
-    removeSyncRule: "webview_filesync_remove_sync_rule",
-
-    // Sync Operations
-    getSyncStatus: "webview_filesync_get_sync_status",
-    triggerSync: "webview_filesync_trigger_sync",
-    pauseSync: "webview_filesync_pause_sync",
-    resumeSync: "webview_filesync_resume_sync",
-
-    // Conflict Resolution
-    resolveConflict: "webview_filesync_resolve_conflict",
-
-    // UI Helpers (selectFolder doesn't need extension info)
-    selectFolder: "filesync_select_folder",
-    scanLocal: "webview_filesync_scan_local",
-
-    // Sync Queue
-    addToQueue: "webview_filesync_add_to_queue",
-    getQueue: "webview_filesync_get_queue",
-    getQueueSummary: "webview_filesync_get_queue_summary",
-    startQueueEntry: "webview_filesync_start_queue_entry",
-    completeQueueEntry: "webview_filesync_complete_queue_entry",
-    failQueueEntry: "webview_filesync_fail_queue_entry",
-    retryFailedQueue: "webview_filesync_retry_failed_queue",
-    removeQueueEntry: "webview_filesync_remove_queue_entry",
-    clearQueue: "webview_filesync_clear_queue",
-    recoverQueue: "webview_filesync_recover_queue",
-  },
-
 } as const;
 
 // Type helper to extract command string literals
@@ -153,5 +102,4 @@ export type TauriCommand =
   | (typeof TAURI_COMMANDS.filesystem)[keyof typeof TAURI_COMMANDS.filesystem]
   | (typeof TAURI_COMMANDS.external)[keyof typeof TAURI_COMMANDS.external]
   | (typeof TAURI_COMMANDS.extension)[keyof typeof TAURI_COMMANDS.extension]
-  | (typeof TAURI_COMMANDS.storage)[keyof typeof TAURI_COMMANDS.storage]
-  | (typeof TAURI_COMMANDS.filesync)[keyof typeof TAURI_COMMANDS.filesync];
+  | (typeof TAURI_COMMANDS.storage)[keyof typeof TAURI_COMMANDS.storage];

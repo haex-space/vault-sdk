@@ -10,7 +10,6 @@ import { permissionsHandlers } from "./permissions";
 import { webHandlers } from "./web";
 import { filesystemHandlers } from "./filesystem";
 import { externalHandlers } from "./external";
-import { filesyncHandlers } from "./filesync";
 
 /**
  * Combined handler map for all SDK methods
@@ -22,7 +21,6 @@ export const allHandlers: InvokeHandlerMap = {
   ...webHandlers,
   ...filesystemHandlers,
   ...externalHandlers,
-  ...filesyncHandlers,
 };
 
 // Re-export types and individual handlers for flexibility
@@ -32,4 +30,3 @@ export { permissionsHandlers } from "./permissions";
 export { webHandlers } from "./web";
 export { filesystemHandlers } from "./filesystem";
 export { externalHandlers } from "./external";
-export { filesyncHandlers } from "./filesync";
