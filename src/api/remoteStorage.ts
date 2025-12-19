@@ -7,6 +7,18 @@ import { arrayBufferToBase64, base64ToArrayBuffer } from "~/crypto/vaultKey";
 // ============================================================================
 
 /**
+ * S3 config without secrets (for display purposes)
+ */
+export interface S3PublicConfig {
+  /** Endpoint URL (optional) */
+  endpoint?: string;
+  /** Region */
+  region: string;
+  /** Bucket name */
+  bucket: string;
+}
+
+/**
  * Storage backend info (public, without credentials)
  */
 export interface StorageBackendInfo {
@@ -16,6 +28,8 @@ export interface StorageBackendInfo {
   name: string;
   enabled: boolean;
   createdAt: string;
+  /** Public config without secrets (endpoint, bucket, region) */
+  config?: S3PublicConfig;
 }
 
 /**
