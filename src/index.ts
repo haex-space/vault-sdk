@@ -19,6 +19,7 @@ export type {
   S3Config as RemoteS3Config,
   S3PublicConfig as RemoteS3PublicConfig,
   AddBackendRequest as RemoteAddBackendRequest,
+  UpdateBackendRequest as RemoteUpdateBackendRequest,
   StorageObjectInfo as RemoteStorageObjectInfo,
 } from "./api/remoteStorage";
 

@@ -63,6 +63,19 @@ export interface AddBackendRequest {
 }
 
 /**
+ * Request to update a storage backend
+ * Only provided fields are updated. Credentials are preserved if not provided.
+ */
+export interface UpdateBackendRequest {
+  /** Backend ID to update */
+  backendId: string;
+  /** New display name (optional) */
+  name?: string;
+  /** New configuration (optional) - only non-empty fields are updated */
+  config?: Partial<S3Config> | Record<string, unknown>;
+}
+
+/**
  * Object info from list operation
  */
 export interface StorageObjectInfo {
@@ -182,6 +195,19 @@ class BackendManagement {
   async add(request: AddBackendRequest): Promise<StorageBackendInfo> {
     return this.client.request<StorageBackendInfo, AddBackendRequest>(
       HAEXTENSION_METHODS.remoteStorage.addBackend,
+      request
+    );
+  }
+
+  /**
+   * Update a storage backend
+   * Only provided fields are updated. Credentials are preserved if not provided.
+   * @param request - Update request with backendId and fields to update
+   * @returns Updated backend info
+   */
+  async update(request: UpdateBackendRequest): Promise<StorageBackendInfo> {
+    return this.client.request<StorageBackendInfo, UpdateBackendRequest>(
+      HAEXTENSION_METHODS.remoteStorage.updateBackend,
       request
     );
   }

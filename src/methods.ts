@@ -49,6 +49,7 @@ export const HAEXTENSION_METHODS = {
     // Backend Management
     listBackends: 'haextension:remote-storage:list-backends',
     addBackend: 'haextension:remote-storage:add-backend',
+    updateBackend: 'haextension:remote-storage:update-backend',
     removeBackend: 'haextension:remote-storage:remove-backend',
     testBackend: 'haextension:remote-storage:test-backend',
     // Storage Operations
