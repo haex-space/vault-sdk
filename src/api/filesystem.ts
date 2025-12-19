@@ -67,6 +67,72 @@ export interface ShowImageResult {
   success: boolean;
 }
 
+// ============================================================================
+// Generic Filesystem Types (Phase 2)
+// ============================================================================
+
+/**
+ * File/directory metadata
+ */
+export interface FileStat {
+  /** File size in bytes */
+  size: number;
+  /** True if this is a file */
+  isFile: boolean;
+  /** True if this is a directory */
+  isDirectory: boolean;
+  /** True if this is a symbolic link */
+  isSymlink: boolean;
+  /** Last modified time (Unix timestamp in milliseconds) */
+  modified?: number;
+  /** Created time (Unix timestamp in milliseconds) */
+  created?: number;
+  /** Whether the file is read-only */
+  readonly: boolean;
+}
+
+/**
+ * Directory entry
+ */
+export interface DirEntry {
+  /** Entry name (not full path) */
+  name: string;
+  /** Full path */
+  path: string;
+  /** True if this is a file */
+  isFile: boolean;
+  /** True if this is a directory */
+  isDirectory: boolean;
+  /** File size in bytes (0 for directories) */
+  size: number;
+  /** Last modified time (Unix timestamp in milliseconds) */
+  modified?: number;
+}
+
+/**
+ * Options for selecting a folder
+ */
+export interface SelectFolderOptions {
+  /** Dialog title */
+  title?: string;
+  /** Default path to open */
+  defaultPath?: string;
+}
+
+/**
+ * Options for selecting files
+ */
+export interface SelectFileOptions {
+  /** Dialog title */
+  title?: string;
+  /** Default path to open */
+  defaultPath?: string;
+  /** File filters (name -> extensions) */
+  filters?: Array<[string, string[]]>;
+  /** Allow multiple file selection */
+  multiple?: boolean;
+}
+
 export class FilesystemAPI {
   public readonly sync: FileSyncAPI;
 
@@ -137,5 +203,149 @@ export class FilesystemAPI {
     );
 
     return result;
+  }
+
+  // ==========================================================================
+  // Generic Filesystem Operations (Phase 2)
+  // ==========================================================================
+
+  /**
+   * Read file contents
+   * @param path Absolute path to the file
+   * @returns File contents as Uint8Array
+   */
+  async readFile(path: string): Promise<Uint8Array> {
+    const base64 = await this.client.request<string>(
+      HAEXTENSION_METHODS.filesystem.readFile,
+      { path }
+    );
+    // Decode base64
+    const binary = atob(base64);
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) {
+      bytes[i] = binary.charCodeAt(i);
+    }
+    return bytes;
+  }
+
+  /**
+   * Write file contents
+   * @param path Absolute path to the file
+   * @param data File contents as Uint8Array
+   */
+  async writeFile(path: string, data: Uint8Array): Promise<void> {
+    // Encode to base64
+    const base64 = btoa(String.fromCharCode(...data));
+    await this.client.request(
+      HAEXTENSION_METHODS.filesystem.writeFile,
+      { path, data: base64 }
+    );
+  }
+
+  /**
+   * Read directory contents
+   * @param path Absolute path to the directory
+   * @returns Array of directory entries
+   */
+  async readDir(path: string): Promise<DirEntry[]> {
+    return this.client.request<DirEntry[]>(
+      HAEXTENSION_METHODS.filesystem.readDir,
+      { path }
+    );
+  }
+
+  /**
+   * Create a directory (and parent directories if needed)
+   * @param path Absolute path to create
+   */
+  async mkdir(path: string): Promise<void> {
+    await this.client.request(
+      HAEXTENSION_METHODS.filesystem.mkdir,
+      { path }
+    );
+  }
+
+  /**
+   * Remove a file or directory
+   * @param path Absolute path to remove
+   * @param recursive If true, remove directories recursively
+   */
+  async remove(path: string, recursive = false): Promise<void> {
+    await this.client.request(
+      HAEXTENSION_METHODS.filesystem.remove,
+      { path, recursive }
+    );
+  }
+
+  /**
+   * Check if a path exists
+   * @param path Absolute path to check
+   * @returns True if the path exists
+   */
+  async exists(path: string): Promise<boolean> {
+    return this.client.request<boolean>(
+      HAEXTENSION_METHODS.filesystem.exists,
+      { path }
+    );
+  }
+
+  /**
+   * Get file/directory metadata
+   * @param path Absolute path
+   * @returns File metadata
+   */
+  async stat(path: string): Promise<FileStat> {
+    return this.client.request<FileStat>(
+      HAEXTENSION_METHODS.filesystem.stat,
+      { path }
+    );
+  }
+
+  /**
+   * Open a folder selection dialog
+   * @param options Dialog options
+   * @returns Selected folder path, or null if cancelled
+   */
+  async selectFolder(options: SelectFolderOptions = {}): Promise<string | null> {
+    return this.client.request<string | null, SelectFolderOptions>(
+      HAEXTENSION_METHODS.filesystem.selectFolder,
+      options
+    );
+  }
+
+  /**
+   * Open a file selection dialog
+   * @param options Dialog options
+   * @returns Selected file paths, or null if cancelled
+   */
+  async selectFile(options: SelectFileOptions = {}): Promise<string[] | null> {
+    return this.client.request<string[] | null, SelectFileOptions>(
+      HAEXTENSION_METHODS.filesystem.selectFile,
+      options
+    );
+  }
+
+  /**
+   * Rename/move a file or directory
+   * @param from Source path
+   * @param to Destination path
+   */
+  async rename(from: string, to: string): Promise<void> {
+    await this.client.request(
+      HAEXTENSION_METHODS.filesystem.rename,
+      { from, to }
+    );
+  }
+
+  /**
+   * Copy a file
+   * @param from Source path
+   * @param to Destination path
+   */
+  async copy(from: string, to: string): Promise<void> {
+    await this.client.request(
+      HAEXTENSION_METHODS.filesystem.copy,
+      { from, to }
+    );
   }
 }

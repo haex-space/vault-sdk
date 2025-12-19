@@ -22,6 +22,18 @@ export const HAEXTENSION_METHODS = {
     saveFile: 'haextension:filesystem:save-file',
     openFile: 'haextension:filesystem:open-file',
     showImage: 'haextension:filesystem:show-image',
+    // Generic FS operations (Phase 2)
+    readFile: 'haextension:filesystem:read-file',
+    writeFile: 'haextension:filesystem:write-file',
+    readDir: 'haextension:filesystem:read-dir',
+    mkdir: 'haextension:filesystem:mkdir',
+    remove: 'haextension:filesystem:remove',
+    exists: 'haextension:filesystem:exists',
+    stat: 'haextension:filesystem:stat',
+    selectFolder: 'haextension:filesystem:select-folder',
+    selectFile: 'haextension:filesystem:select-file',
+    rename: 'haextension:filesystem:rename',
+    copy: 'haextension:filesystem:copy',
   },
 
   filesync: {

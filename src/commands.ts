@@ -27,6 +27,19 @@ export const TAURI_COMMANDS = {
     saveFile: "webview_extension_fs_save_file",
     openFile: "webview_extension_fs_open_file",
     showImage: "webview_extension_fs_show_image",
+    // Generic filesystem operations (no webview_ prefix because they're global)
+    // Permission checks happen in the message handler layer
+    readFile: "filesystem_read_file",
+    writeFile: "filesystem_write_file",
+    readDir: "filesystem_read_dir",
+    mkdir: "filesystem_mkdir",
+    remove: "filesystem_remove",
+    exists: "filesystem_exists",
+    stat: "filesystem_stat",
+    selectFolder: "filesystem_select_folder",
+    selectFile: "filesystem_select_file",
+    rename: "filesystem_rename",
+    copy: "filesystem_copy",
   },
 
   external: {

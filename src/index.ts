@@ -5,6 +5,12 @@ import './polyfills';
 export { HaexVaultSdk } from "./client";
 export { DatabaseAPI } from "./api/database";
 export { FilesystemAPI } from "./api/filesystem";
+export type {
+  FileStat,
+  DirEntry,
+  SelectFolderOptions,
+  SelectFileOptions,
+} from "./api/filesystem";
 export { FileSyncAPI } from "./api/filesync";
 export { WebAPI } from "./api/web";
 export { PermissionsAPI } from "./api/permissions";
