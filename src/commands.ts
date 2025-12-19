@@ -93,6 +93,21 @@ export const TAURI_COMMANDS = {
     list: "storage_list",
   },
 
+  // Extension Remote Storage commands (with permission checks)
+  // These commands require publicKey and name to identify the extension
+  // and validate filesync permissions before executing storage operations.
+  extensionRemoteStorage: {
+    listBackends: "extension_remote_storage_list_backends",
+    addBackend: "extension_remote_storage_add_backend",
+    updateBackend: "extension_remote_storage_update_backend",
+    removeBackend: "extension_remote_storage_remove_backend",
+    testBackend: "extension_remote_storage_test_backend",
+    upload: "extension_remote_storage_upload",
+    download: "extension_remote_storage_download",
+    delete: "extension_remote_storage_delete",
+    list: "extension_remote_storage_list",
+  },
+
 } as const;
 
 // Type helper to extract command string literals
@@ -103,4 +118,5 @@ export type TauriCommand =
   | (typeof TAURI_COMMANDS.filesystem)[keyof typeof TAURI_COMMANDS.filesystem]
   | (typeof TAURI_COMMANDS.external)[keyof typeof TAURI_COMMANDS.external]
   | (typeof TAURI_COMMANDS.extension)[keyof typeof TAURI_COMMANDS.extension]
-  | (typeof TAURI_COMMANDS.storage)[keyof typeof TAURI_COMMANDS.storage];
+  | (typeof TAURI_COMMANDS.storage)[keyof typeof TAURI_COMMANDS.storage]
+  | (typeof TAURI_COMMANDS.extensionRemoteStorage)[keyof typeof TAURI_COMMANDS.extensionRemoteStorage];
