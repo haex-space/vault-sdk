@@ -65,9 +65,12 @@ export const remoteStorageHandlers: InvokeHandlerMap = {
   [HAEXTENSION_METHODS.remoteStorage.addBackend]: {
     command: TAURI_COMMANDS.storage.addBackend,
     args: (p: AddBackendParams) => ({
-      name: p.name,
-      backendType: p.type,
-      config: p.config,
+      // Rust expects: request: AddStorageBackendRequest { name, type, config }
+      request: {
+        name: p.name,
+        type: p.type,
+        config: p.config,
+      },
     }),
   } satisfies InvokeMapping<AddBackendParams>,
 
@@ -89,33 +92,45 @@ export const remoteStorageHandlers: InvokeHandlerMap = {
   [HAEXTENSION_METHODS.remoteStorage.upload]: {
     command: TAURI_COMMANDS.storage.upload,
     args: (p: UploadParams) => ({
-      backendId: p.backendId,
-      key: p.key,
-      data: p.data,
+      // Rust expects: request: StorageUploadRequest { backend_id, key, data }
+      request: {
+        backendId: p.backendId,
+        key: p.key,
+        data: p.data,
+      },
     }),
   } satisfies InvokeMapping<UploadParams>,
 
   [HAEXTENSION_METHODS.remoteStorage.download]: {
     command: TAURI_COMMANDS.storage.download,
     args: (p: DownloadParams) => ({
-      backendId: p.backendId,
-      key: p.key,
+      // Rust expects: request: StorageDownloadRequest { backend_id, key }
+      request: {
+        backendId: p.backendId,
+        key: p.key,
+      },
     }),
   } satisfies InvokeMapping<DownloadParams>,
 
   [HAEXTENSION_METHODS.remoteStorage.delete]: {
     command: TAURI_COMMANDS.storage.delete,
     args: (p: DeleteParams) => ({
-      backendId: p.backendId,
-      key: p.key,
+      // Rust expects: request: StorageDeleteRequest { backend_id, key }
+      request: {
+        backendId: p.backendId,
+        key: p.key,
+      },
     }),
   } satisfies InvokeMapping<DeleteParams>,
 
   [HAEXTENSION_METHODS.remoteStorage.list]: {
     command: TAURI_COMMANDS.storage.list,
     args: (p: ListParams) => ({
-      backendId: p.backendId,
-      prefix: p.prefix,
+      // Rust expects: request: StorageListRequest { backend_id, prefix }
+      request: {
+        backendId: p.backendId,
+        prefix: p.prefix,
+      },
     }),
   } satisfies InvokeMapping<ListParams>,
 };
