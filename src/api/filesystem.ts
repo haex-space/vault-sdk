@@ -1,5 +1,5 @@
 import type { HaexVaultSdk } from "../client";
-import { HAEXTENSION_METHODS } from "../methods";
+import { FILESYSTEM_COMMANDS } from "../commands";
 import { arrayBufferToBase64, base64ToArrayBuffer } from "../crypto/vaultKey";
 
 export interface SaveFileOptions {
@@ -147,7 +147,7 @@ export class FilesystemAPI {
     options: SaveFileOptions = {}
   ): Promise<SaveFileResult | null> {
     const result = await this.client.request<SaveFileResult | null>(
-      HAEXTENSION_METHODS.filesystem.saveFile,
+      FILESYSTEM_COMMANDS.saveFile,
       {
         data: Array.from(data), // Convert Uint8Array to regular array for postMessage
         defaultPath: options.defaultPath,
@@ -170,7 +170,7 @@ export class FilesystemAPI {
     options: OpenFileOptions
   ): Promise<OpenFileResult> {
     const result = await this.client.request<OpenFileResult>(
-      HAEXTENSION_METHODS.filesystem.openFile,
+      FILESYSTEM_COMMANDS.openFile,
       {
         data: Array.from(data), // Convert Uint8Array to regular array for postMessage
         fileName: options.fileName,
@@ -192,7 +192,7 @@ export class FilesystemAPI {
     options: ShowImageOptions
   ): Promise<ShowImageResult> {
     const result = await this.client.request<ShowImageResult>(
-      HAEXTENSION_METHODS.filesystem.showImage,
+      FILESYSTEM_COMMANDS.showImage,
       {
         dataUrl: options.dataUrl,
       }
@@ -212,7 +212,7 @@ export class FilesystemAPI {
    */
   async readFile(path: string): Promise<Uint8Array> {
     const base64 = await this.client.request<string>(
-      HAEXTENSION_METHODS.filesystem.readFile,
+      FILESYSTEM_COMMANDS.readFile,
       { path }
     );
     return base64ToArrayBuffer(base64);
@@ -226,7 +226,7 @@ export class FilesystemAPI {
   async writeFile(path: string, data: Uint8Array): Promise<void> {
     const base64 = arrayBufferToBase64(data);
     await this.client.request(
-      HAEXTENSION_METHODS.filesystem.writeFile,
+      FILESYSTEM_COMMANDS.writeFile,
       { path, data: base64 }
     );
   }
@@ -238,7 +238,7 @@ export class FilesystemAPI {
    */
   async readDir(path: string): Promise<DirEntry[]> {
     return this.client.request<DirEntry[]>(
-      HAEXTENSION_METHODS.filesystem.readDir,
+      FILESYSTEM_COMMANDS.readDir,
       { path }
     );
   }
@@ -249,7 +249,7 @@ export class FilesystemAPI {
    */
   async mkdir(path: string): Promise<void> {
     await this.client.request(
-      HAEXTENSION_METHODS.filesystem.mkdir,
+      FILESYSTEM_COMMANDS.mkdir,
       { path }
     );
   }
@@ -261,7 +261,7 @@ export class FilesystemAPI {
    */
   async remove(path: string, recursive = false): Promise<void> {
     await this.client.request(
-      HAEXTENSION_METHODS.filesystem.remove,
+      FILESYSTEM_COMMANDS.remove,
       { path, recursive }
     );
   }
@@ -273,7 +273,7 @@ export class FilesystemAPI {
    */
   async exists(path: string): Promise<boolean> {
     return this.client.request<boolean>(
-      HAEXTENSION_METHODS.filesystem.exists,
+      FILESYSTEM_COMMANDS.exists,
       { path }
     );
   }
@@ -285,7 +285,7 @@ export class FilesystemAPI {
    */
   async stat(path: string): Promise<FileStat> {
     return this.client.request<FileStat>(
-      HAEXTENSION_METHODS.filesystem.stat,
+      FILESYSTEM_COMMANDS.stat,
       { path }
     );
   }
@@ -297,7 +297,7 @@ export class FilesystemAPI {
    */
   async selectFolder(options: SelectFolderOptions = {}): Promise<string | null> {
     return this.client.request<string | null, SelectFolderOptions>(
-      HAEXTENSION_METHODS.filesystem.selectFolder,
+      FILESYSTEM_COMMANDS.selectFolder,
       options
     );
   }
@@ -309,7 +309,7 @@ export class FilesystemAPI {
    */
   async selectFile(options: SelectFileOptions = {}): Promise<string[] | null> {
     return this.client.request<string[] | null, SelectFileOptions>(
-      HAEXTENSION_METHODS.filesystem.selectFile,
+      FILESYSTEM_COMMANDS.selectFile,
       options
     );
   }
@@ -321,7 +321,7 @@ export class FilesystemAPI {
    */
   async rename(from: string, to: string): Promise<void> {
     await this.client.request(
-      HAEXTENSION_METHODS.filesystem.rename,
+      FILESYSTEM_COMMANDS.rename,
       { from, to }
     );
   }
@@ -333,7 +333,7 @@ export class FilesystemAPI {
    */
   async copy(from: string, to: string): Promise<void> {
     await this.client.request(
-      HAEXTENSION_METHODS.filesystem.copy,
+      FILESYSTEM_COMMANDS.copy,
       { from, to }
     );
   }

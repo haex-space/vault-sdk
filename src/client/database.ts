@@ -5,7 +5,7 @@
  * and raw SQL query/execute methods.
  */
 
-import { HAEXTENSION_METHODS } from "../methods";
+import { DATABASE_COMMANDS } from "../commands";
 import { ErrorCode, HaexVaultSdkError } from "../types";
 import type { ExtensionInfo, DatabaseQueryResult } from "../types";
 import { drizzle, type SqliteRemoteDatabase } from "drizzle-orm/sqlite-proxy";
@@ -58,7 +58,7 @@ export function createDrizzleInstance<T extends Record<string, unknown>>(
 
         if (method === "run" || method === "all") {
           const result = await request<DatabaseQueryResult>(
-            HAEXTENSION_METHODS.database.execute,
+            DATABASE_COMMANDS.execute,
             {
               query: sql,
               params: params as unknown[],
@@ -79,7 +79,7 @@ export function createDrizzleInstance<T extends Record<string, unknown>>(
         }
 
         // Read operations (SELECT without RETURNING)
-        const result = await request<DatabaseQueryResult>(HAEXTENSION_METHODS.database.query, {
+        const result = await request<DatabaseQueryResult>(DATABASE_COMMANDS.query, {
           query: sql,
           params: params as unknown[],
         });
@@ -119,7 +119,7 @@ export async function queryRaw<T = Record<string, unknown>>(
   debug: boolean
 ): Promise<T[]> {
   const result = await request<DatabaseQueryResult>(
-    HAEXTENSION_METHODS.database.query,
+    DATABASE_COMMANDS.query,
     { query: sql, params }
   );
   if (debug) {
@@ -142,7 +142,7 @@ export async function executeRaw(
   request: RequestFn
 ): Promise<{ rowsAffected: number; lastInsertId?: number }> {
   const result = await request<DatabaseQueryResult>(
-    HAEXTENSION_METHODS.database.execute,
+    DATABASE_COMMANDS.execute,
     { query: sql, params }
   );
   return {

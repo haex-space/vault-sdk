@@ -1,6 +1,6 @@
 import type { HaexVaultSdk } from "../client";
 import type { WebRequestOptions, WebResponse } from "../types";
-import { HAEXTENSION_METHODS } from "../methods";
+import { WEB_COMMANDS } from "../commands";
 
 export class WebAPI {
   constructor(private client: HaexVaultSdk) {}
@@ -31,7 +31,7 @@ export class WebAPI {
       headers: Record<string, string>;
       body: string; // Base64 encoded
       url: string;
-    }>(HAEXTENSION_METHODS.web.fetch, {
+    }>(WEB_COMMANDS.fetch, {
       url,
       method: options.method || "GET",
       headers: options.headers,
@@ -84,10 +84,7 @@ export class WebAPI {
    * @param url The URL to open
    */
   async openAsync(url: string): Promise<void> {
-    await this.client.request<void>(HAEXTENSION_METHODS.application.open, {
-      application: "browser",
-      url,
-    });
+    await this.client.request<void>(WEB_COMMANDS.open, { url });
   }
 
   private arrayBufferToBase64(buffer: ArrayBuffer): string {

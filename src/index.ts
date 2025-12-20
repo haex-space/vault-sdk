@@ -75,9 +75,6 @@ export { HaexVaultSdkError } from "./types";
 // Export event constants
 export { HAEXTENSION_EVENTS, type HaextensionEvent, EXTERNAL_EVENTS, type ExternalEvent } from './events';
 
-// Export method constants
-export { HAEXTENSION_METHODS, type HaextensionMethod } from './methods';
-
 // Export message type constants
 export { HAEXSPACE_MESSAGE_TYPES, type HaexspaceMessageType } from './messages';
 

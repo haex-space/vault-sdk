@@ -8,7 +8,6 @@
 
 import { ErrorCode, HaexVaultSdkError } from "../types";
 import type { HaexHubRequest, ExtensionInfo } from "../types";
-import { allHandlers } from "../transport/handlers";
 import type { ClientConfig, PendingRequest, LogFn } from "./context";
 
 /**
@@ -66,39 +65,26 @@ export function sendPostMessage<T>(
 
 /**
  * Send a request via Tauri invoke (native WebView mode)
+ *
+ * Uses unified command names - method name is the command name.
  */
 export async function sendInvoke<T>(
   method: string,
   params: Record<string, unknown>,
   config: ClientConfig,
-  log: LogFn
+  _log: LogFn
 ): Promise<T> {
   const { invoke } = (window as unknown as { __TAURI__: { core: { invoke: <R>(cmd: string, args?: Record<string, unknown>) => Promise<R> } } }).__TAURI__.core;
 
   if (config.debug) {
     console.log("[SDK Debug] ========== Invoke Request ==========");
-    console.log("[SDK Debug] Method:", method);
+    console.log("[SDK Debug] Command:", method);
     console.log("[SDK Debug] Params:", params);
     console.log("[SDK Debug] =======================================");
   }
 
-  // Look up handler for this method
-  const handler = allHandlers[method];
-
-  if (handler) {
-    const args = handler.args(params);
-    console.log("[SDK Debug] Handler found for method:", method);
-    console.log("[SDK Debug] Handler command:", handler.command);
-    console.log("[SDK Debug] Transformed args:", JSON.stringify(args, null, 2));
-    return invoke<T>(handler.command, args);
-  }
-
-  // Method not found in handlers
-  throw new HaexVaultSdkError(
-    ErrorCode.METHOD_NOT_FOUND,
-    "errors.method_not_found",
-    { method }
-  );
+  // Direct invoke - unified command names mean method === command
+  return invoke<T>(method, params);
 }
 
 /**

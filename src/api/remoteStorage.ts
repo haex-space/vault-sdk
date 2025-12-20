@@ -1,5 +1,5 @@
 import type { HaexVaultSdk } from "~/client";
-import { HAEXTENSION_METHODS } from "~/methods";
+import { REMOTE_STORAGE_COMMANDS } from "~/commands";
 import { arrayBufferToBase64, base64ToArrayBuffer } from "~/crypto/vaultKey";
 
 // ============================================================================
@@ -125,7 +125,7 @@ export class RemoteStorageAPI {
    */
   async upload(backendId: string, key: string, data: Uint8Array): Promise<void> {
     const base64 = arrayBufferToBase64(data);
-    await this.client.request(HAEXTENSION_METHODS.remoteStorage.upload, {
+    await this.client.request(REMOTE_STORAGE_COMMANDS.upload, {
       backendId,
       key,
       data: base64,
@@ -140,7 +140,7 @@ export class RemoteStorageAPI {
    */
   async download(backendId: string, key: string): Promise<Uint8Array> {
     const base64 = await this.client.request<string>(
-      HAEXTENSION_METHODS.remoteStorage.download,
+      REMOTE_STORAGE_COMMANDS.download,
       { backendId, key }
     );
     return base64ToArrayBuffer(base64);
@@ -152,7 +152,7 @@ export class RemoteStorageAPI {
    * @param key - Object key to delete
    */
   async delete(backendId: string, key: string): Promise<void> {
-    await this.client.request(HAEXTENSION_METHODS.remoteStorage.delete, {
+    await this.client.request(REMOTE_STORAGE_COMMANDS.delete, {
       backendId,
       key,
     });
@@ -166,7 +166,7 @@ export class RemoteStorageAPI {
    */
   async list(backendId: string, prefix?: string): Promise<StorageObjectInfo[]> {
     return this.client.request<StorageObjectInfo[]>(
-      HAEXTENSION_METHODS.remoteStorage.list,
+      REMOTE_STORAGE_COMMANDS.list,
       { backendId, prefix }
     );
   }
@@ -183,7 +183,7 @@ class BackendManagement {
    */
   async list(): Promise<StorageBackendInfo[]> {
     return this.client.request<StorageBackendInfo[]>(
-      HAEXTENSION_METHODS.remoteStorage.listBackends
+      REMOTE_STORAGE_COMMANDS.listBackends
     );
   }
 
@@ -194,7 +194,7 @@ class BackendManagement {
    */
   async add(request: AddBackendRequest): Promise<StorageBackendInfo> {
     return this.client.request<StorageBackendInfo, AddBackendRequest>(
-      HAEXTENSION_METHODS.remoteStorage.addBackend,
+      REMOTE_STORAGE_COMMANDS.addBackend,
       request
     );
   }
@@ -207,7 +207,7 @@ class BackendManagement {
    */
   async update(request: UpdateBackendRequest): Promise<StorageBackendInfo> {
     return this.client.request<StorageBackendInfo, UpdateBackendRequest>(
-      HAEXTENSION_METHODS.remoteStorage.updateBackend,
+      REMOTE_STORAGE_COMMANDS.updateBackend,
       request
     );
   }
@@ -217,7 +217,7 @@ class BackendManagement {
    * @param backendId - Backend ID to remove
    */
   async remove(backendId: string): Promise<void> {
-    await this.client.request(HAEXTENSION_METHODS.remoteStorage.removeBackend, {
+    await this.client.request(REMOTE_STORAGE_COMMANDS.removeBackend, {
       backendId,
     });
   }
@@ -227,7 +227,7 @@ class BackendManagement {
    * @param backendId - Backend ID to test
    */
   async test(backendId: string): Promise<void> {
-    await this.client.request(HAEXTENSION_METHODS.remoteStorage.testBackend, {
+    await this.client.request(REMOTE_STORAGE_COMMANDS.testBackend, {
       backendId,
     });
   }

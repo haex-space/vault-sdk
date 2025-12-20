@@ -1,13 +1,13 @@
 import type { HaexVaultSdk } from "../client";
 import type { DatabaseQueryResult, MigrationResult, Migration } from "../types";
-import { HAEXTENSION_METHODS } from "../methods";
+import { DATABASE_COMMANDS } from "../commands";
 
 export class DatabaseAPI {
   constructor(private client: HaexVaultSdk) {}
 
   async query<T>(query: string, params?: unknown[]): Promise<T[]> {
     const result = await this.client.request<DatabaseQueryResult>(
-      HAEXTENSION_METHODS.database.query,
+      DATABASE_COMMANDS.query,
       {
         query,
         params: params || [],
@@ -29,14 +29,14 @@ export class DatabaseAPI {
     query: string,
     params?: unknown[]
   ): Promise<DatabaseQueryResult> {
-    return this.client.request<DatabaseQueryResult>(HAEXTENSION_METHODS.database.execute, {
+    return this.client.request<DatabaseQueryResult>(DATABASE_COMMANDS.execute, {
       query,
       params: params || [],
     });
   }
 
   async transaction(statements: string[]): Promise<void> {
-    await this.client.request(HAEXTENSION_METHODS.database.transaction, {
+    await this.client.request(DATABASE_COMMANDS.transaction, {
       statements,
     });
   }
@@ -70,7 +70,7 @@ export class DatabaseAPI {
     migrations: Migration[]
   ): Promise<MigrationResult> {
     return this.client.request<MigrationResult>(
-      HAEXTENSION_METHODS.database.registerMigrations,
+      DATABASE_COMMANDS.registerMigrations,
       {
         extensionVersion,
         migrations,

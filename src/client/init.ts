@@ -7,7 +7,7 @@
  */
 
 import { HAEXTENSION_EVENTS, EXTERNAL_EVENTS } from "../events";
-import { HAEXTENSION_METHODS } from "../methods";
+import { EXTENSION_COMMANDS } from "../commands";
 import { HAEXSPACE_MESSAGE_TYPES } from "../messages";
 import { ErrorCode, HaexVaultSdkError } from "../types";
 import type { ExtensionInfo, ApplicationContext, HaexHubEvent } from "../types";
@@ -181,7 +181,7 @@ export async function initIframeMode(
   sendDebugInfo(ctx.config);
 
   // Request context - this also acts as a handshake
-  const context = await request<ApplicationContext>(HAEXTENSION_METHODS.context.get);
+  const context = await request<ApplicationContext>(EXTENSION_COMMANDS.getContext);
   ctx.state.context = context;
   log("Application context received:", context);
 
