@@ -285,10 +285,11 @@ export class HaexVaultSdk {
     if (this.isNativeWindow && hasTauri()) {
       // In native WebView mode, add extension credentials to params
       // These are needed by extension_* commands for permission checks
+      // Note: "name" is the standard parameter name used by all extension commands
       const paramsWithCredentials = {
         ...resolvedParams,
         publicKey: this._extensionInfo?.publicKey,
-        extensionName: this._extensionInfo?.name,
+        name: this._extensionInfo?.name,
       };
       return sendInvoke<T>(method, paramsWithCredentials, this.config, this.log.bind(this));
     }
