@@ -283,7 +283,14 @@ export class HaexVaultSdk {
     const resolvedParams = (params ?? {}) as Record<string, unknown>;
 
     if (this.isNativeWindow && hasTauri()) {
-      return sendInvoke<T>(method, resolvedParams, this.config, this.log.bind(this));
+      // In native WebView mode, add extension credentials to params
+      // These are needed by extension_* commands for permission checks
+      const paramsWithCredentials = {
+        ...resolvedParams,
+        publicKey: this._extensionInfo?.publicKey,
+        extensionName: this._extensionInfo?.name,
+      };
+      return sendInvoke<T>(method, paramsWithCredentials, this.config, this.log.bind(this));
     }
 
     const requestId = generateRequestId(++this.requestCounter);
