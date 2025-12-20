@@ -60,7 +60,7 @@ export function createDrizzleInstance<T extends Record<string, unknown>>(
           const result = await request<DatabaseQueryResult>(
             DATABASE_COMMANDS.execute,
             {
-              query: sql,
+              sql,
               params: params as unknown[],
             }
           );
@@ -80,7 +80,7 @@ export function createDrizzleInstance<T extends Record<string, unknown>>(
 
         // Read operations (SELECT without RETURNING)
         const result = await request<DatabaseQueryResult>(DATABASE_COMMANDS.query, {
-          query: sql,
+          sql,
           params: params as unknown[],
         });
 
@@ -120,7 +120,7 @@ export async function queryRaw<T = Record<string, unknown>>(
 ): Promise<T[]> {
   const result = await request<DatabaseQueryResult>(
     DATABASE_COMMANDS.query,
-    { query: sql, params }
+    { sql, params }
   );
   if (debug) {
     console.log("[SDK query()] Raw result:", JSON.stringify(result, null, 2));
@@ -143,7 +143,7 @@ export async function executeRaw(
 ): Promise<{ rowsAffected: number; lastInsertId?: number }> {
   const result = await request<DatabaseQueryResult>(
     DATABASE_COMMANDS.execute,
-    { query: sql, params }
+    { sql, params }
   );
   return {
     rowsAffected: result.rowsAffected,

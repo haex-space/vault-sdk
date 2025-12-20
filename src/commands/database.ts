@@ -6,8 +6,7 @@
  * - Tauri invoke (WebView extensions)
  * - postMessage (iframe extensions)
  *
- * Current naming: `webview_extension_db_<action>` (legacy)
- * Target naming: `extension_database_<action>` (unified)
+ * Naming convention: `extension_database_<action>`
  */
 
 export const DATABASE_COMMANDS = {
