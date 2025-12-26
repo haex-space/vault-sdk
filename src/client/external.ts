@@ -11,6 +11,7 @@ import type {
   ExternalRequestHandler,
 } from "../types";
 import type { LogFn } from "./context";
+import { EXTERNAL_BRIDGE_COMMANDS } from "../commands/externalBridge";
 
 /**
  * Request function type
@@ -97,5 +98,5 @@ export async function respondToExternalRequest(
   request: RequestFn
 ): Promise<void> {
   console.log("[SDK Debug] respondToExternalRequest called with:", JSON.stringify(response, null, 2));
-  await request("external.respond", response as unknown as Record<string, unknown>);
+  await request(EXTERNAL_BRIDGE_COMMANDS.respond, response as unknown as Record<string, unknown>);
 }
