@@ -64,8 +64,8 @@ export async function initNativeMode(
   const { invoke } = getTauriCore();
 
   // Get extension info from Tauri backend
-  const extensionInfo = await invoke<ExtensionInfo>("webview_extension_get_info");
-  const context = await invoke<ApplicationContext>("webview_extension_context_get");
+  const extensionInfo = await invoke<ExtensionInfo>(EXTENSION_COMMANDS.getInfo);
+  const context = await invoke<ApplicationContext>(EXTENSION_COMMANDS.getContext);
 
   ctx.state.isNativeWindow = true;
   ctx.state.initialized = true;

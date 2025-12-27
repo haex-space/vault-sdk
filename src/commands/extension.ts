@@ -13,7 +13,7 @@ export const EXTENSION_COMMANDS = {
   /** Get extension info (manifest, id, etc.) */
   getInfo: "extension_get_info",
   /** Get application context (theme, locale, etc.) */
-  getContext: "extension_get_context",
+  getContext: "extension_context_get",
 } as const;
 
 export type ExtensionCommand = (typeof EXTENSION_COMMANDS)[keyof typeof EXTENSION_COMMANDS];
