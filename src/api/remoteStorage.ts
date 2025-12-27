@@ -126,9 +126,11 @@ export class RemoteStorageAPI {
   async upload(backendId: string, key: string, data: Uint8Array): Promise<void> {
     const base64 = arrayBufferToBase64(data);
     await this.client.request(REMOTE_STORAGE_COMMANDS.upload, {
-      backendId,
-      key,
-      data: base64,
+      request: {
+        backendId,
+        key,
+        data: base64,
+      },
     });
   }
 
@@ -141,7 +143,7 @@ export class RemoteStorageAPI {
   async download(backendId: string, key: string): Promise<Uint8Array> {
     const base64 = await this.client.request<string>(
       REMOTE_STORAGE_COMMANDS.download,
-      { backendId, key }
+      { request: { backendId, key } }
     );
     return base64ToArrayBuffer(base64);
   }
@@ -153,8 +155,10 @@ export class RemoteStorageAPI {
    */
   async delete(backendId: string, key: string): Promise<void> {
     await this.client.request(REMOTE_STORAGE_COMMANDS.delete, {
-      backendId,
-      key,
+      request: {
+        backendId,
+        key,
+      },
     });
   }
 
@@ -167,7 +171,7 @@ export class RemoteStorageAPI {
   async list(backendId: string, prefix?: string): Promise<StorageObjectInfo[]> {
     return this.client.request<StorageObjectInfo[]>(
       REMOTE_STORAGE_COMMANDS.list,
-      { backendId, prefix }
+      { request: { backendId, prefix } }
     );
   }
 }
@@ -192,10 +196,10 @@ class BackendManagement {
    * @param request - Backend configuration
    * @returns Created backend info
    */
-  async add(request: AddBackendRequest): Promise<StorageBackendInfo> {
-    return this.client.request<StorageBackendInfo, AddBackendRequest>(
+  async add(backendRequest: AddBackendRequest): Promise<StorageBackendInfo> {
+    return this.client.request<StorageBackendInfo>(
       REMOTE_STORAGE_COMMANDS.addBackend,
-      request
+      { request: backendRequest }
     );
   }
 
@@ -205,10 +209,10 @@ class BackendManagement {
    * @param request - Update request with backendId and fields to update
    * @returns Updated backend info
    */
-  async update(request: UpdateBackendRequest): Promise<StorageBackendInfo> {
-    return this.client.request<StorageBackendInfo, UpdateBackendRequest>(
+  async update(updateRequest: UpdateBackendRequest): Promise<StorageBackendInfo> {
+    return this.client.request<StorageBackendInfo>(
       REMOTE_STORAGE_COMMANDS.updateBackend,
-      request
+      { request: updateRequest }
     );
   }
 
@@ -218,7 +222,7 @@ class BackendManagement {
    */
   async remove(backendId: string): Promise<void> {
     await this.client.request(REMOTE_STORAGE_COMMANDS.removeBackend, {
-      backendId,
+      request: { backendId },
     });
   }
 
@@ -228,7 +232,7 @@ class BackendManagement {
    */
   async test(backendId: string): Promise<void> {
     await this.client.request(REMOTE_STORAGE_COMMANDS.testBackend, {
-      backendId,
+      request: { backendId },
     });
   }
 }
