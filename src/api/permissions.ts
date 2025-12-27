@@ -1,5 +1,6 @@
 import type { HaexVaultSdk } from "../client";
 import type { PermissionResponse } from "../types";
+import { PERMISSIONS_COMMANDS } from "../commands/permissions";
 
 export class PermissionsAPI {
   constructor(private client: HaexVaultSdk) {}
@@ -15,7 +16,7 @@ export class PermissionsAPI {
     operation: "read" | "write"
   ): Promise<boolean> {
     const response = await this.client.request<PermissionResponse>(
-      "permissions.database.check",
+      PERMISSIONS_COMMANDS.checkDatabase,
       {
         resource,
         operation,
@@ -32,7 +33,7 @@ export class PermissionsAPI {
    */
   async checkWebAsync(url: string): Promise<boolean> {
     const response = await this.client.request<PermissionResponse>(
-      "permissions.web.check",
+      PERMISSIONS_COMMANDS.checkWeb,
       {
         url,
       }
@@ -51,7 +52,7 @@ export class PermissionsAPI {
     operation: "read" | "write"
   ): Promise<boolean> {
     const response = await this.client.request<PermissionResponse>(
-      "permissions.filesystem.check",
+      PERMISSIONS_COMMANDS.checkFilesystem,
       {
         path,
         operation,
