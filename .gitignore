@@ -29,5 +29,5 @@ Thumbs.db
 *.sln
 *.sw?
 CLAUDE.md
-
+.claude/
 .npmrc
