@@ -144,6 +144,7 @@ async function setupTauriEventListeners(
   }
 
   // Listen for file change events (from native file watcher)
+  console.log("[HaexVault SDK] About to register file change listener for:", HAEXTENSION_EVENTS.FILE_CHANGED);
   try {
     await listen(HAEXTENSION_EVENTS.FILE_CHANGED, (event) => {
       console.log("[HaexVault SDK] File change event received:", event.payload);
