@@ -126,9 +126,7 @@ export class RemoteStorageAPI {
   async upload(backendId: string, key: string, data: Uint8Array): Promise<void> {
     const base64 = arrayBufferToBase64(data);
     await this.client.request(REMOTE_STORAGE_COMMANDS.upload, {
-      backendId,
-      key,
-      data: base64,
+      request: { backendId, key, data: base64 },
     });
   }
 
@@ -141,7 +139,7 @@ export class RemoteStorageAPI {
   async download(backendId: string, key: string): Promise<Uint8Array> {
     const base64 = await this.client.request<string>(
       REMOTE_STORAGE_COMMANDS.download,
-      { backendId, key }
+      { request: { backendId, key } }
     );
     return base64ToArrayBuffer(base64);
   }
@@ -153,8 +151,7 @@ export class RemoteStorageAPI {
    */
   async delete(backendId: string, key: string): Promise<void> {
     await this.client.request(REMOTE_STORAGE_COMMANDS.delete, {
-      backendId,
-      key,
+      request: { backendId, key },
     });
   }
 
