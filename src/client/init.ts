@@ -10,7 +10,7 @@ import { HAEXTENSION_EVENTS, EXTERNAL_EVENTS } from "../events";
 import { EXTENSION_COMMANDS } from "../commands";
 import { HAEXSPACE_MESSAGE_TYPES } from "../messages";
 import { ErrorCode, HaexVaultSdkError } from "../types";
-import type { ExtensionInfo, ApplicationContext, HaexHubEvent } from "../types";
+import type { ExtensionInfo, ApplicationContext, HaexHubEvent, FileChangeEvent } from "../types";
 import type { ClientContext, ClientConfig, LogFn } from "./context";
 
 /**
@@ -141,6 +141,29 @@ async function setupTauriEventListeners(
   } catch (error) {
     console.error("[HaexVault SDK] Failed to setup external request listener:", error);
     log("Failed to setup external request listener:", error);
+  }
+
+  // Listen for file change events (from native file watcher)
+  try {
+    await listen(HAEXTENSION_EVENTS.FILE_CHANGED, (event) => {
+      console.log("[HaexVault SDK] File change event received:", event.payload);
+      log("Received file change event:", event);
+      if (event.payload) {
+        const payload = event.payload as { ruleId: string; changeType: string; path?: string };
+        // Cast to FileChangeEvent which extends HaexHubEvent
+        onEvent({
+          type: HAEXTENSION_EVENTS.FILE_CHANGED,
+          ruleId: payload.ruleId,
+          changeType: payload.changeType,
+          path: payload.path,
+          timestamp: Date.now(),
+        } as FileChangeEvent);
+      }
+    });
+    console.log("[HaexVault SDK] File change listener registered successfully");
+  } catch (error) {
+    console.error("[HaexVault SDK] Failed to setup file change listener:", error);
+    log("Failed to setup file change listener:", error);
   }
 }
 
