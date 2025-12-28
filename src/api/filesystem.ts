@@ -337,4 +337,44 @@ export class FilesystemAPI {
       { from, to }
     );
   }
+
+  // ==========================================================================
+  // File Watcher Operations
+  // ==========================================================================
+
+  /**
+   * Start watching a directory for file changes
+   * When files change, the "filesync:file-changed" event is emitted
+   * @param ruleId Unique identifier for this watch (e.g., sync rule ID)
+   * @param path Absolute path to the directory to watch
+   */
+  async watch(ruleId: string, path: string): Promise<void> {
+    await this.client.request(
+      FILESYSTEM_COMMANDS.watch,
+      { ruleId, path }
+    );
+  }
+
+  /**
+   * Stop watching a directory
+   * @param ruleId The rule ID that was used when starting the watch
+   */
+  async unwatch(ruleId: string): Promise<void> {
+    await this.client.request(
+      FILESYSTEM_COMMANDS.unwatch,
+      { ruleId }
+    );
+  }
+
+  /**
+   * Check if a directory is currently being watched
+   * @param ruleId The rule ID to check
+   * @returns True if the directory is being watched
+   */
+  async isWatching(ruleId: string): Promise<boolean> {
+    return this.client.request<boolean>(
+      FILESYSTEM_COMMANDS.isWatching,
+      { ruleId }
+    );
+  }
 }

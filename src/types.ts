@@ -189,6 +189,24 @@ export interface SearchRequestEvent extends HaexHubEvent {
 }
 
 /**
+ * File change type from native file watcher
+ */
+export type FileChangeType = 'created' | 'modified' | 'removed' | 'any';
+
+/**
+ * File change event from native file watcher
+ */
+export interface FileChangeEvent extends HaexHubEvent {
+  type: typeof HAEXTENSION_EVENTS.FILE_CHANGED;
+  /** The sync rule ID that was affected */
+  ruleId: string;
+  /** Type of change */
+  changeType: FileChangeType;
+  /** Relative path of the changed file (if available) */
+  path?: string;
+}
+
+/**
  * External request from an authorized client (browser extension, CLI, server, etc.)
  * These requests come through the WebSocket bridge and are routed to the appropriate extension.
  */

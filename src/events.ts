@@ -19,6 +19,9 @@ export const HAEXTENSION_EVENTS = {
 
   /** Search request from HaexHub */
   SEARCH_REQUEST: 'haextension:search:request',
+
+  /** File system change detected (from native file watcher) */
+  FILE_CHANGED: 'filesync:file-changed',
 } as const;
 
 export type HaextensionEvent = typeof HAEXTENSION_EVENTS[keyof typeof HAEXTENSION_EVENTS];

@@ -41,6 +41,14 @@ export const FILESYSTEM_COMMANDS = {
   rename: "extension_filesystem_rename",
   /** Copy file or directory */
   copy: "extension_filesystem_copy",
+
+  // File watcher operations
+  /** Start watching a directory for changes */
+  watch: "extension_filesystem_watch",
+  /** Stop watching a directory */
+  unwatch: "extension_filesystem_unwatch",
+  /** Check if a directory is being watched */
+  isWatching: "extension_filesystem_is_watching",
 } as const;
 
 export type FilesystemCommand = (typeof FILESYSTEM_COMMANDS)[keyof typeof FILESYSTEM_COMMANDS];
