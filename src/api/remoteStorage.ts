@@ -167,7 +167,7 @@ export class RemoteStorageAPI {
   async list(backendId: string, prefix?: string): Promise<StorageObjectInfo[]> {
     return this.client.request<StorageObjectInfo[]>(
       REMOTE_STORAGE_COMMANDS.list,
-      { backendId, prefix }
+      { request: { backendId, prefix } }
     );
   }
 }
