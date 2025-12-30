@@ -190,9 +190,9 @@ class BackendManagement {
    * @returns Created backend info
    */
   async add(request: AddBackendRequest): Promise<StorageBackendInfo> {
-    return this.client.request<StorageBackendInfo, AddBackendRequest>(
+    return this.client.request<StorageBackendInfo>(
       REMOTE_STORAGE_COMMANDS.addBackend,
-      request
+      { request }
     );
   }
 
@@ -203,9 +203,9 @@ class BackendManagement {
    * @returns Updated backend info
    */
   async update(request: UpdateBackendRequest): Promise<StorageBackendInfo> {
-    return this.client.request<StorageBackendInfo, UpdateBackendRequest>(
+    return this.client.request<StorageBackendInfo>(
       REMOTE_STORAGE_COMMANDS.updateBackend,
-      request
+      { request }
     );
   }
 
