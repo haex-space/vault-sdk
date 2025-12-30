@@ -121,6 +121,24 @@ export {
   base64ToArrayBuffer,
 } from './crypto/vaultKey';
 
+// Export passkey crypto utilities
+export {
+  generatePasskeyPairAsync,
+  exportPublicKeyAsync,
+  exportPrivateKeyAsync,
+  exportPublicKeyCoseAsync,
+  importPrivateKeyAsync,
+  importPublicKeyAsync,
+  signWithPasskeyAsync,
+  verifyWithPasskeyAsync,
+  generateCredentialId,
+  exportKeyPairAsync,
+  COSE_ALGORITHM,
+  type CoseAlgorithm,
+  type PasskeyKeyPair,
+  type ExportedPasskeyKeyPair,
+} from './crypto/passkey';
+
 import { HaexVaultSdk } from "./client";
 import type { HaexHubConfig } from "./types";
 
