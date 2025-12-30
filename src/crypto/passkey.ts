@@ -12,6 +12,20 @@
 
 import { arrayBufferToBase64, base64ToArrayBuffer } from './vaultKey'
 
+/**
+ * Converts Uint8Array to a proper ArrayBuffer for crypto.subtle compatibility
+ * This is needed because Uint8Array.buffer can be SharedArrayBuffer in some environments
+ */
+function toArrayBuffer(data: Uint8Array | ArrayBuffer): ArrayBuffer {
+  if (data instanceof ArrayBuffer) {
+    return data
+  }
+  // Create a new ArrayBuffer copy to ensure it's not a SharedArrayBuffer
+  const buffer = new ArrayBuffer(data.byteLength)
+  new Uint8Array(buffer).set(data)
+  return buffer
+}
+
 // COSE Algorithm identifiers
 // https://www.iana.org/assignments/cose/cose.xhtml#algorithms
 export const COSE_ALGORITHM = {
@@ -101,7 +115,7 @@ export async function exportPublicKeyCoseAsync(publicKey: CryptoKey): Promise<st
  */
 export async function importPrivateKeyAsync(privateKeyBase64: string): Promise<CryptoKey> {
   const keyData = base64ToArrayBuffer(privateKeyBase64)
-  return crypto.subtle.importKey('pkcs8', keyData, ES256_ALGORITHM, true, ['sign'])
+  return crypto.subtle.importKey('pkcs8', toArrayBuffer(keyData), ES256_ALGORITHM, true, ['sign'])
 }
 
 /**
@@ -109,7 +123,7 @@ export async function importPrivateKeyAsync(privateKeyBase64: string): Promise<C
  */
 export async function importPublicKeyAsync(publicKeyBase64: string): Promise<CryptoKey> {
   const keyData = base64ToArrayBuffer(publicKeyBase64)
-  return crypto.subtle.importKey('spki', keyData, ES256_ALGORITHM, true, ['verify'])
+  return crypto.subtle.importKey('spki', toArrayBuffer(keyData), ES256_ALGORITHM, true, ['verify'])
 }
 
 /**
@@ -121,7 +135,8 @@ export async function signWithPasskeyAsync(
   data: ArrayBuffer | Uint8Array
 ): Promise<ArrayBuffer> {
   // WebCrypto returns signature in IEEE P1363 format (r || s, each 32 bytes for P-256)
-  const signature = await crypto.subtle.sign(ES256_SIGN_ALGORITHM, privateKey, data)
+  const dataBuffer = data instanceof Uint8Array ? toArrayBuffer(data) : data
+  const signature = await crypto.subtle.sign(ES256_SIGN_ALGORITHM, privateKey, dataBuffer)
 
   // Convert to DER format for WebAuthn compatibility
   return convertP1363ToDer(new Uint8Array(signature))
@@ -137,7 +152,8 @@ export async function verifyWithPasskeyAsync(
 ): Promise<boolean> {
   // Convert DER signature to P1363 format for WebCrypto
   const p1363Signature = convertDerToP1363(new Uint8Array(signature))
-  return crypto.subtle.verify(ES256_SIGN_ALGORITHM, publicKey, p1363Signature, data)
+  const dataBuffer = data instanceof Uint8Array ? toArrayBuffer(data) : data
+  return crypto.subtle.verify(ES256_SIGN_ALGORITHM, publicKey, p1363Signature, dataBuffer)
 }
 
 /**
