@@ -45,6 +45,16 @@ switch (versionType) {
 
 console.log(`📦 Bumping version from ${currentVersion} to ${newVersion}`);
 
+// Run tests before release
+console.log('\n🧪 Running tests...');
+try {
+  execSync('pnpm test', { stdio: 'inherit' });
+  console.log('✅ All tests passed');
+} catch (error) {
+  console.error('❌ Tests failed. Aborting release.');
+  process.exit(1);
+}
+
 // Update package.json
 packageJson.version = newVersion;
 writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2) + '\n');
