@@ -166,6 +166,27 @@ async function setupTauriEventListeners(
     console.error("[HaexVault SDK] Failed to setup file change listener:", error);
     log("Failed to setup file change listener:", error);
   }
+
+  // Listen for sync tables updated events (from CRDT pull)
+  console.log("[HaexVault SDK] About to register sync tables updated listener for:", HAEXTENSION_EVENTS.SYNC_TABLES_UPDATED);
+  try {
+    await listen(HAEXTENSION_EVENTS.SYNC_TABLES_UPDATED, (event) => {
+      console.log("[HaexVault SDK] Sync tables updated event received:", event.payload);
+      log("Received sync tables updated event:", event);
+      if (event.payload) {
+        const payload = event.payload as { tables: string[] };
+        onEvent({
+          type: HAEXTENSION_EVENTS.SYNC_TABLES_UPDATED,
+          data: { tables: payload.tables },
+          timestamp: Date.now(),
+        });
+      }
+    });
+    console.log("[HaexVault SDK] Sync tables updated listener registered successfully");
+  } catch (error) {
+    console.error("[HaexVault SDK] Failed to setup sync tables updated listener:", error);
+    log("Failed to setup sync tables updated listener:", error);
+  }
 }
 
 /**
