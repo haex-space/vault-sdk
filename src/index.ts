@@ -71,7 +71,7 @@ export {
   canExternalClientSendRequests,
 } from "./types";
 export { HaexVaultSdkError } from "./types";
-export type { FileChangeEvent, FileChangeType } from "./types";
+export type { FileChangeEvent, FileChangeType, SyncTablesUpdatedEvent } from "./types";
 
 // Export event constants
 export { HAEXTENSION_EVENTS, type HaextensionEvent, EXTERNAL_EVENTS, type ExternalEvent } from './events';

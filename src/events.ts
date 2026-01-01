@@ -22,6 +22,9 @@ export const HAEXTENSION_EVENTS = {
 
   /** File system change detected (from native file watcher) */
   FILE_CHANGED: 'filesync:file-changed',
+
+  /** Tables have been updated via sync (CRDT pull from server) */
+  SYNC_TABLES_UPDATED: 'haextension:sync:tables-updated',
 } as const;
 
 export type HaextensionEvent = typeof HAEXTENSION_EVENTS[keyof typeof HAEXTENSION_EVENTS];

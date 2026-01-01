@@ -207,6 +207,18 @@ export interface FileChangeEvent extends HaexHubEvent {
 }
 
 /**
+ * Sync tables updated event (sent after CRDT pull from server)
+ * Extensions can listen for this to reload their data when remote changes arrive.
+ */
+export interface SyncTablesUpdatedEvent extends HaexHubEvent {
+  type: typeof HAEXTENSION_EVENTS.SYNC_TABLES_UPDATED;
+  data: {
+    /** List of table names that were updated */
+    tables: string[];
+  };
+}
+
+/**
  * External request from an authorized client (browser extension, CLI, server, etc.)
  * These requests come through the WebSocket bridge and are routed to the appropriate extension.
  */
