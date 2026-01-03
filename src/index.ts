@@ -14,6 +14,21 @@ export type {
 export { WebAPI } from "./api/web";
 export { PermissionsAPI } from "./api/permissions";
 export { RemoteStorageAPI } from "./api/remoteStorage";
+export { LocalSendAPI, LOCALSEND_EVENTS } from "./api/localsend";
+export type {
+  DeviceType,
+  DeviceInfo,
+  Device,
+  FileInfo as LocalSendFileInfo,
+  ServerInfo,
+  ServerStatus,
+  LocalSendSettings,
+  PendingTransfer,
+  TransferProgress,
+  TransferState,
+  TransferDirection,
+  LocalSendEvent,
+} from "./api/localsend";
 export type {
   StorageBackendInfo as RemoteStorageBackendInfo,
   S3Config as RemoteS3Config,
