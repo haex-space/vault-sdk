@@ -2,7 +2,7 @@
  * Example: Using Application Context and Search
  */
 
-import { createHaexHubClient } from "@haexhub/sdk";
+import { createHaexHubClient, HAEXTENSION_EVENTS } from "@haexhub/sdk";
 import type { SearchRequestEvent, ApplicationContext } from "@haexhub/sdk";
 
 const client = createHaexHubClient({ debug: true });
@@ -58,7 +58,30 @@ client.on("context.changed", (event) => {
 });
 
 // ==========================================
-// 3. Respond to Search Requests
+// 3. Handle Sync Events (Data Updates from Other Devices)
+// ==========================================
+
+// When data is synced from other devices, haex-vault emits filtered events
+// Each extension only receives table names they have database permissions for
+client.on(HAEXTENSION_EVENTS.SYNC_TABLES_UPDATED, async (event) => {
+  const syncEvent = event as { data?: { tables?: string[] } };
+  const tables = syncEvent?.data?.tables || [];
+
+  console.log("Tables updated via sync:", tables);
+
+  // Reload your data when your tables are updated
+  // No need to filter - events are pre-filtered by haex-vault
+  // to only include tables your extension has access to
+  await reloadData();
+});
+
+async function reloadData() {
+  // Reload your store/state from database
+  console.log("Reloading data after sync...");
+}
+
+// ==========================================
+// 4. Respond to Search Requests
 // ==========================================
 
 // User searches in HaexHub main search bar
