@@ -190,7 +190,13 @@ async function setupTauriEventListeners(
   }
 
   // Listen for LocalSend events
-  await setupLocalSendEventListeners(log, onEvent);
+  console.log("[HaexVault SDK] About to setup LocalSend event listeners");
+  try {
+    await setupLocalSendEventListeners(log, onEvent);
+    console.log("[HaexVault SDK] LocalSend event listeners setup complete");
+  } catch (error) {
+    console.error("[HaexVault SDK] Failed to setup LocalSend event listeners:", error);
+  }
 }
 
 /**
