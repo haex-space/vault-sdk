@@ -11,6 +11,7 @@ import { EXTENSION_COMMANDS } from "../commands";
 import { HAEXSPACE_MESSAGE_TYPES } from "../messages";
 import { ErrorCode, HaexVaultSdkError } from "../types";
 import type { ExtensionInfo, ApplicationContext, HaexHubEvent, FileChangeEvent } from "../types";
+import { LOCALSEND_EVENTS } from "../api/localsend";
 import type { ClientContext, ClientConfig, LogFn } from "./context";
 
 /**
@@ -186,6 +187,126 @@ async function setupTauriEventListeners(
   } catch (error) {
     console.error("[HaexVault SDK] Failed to setup sync tables updated listener:", error);
     log("Failed to setup sync tables updated listener:", error);
+  }
+
+  // Listen for LocalSend events
+  await setupLocalSendEventListeners(log, onEvent);
+}
+
+/**
+ * Setup LocalSend event listeners for WebView mode
+ */
+async function setupLocalSendEventListeners(
+  log: LogFn,
+  onEvent: (event: HaexHubEvent) => void
+): Promise<void> {
+  const { listen } = getTauriEvent();
+
+  // Listen for device discovered events
+  try {
+    await listen(LOCALSEND_EVENTS.deviceDiscovered, (event) => {
+      console.log("[HaexVault SDK] LocalSend device discovered:", event.payload);
+      log("Received LocalSend device discovered event:", event);
+      if (event.payload) {
+        onEvent({
+          type: LOCALSEND_EVENTS.deviceDiscovered,
+          data: event.payload,
+          timestamp: Date.now(),
+        });
+      }
+    });
+    console.log("[HaexVault SDK] LocalSend device discovered listener registered");
+  } catch (error) {
+    console.error("[HaexVault SDK] Failed to setup LocalSend device discovered listener:", error);
+  }
+
+  // Listen for device lost events
+  try {
+    await listen(LOCALSEND_EVENTS.deviceLost, (event) => {
+      console.log("[HaexVault SDK] LocalSend device lost:", event.payload);
+      log("Received LocalSend device lost event:", event);
+      if (event.payload) {
+        onEvent({
+          type: LOCALSEND_EVENTS.deviceLost,
+          data: event.payload,
+          timestamp: Date.now(),
+        });
+      }
+    });
+    console.log("[HaexVault SDK] LocalSend device lost listener registered");
+  } catch (error) {
+    console.error("[HaexVault SDK] Failed to setup LocalSend device lost listener:", error);
+  }
+
+  // Listen for transfer request events
+  try {
+    await listen(LOCALSEND_EVENTS.transferRequest, (event) => {
+      console.log("[HaexVault SDK] LocalSend transfer request:", event.payload);
+      log("Received LocalSend transfer request event:", event);
+      if (event.payload) {
+        onEvent({
+          type: LOCALSEND_EVENTS.transferRequest,
+          data: event.payload,
+          timestamp: Date.now(),
+        });
+      }
+    });
+    console.log("[HaexVault SDK] LocalSend transfer request listener registered");
+  } catch (error) {
+    console.error("[HaexVault SDK] Failed to setup LocalSend transfer request listener:", error);
+  }
+
+  // Listen for transfer progress events
+  try {
+    await listen(LOCALSEND_EVENTS.transferProgress, (event) => {
+      log("Received LocalSend transfer progress event:", event);
+      if (event.payload) {
+        onEvent({
+          type: LOCALSEND_EVENTS.transferProgress,
+          data: event.payload,
+          timestamp: Date.now(),
+        });
+      }
+    });
+    console.log("[HaexVault SDK] LocalSend transfer progress listener registered");
+  } catch (error) {
+    console.error("[HaexVault SDK] Failed to setup LocalSend transfer progress listener:", error);
+  }
+
+  // Listen for transfer complete events
+  try {
+    await listen(LOCALSEND_EVENTS.transferComplete, (event) => {
+      console.log("[HaexVault SDK] LocalSend transfer complete:", event.payload);
+      log("Received LocalSend transfer complete event:", event);
+      if (event.payload) {
+        onEvent({
+          type: LOCALSEND_EVENTS.transferComplete,
+          data: event.payload,
+          timestamp: Date.now(),
+        });
+      }
+    });
+    console.log("[HaexVault SDK] LocalSend transfer complete listener registered");
+  } catch (error) {
+    console.error("[HaexVault SDK] Failed to setup LocalSend transfer complete listener:", error);
+  }
+
+  // Listen for transfer failed events
+  try {
+    await listen(LOCALSEND_EVENTS.transferFailed, (event) => {
+      console.log("[HaexVault SDK] LocalSend transfer failed:", event.payload);
+      log("Received LocalSend transfer failed event:", event);
+      if (event.payload) {
+        onEvent({
+          type: LOCALSEND_EVENTS.transferFailed,
+          data: event.payload,
+          timestamp: Date.now(),
+        });
+      }
+    });
+    console.log("[HaexVault SDK] LocalSend transfer failed listener registered");
+  } catch (error) {
+    console.error("[HaexVault SDK] Failed to setup LocalSend transfer failed listener:", error);
   }
 }
 
