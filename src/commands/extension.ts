@@ -14,6 +14,10 @@ export const EXTENSION_COMMANDS = {
   getInfo: "extension_get_info",
   /** Get application context (theme, locale, etc.) */
   getContext: "extension_context_get",
+  /** Set application context (host-only, updates stored context for extensions) */
+  setContext: "extension_context_set",
+  /** Emit event to all extension webview windows (host-only) */
+  emitToAll: "extension_emit_to_all",
 } as const;
 
 export type ExtensionCommand = (typeof EXTENSION_COMMANDS)[keyof typeof EXTENSION_COMMANDS];
