@@ -20,6 +20,10 @@ export const EXTENSION_COMMANDS = {
   webviewBroadcast: "extension_webview_broadcast",
   /** Emit event to all webviews of a SPECIFIC extension (host-only, desktop only) */
   webviewEmit: "extension_webview_emit",
+  /** Filter sync tables by extension permissions (returns filtered map) */
+  filterSyncTables: "extension_filter_sync_tables",
+  /** Emit sync tables to webviews (host-only, desktop only) */
+  emitSyncTables: "extension_emit_sync_tables",
 } as const;
 
 export type ExtensionCommand = (typeof EXTENSION_COMMANDS)[keyof typeof EXTENSION_COMMANDS];
