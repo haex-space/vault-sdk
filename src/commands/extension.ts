@@ -16,8 +16,10 @@ export const EXTENSION_COMMANDS = {
   getContext: "extension_context_get",
   /** Set application context (host-only, updates stored context for extensions) */
   setContext: "extension_context_set",
-  /** Emit event to all extension webview windows (host-only) */
-  emitToAll: "extension_emit_to_all",
+  /** Broadcast event to ALL extension webview windows (host-only, desktop only) */
+  webviewBroadcast: "extension_webview_broadcast",
+  /** Emit event to all webviews of a SPECIFIC extension (host-only, desktop only) */
+  webviewEmit: "extension_webview_emit",
 } as const;
 
 export type ExtensionCommand = (typeof EXTENSION_COMMANDS)[keyof typeof EXTENSION_COMMANDS];

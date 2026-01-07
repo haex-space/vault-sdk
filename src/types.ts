@@ -61,6 +61,13 @@ export interface ExtensionInfo {
   namespace?: string;
 }
 
+/**
+ * Runtime mode for extension instances.
+ * - iframe: Extension runs in an iframe within the main window (all platforms)
+ * - webview: Extension runs in a native WebView window (desktop only)
+ */
+export type ExtensionRuntimeMode = 'iframe' | 'webview';
+
 // Application Context (provided by HaexHub)
 export interface ApplicationContext {
   theme: "light" | "dark" | "system";
@@ -194,6 +201,19 @@ export interface SearchRequestEvent extends HaexHubEvent {
 export type FileChangeType = 'created' | 'modified' | 'removed' | 'any';
 
 /**
+ * File change payload from native file watcher (Tauri event payload).
+ * This is the raw payload sent from Rust, without the event wrapper.
+ */
+export interface FileChangePayload {
+  /** The sync rule ID that was affected */
+  ruleId: string;
+  /** Type of change */
+  changeType: FileChangeType;
+  /** Relative path of the changed file (if available) */
+  path?: string;
+}
+
+/**
  * File change event from native file watcher
  */
 export interface FileChangeEvent extends HaexHubEvent {
@@ -219,6 +239,15 @@ export interface SyncTablesUpdatedEvent extends HaexHubEvent {
 }
 
 /**
+ * Result from filtering sync tables by extension permissions.
+ * Maps extension ID to the list of table names they are allowed to see.
+ */
+export interface FilteredSyncTablesResult {
+  /** Map of extension_id -> list of tables they are allowed to see */
+  extensions: Record<string, string[]>;
+}
+
+/**
  * External request from an authorized client (browser extension, CLI, server, etc.)
  * These requests come through the WebSocket bridge and are routed to the appropriate extension.
  */
@@ -239,6 +268,17 @@ export interface ExternalRequest {
   action: string;
   /** Request payload (extension-specific) */
   payload: Record<string, unknown>;
+}
+
+/**
+ * External request payload from Tauri event (includes extension target info).
+ * This is sent from Rust when an external client makes a request.
+ */
+export interface ExternalRequestPayload extends ExternalRequest {
+  /** Target extension's public key */
+  extensionPublicKey: string;
+  /** Target extension's name */
+  extensionName: string;
 }
 
 /**
