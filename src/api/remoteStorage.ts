@@ -46,6 +46,8 @@ export interface S3Config {
   accessKeyId: string;
   /** Secret access key */
   secretAccessKey: string;
+  /** Session token for temporary credentials (e.g., Supabase S3 with user JWT for RLS) */
+  sessionToken?: string;
   /** Use path-style URLs instead of virtual-hosted-style */
   pathStyle?: boolean;
 }
