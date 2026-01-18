@@ -37,6 +37,15 @@ export type {
   UpdateBackendRequest as RemoteUpdateBackendRequest,
   StorageObjectInfo as RemoteStorageObjectInfo,
 } from "./api/remoteStorage";
+export type {
+  StorageConfig,
+  AuthUser,
+  LoginResponse as SyncServerLoginResponse,
+  LoginRequest as SyncServerLoginRequest,
+  RefreshRequest as SyncServerRefreshRequest,
+  ServerInfo as SyncServerInfo,
+  ErrorResponse as SyncServerErrorResponse,
+} from "./api/syncServer";
 
 export type {
   HaexHubRequest,
