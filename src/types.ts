@@ -117,23 +117,57 @@ export interface PermissionResponse {
 }
 
 /**
- * Error code for permission prompt required (matches Rust error code)
+ * Permission error codes returned by haex-vault (matches Rust error codes)
  */
-export const PERMISSION_PROMPT_REQUIRED_CODE = 1004;
+export enum PermissionErrorCode {
+  /** User has explicitly denied the permission */
+  DENIED = 1002,
+  /** Permission prompt is required - user has not yet granted or denied */
+  PROMPT_REQUIRED = 1004,
+}
 
 /**
- * Error returned by haex-vault when a permission prompt is required.
- * This occurs when an extension tries to access a resource that requires
- * user approval, and the user has not yet granted or denied the permission.
+ * Base interface for permission errors from haex-vault
  */
-export interface PermissionPromptError {
-  code: typeof PERMISSION_PROMPT_REQUIRED_CODE;
+export interface PermissionErrorBase {
+  code: PermissionErrorCode;
   message: string;
   extensionId: string;
   extensionName: string;
   resourceType: string;
   target: string;
   action: string;
+}
+
+/**
+ * Error returned by haex-vault when a permission has been denied.
+ * This occurs when the user has explicitly denied access to a resource.
+ * Unlike PermissionPromptError, there is no dialog shown - the permission was already rejected.
+ */
+export interface PermissionDeniedError extends PermissionErrorBase {
+  code: PermissionErrorCode.DENIED;
+}
+
+/**
+ * Error returned by haex-vault when a permission prompt is required.
+ * This occurs when an extension tries to access a resource that requires
+ * user approval, and the user has not yet granted or denied the permission.
+ */
+export interface PermissionPromptError extends PermissionErrorBase {
+  code: PermissionErrorCode.PROMPT_REQUIRED;
+}
+
+/**
+ * Type guard to check if an error is a PermissionDenied error from haex-vault
+ * This indicates the user has explicitly denied the permission.
+ */
+export function isPermissionDeniedError(error: unknown): error is PermissionDeniedError {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "code" in error &&
+    (error as PermissionDeniedError).code === PermissionErrorCode.DENIED
+  );
 }
 
 /**
@@ -144,8 +178,15 @@ export function isPermissionPromptError(error: unknown): error is PermissionProm
     typeof error === "object" &&
     error !== null &&
     "code" in error &&
-    (error as PermissionPromptError).code === PERMISSION_PROMPT_REQUIRED_CODE
+    (error as PermissionPromptError).code === PermissionErrorCode.PROMPT_REQUIRED
   );
+}
+
+/**
+ * Type guard to check if an error is any permission-related error (denied or prompt required)
+ */
+export function isPermissionError(error: unknown): error is PermissionDeniedError | PermissionPromptError {
+  return isPermissionDeniedError(error) || isPermissionPromptError(error);
 }
 
 // Database Permission (matches Rust DbExtensionPermission)

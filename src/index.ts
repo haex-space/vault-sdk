@@ -54,6 +54,8 @@ export type {
   HaexHubEvent,
   EventCallback,
   PermissionResponse,
+  PermissionErrorBase,
+  PermissionDeniedError,
   PermissionPromptError,
   DatabasePermission,
   DatabasePermissionRequest,
@@ -86,6 +88,7 @@ export type {
 
 export {
   PermissionStatus,
+  PermissionErrorCode,
   ErrorCode,
   DEFAULT_TIMEOUT,
   TABLE_SEPARATOR,
@@ -94,8 +97,9 @@ export {
   ExternalConnectionErrorCode,
   isExternalClientConnected,
   canExternalClientSendRequests,
-  PERMISSION_PROMPT_REQUIRED_CODE,
+  isPermissionDeniedError,
   isPermissionPromptError,
+  isPermissionError,
 } from "./types";
 export { HaexVaultSdkError } from "./types";
 export type {
