@@ -12,12 +12,11 @@
 /**
  * S3-compatible storage configuration provided by the sync server.
  *
- * When using the sync server's S3 proxy, the client authenticates with their
- * existing auth token (Bearer token), so accessKeyId and secretAccessKey are
- * not needed.
+ * The sync server provides per-user S3 credentials that work with any
+ * S3-compatible client (AWS CLI, rclone, Cyberduck, rust-s3, etc.).
  *
- * For direct S3 access to providers like AWS S3 or Wasabi, the client would
- * provide their own credentials.
+ * The server verifies AWS Signature v4 authentication and proxies requests
+ * to the underlying storage backend (Supabase Storage).
  */
 export interface StorageConfig {
   /** S3 endpoint URL (e.g., "https://sync.haex.space/storage/s3") */
@@ -26,10 +25,10 @@ export interface StorageConfig {
   bucket: string;
   /** S3 region (usually "auto" for Supabase/proxy) */
   region: string;
-  /** Access Key ID - only needed for direct S3 access (AWS, Wasabi, etc.) */
-  accessKeyId?: string;
-  /** Secret Access Key - only needed for direct S3 access (AWS, Wasabi, etc.) */
-  secretAccessKey?: string;
+  /** Access Key ID for S3 authentication (format: HAEX + 16 alphanumeric chars) */
+  accessKeyId: string;
+  /** Secret Access Key for S3 authentication (40 chars, like AWS) */
+  secretAccessKey: string;
 }
 
 // ============================================================================
