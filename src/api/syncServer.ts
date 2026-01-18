@@ -11,19 +11,25 @@
 
 /**
  * S3-compatible storage configuration provided by the sync server.
- * This contains all credentials needed to access the user's storage bucket.
+ *
+ * When using the sync server's S3 proxy, the client authenticates with their
+ * existing auth token (Bearer token), so accessKeyId and secretAccessKey are
+ * not needed.
+ *
+ * For direct S3 access to providers like AWS S3 or Wasabi, the client would
+ * provide their own credentials.
  */
 export interface StorageConfig {
-  /** S3 endpoint URL (e.g., "https://supabase.haex.space/storage/v1/s3") */
+  /** S3 endpoint URL (e.g., "https://sync.haex.space/storage/s3") */
   endpoint: string;
-  /** Access Key ID (Supabase project reference) */
-  accessKeyId: string;
-  /** Secret Access Key (Supabase anon key) */
-  secretAccessKey: string;
   /** User's bucket name (e.g., "storage-{user_id}") */
   bucket: string;
-  /** S3 region (usually "auto" for Supabase) */
+  /** S3 region (usually "auto" for Supabase/proxy) */
   region: string;
+  /** Access Key ID - only needed for direct S3 access (AWS, Wasabi, etc.) */
+  accessKeyId?: string;
+  /** Secret Access Key - only needed for direct S3 access (AWS, Wasabi, etc.) */
+  secretAccessKey?: string;
 }
 
 // ============================================================================
@@ -45,14 +51,14 @@ export interface AuthUser {
  *
  * Contains:
  * - Session tokens for vault sync (access_token, refresh_token)
- * - Storage-only token for S3 operations (storage_token)
  * - Pre-configured S3 storage settings (storage_config)
  *
- * The storage_token is scoped to only allow S3 storage access.
- * It cannot be used to access vault data or other sensitive resources.
+ * The access_token is used for both vault sync operations and S3 proxy access.
+ * The sync server's S3 proxy validates the token and forwards requests to
+ * the underlying storage backend.
  */
 export interface LoginResponse {
-  /** JWT access token for vault sync operations */
+  /** JWT access token for vault sync and storage operations */
   access_token: string;
   /** Refresh token for obtaining new access tokens */
   refresh_token: string;
@@ -64,23 +70,8 @@ export interface LoginResponse {
   user: AuthUser;
 
   /**
-   * Storage-only JWT token for S3 operations.
-   * This token is scoped to only allow storage access (scope: "storage").
-   * It cannot be used to access vault_keys, sync_changes, or other sensitive data.
-   * Only present if SUPABASE_JWT_SECRET is configured on the server.
-   */
-  storage_token?: string;
-
-  /**
-   * Storage token expiration timestamp (Unix epoch).
-   * Same as expires_at since both tokens expire at the same time.
-   */
-  storage_token_expires_at?: number;
-
-  /**
    * Pre-configured S3 storage settings.
-   * Contains all credentials needed to access the user's storage bucket.
-   * Only present if storage_token is available.
+   * Contains the proxy endpoint and bucket name for the user's storage.
    */
   storage_config?: StorageConfig;
 }
