@@ -54,6 +54,7 @@ export type {
   HaexHubEvent,
   EventCallback,
   PermissionResponse,
+  PermissionPromptError,
   DatabasePermission,
   DatabasePermissionRequest,
   DatabaseQueryParams,
@@ -93,6 +94,8 @@ export {
   ExternalConnectionErrorCode,
   isExternalClientConnected,
   canExternalClientSendRequests,
+  PERMISSION_PROMPT_REQUIRED_CODE,
+  isPermissionPromptError,
 } from "./types";
 export { HaexVaultSdkError } from "./types";
 export type {

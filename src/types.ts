@@ -116,6 +116,38 @@ export interface PermissionResponse {
   permanent: boolean;
 }
 
+/**
+ * Error code for permission prompt required (matches Rust error code)
+ */
+export const PERMISSION_PROMPT_REQUIRED_CODE = 1004;
+
+/**
+ * Error returned by haex-vault when a permission prompt is required.
+ * This occurs when an extension tries to access a resource that requires
+ * user approval, and the user has not yet granted or denied the permission.
+ */
+export interface PermissionPromptError {
+  code: typeof PERMISSION_PROMPT_REQUIRED_CODE;
+  message: string;
+  extensionId: string;
+  extensionName: string;
+  resourceType: string;
+  target: string;
+  action: string;
+}
+
+/**
+ * Type guard to check if an error is a PermissionPromptRequired error from haex-vault
+ */
+export function isPermissionPromptError(error: unknown): error is PermissionPromptError {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "code" in error &&
+    (error as PermissionPromptError).code === PERMISSION_PROMPT_REQUIRED_CODE
+  );
+}
+
 // Database Permission (matches Rust DbExtensionPermission)
 export interface DatabasePermission {
   extensionId: string;
