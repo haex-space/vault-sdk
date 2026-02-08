@@ -33,11 +33,17 @@ program
       }
 
       // Read package.json if it exists
-      let packageJson: any = {};
+      interface PackageJson {
+        name?: string;
+        description?: string;
+        scripts?: Record<string, string>;
+        build?: string;
+      }
+      let packageJson: PackageJson = {};
       const packageJsonPath = path.join(cwd, "package.json");
       if (existsSync(packageJsonPath)) {
         const content = await fs.readFile(packageJsonPath, "utf-8");
-        packageJson = JSON.parse(content);
+        packageJson = JSON.parse(content) as PackageJson;
       }
 
       console.log("🚀 Initializing HaexHub Extension...\n");

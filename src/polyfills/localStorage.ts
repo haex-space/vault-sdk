@@ -19,7 +19,7 @@ export function installLocalStoragePolyfill(): void {
     localStorage.setItem(testKey, testKey);
     localStorage.removeItem(testKey);
     localStorageWorks = true;
-  } catch (e) {
+  } catch {
     console.warn('[HaexSpace] localStorage blocked – using in-memory fallback');
   }
 
@@ -54,9 +54,9 @@ export function installLocalStoragePolyfill(): void {
         writable: true,
         configurable: true
       });
-    } catch (e) {
+    } catch {
       // Fallback: Direct assignment
-      (window as any).localStorage = localStoragePoly;
+      (window as unknown as { localStorage: Storage }).localStorage = localStoragePoly;
     }
 
     console.log('[HaexSpace] localStorage replaced with in-memory polyfill');
@@ -95,9 +95,9 @@ export function installSessionStoragePolyfill(): void {
       writable: true,
       configurable: true
     });
-  } catch (e) {
+  } catch {
     // Fallback: Direct assignment
-    (window as any).sessionStorage = {
+    (window as unknown as { sessionStorage: Storage }).sessionStorage = {
       getItem: () => null,
       setItem: () => {},
       removeItem: () => {},

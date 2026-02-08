@@ -58,9 +58,7 @@ export function installPolyfills(): void {
 
   // Note: Console forwarding is installed by HaexVaultSdk when debug mode is enabled
 
-  console.log('[HaexSpace] All polyfills loaded successfully');
-
-  // Run debug diagnostics
+  // Run debug diagnostics (which handles its own logging)
   installDebugDiagnostics();
 }
 

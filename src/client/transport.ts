@@ -44,7 +44,7 @@ export function sendPostMessage<T>(
       );
     }, config.timeout);
 
-    pendingRequests.set(requestId, { resolve, reject, timeout });
+    pendingRequests.set(requestId, { resolve: resolve as (value: unknown) => void, reject, timeout });
 
     // Use wildcard origin since extensions are sandboxed in their own protocol
     const targetOrigin = "*";

@@ -11,7 +11,7 @@ export const EXTENSION_FILE_EXTENSION = ".xt";
 
 export class ExtensionSigner {
   /**
-   * Generiert ein Ed25519 Keypair
+   * Generates an Ed25519 keypair
    */
   static async generateKeypair(): Promise<{
     publicKey: string;
@@ -42,7 +42,7 @@ export class ExtensionSigner {
   }
 
   /**
-   * Berechnet SHA-256 Hash aller Dateien in einem Verzeichnis
+   * Computes SHA-256 hash of all files in a directory
    */
   static async hashDirectory(dirPath: string): Promise<Buffer> {
     const files = await this.getAllFiles(dirPath);
@@ -65,7 +65,7 @@ export class ExtensionSigner {
   }
 
   /**
-   * Signiert eine Extension
+   * Signs an extension
    */
   static async signExtension(
     extensionPath: string,
@@ -91,7 +91,7 @@ export class ExtensionSigner {
     const signatureBuffer = await webcrypto.subtle.sign(
       "Ed25519",
       privateKey,
-      hash
+      new Uint8Array(hash)
     );
 
     return {
@@ -102,14 +102,14 @@ export class ExtensionSigner {
   }
 
   /**
-   * Packt und signiert eine Extension
+   * Packages and signs an extension
    */
   static async packageExtension(
     extensionPath: string,
     privateKeyHex: string,
     outputPath?: string
   ): Promise<string> {
-    // === VORBEREITUNG ===
+    // === PREPARATION ===
     // Read manifest from haextension/ folder (using config)
     const extensionDir = getExtensionDir();
     const manifestPath = path.join(extensionDir, "manifest.json");
@@ -127,7 +127,7 @@ export class ExtensionSigner {
 
     const manifest = { ...manifestObject };
 
-    // 1. Private Key importieren und Public Key ableiten
+    // 1. Import private key and derive public key
     const privateKeyBuffer = Buffer.from(privateKeyHex, "hex");
     const privateKey = await webcrypto.subtle.importKey(
       "pkcs8",
@@ -139,101 +139,87 @@ export class ExtensionSigner {
     const publicKeyBuffer = await this.derivePublicKey(privateKeyBuffer);
     const publicKeyHex = Buffer.from(publicKeyBuffer).toString("hex");
 
-    // === SIGNIERUNGSPROZESS ===
+    // === SIGNING PROCESS ===
 
-    // 2. Manifest für die Hash-Berechnung vorbereiten
-    //    (Public Key rein, Signatur als leeren Platzhalter)
+    // 2. Prepare manifest for hash calculation
+    //    (add public key, set signature as empty placeholder)
     manifest.publicKey = publicKeyHex;
-    manifest.signature = ""; // signature leeren um Hash zu berechnen
+    manifest.signature = ""; // clear signature to compute hash
 
     const canonicalManifestForHashing =
       this.sortObjectKeysRecursively(manifest);
 
-    // 3. Temporäres Verzeichnis mit der exakten Struktur des Archivs erstellen
+    // 3. Create temporary directory with exact archive structure
     const { tmpdir } = await import("os");
     const tempDir = path.join(tmpdir(), `haex-signing-${Date.now()}`);
     await fs.mkdir(tempDir, { recursive: true });
 
     let contentHash: Buffer;
     try {
-      // Kopiere extensionPath Dateien ins temp root
-      const { execSync } = await import("child_process");
-      execSync(`cp -r "${extensionPath}/"* "${tempDir}/"`, { stdio: "ignore" });
+      // Copy extensionPath files to temp root
+      await fs.cp(extensionPath, tempDir, { recursive: true });
 
-      // Kopiere haextension Verzeichnis (ohne private.key)
+      // Copy haextension directory (excluding private.key)
       const tempExtensionDir = path.join(tempDir, extensionDir);
       await fs.mkdir(tempExtensionDir, { recursive: true });
 
-      // Kopiere alle Dateien aus haextension/ außer private.key
-      // (manifest.json wird danach mit leerer Signatur überschrieben)
-      const haextensionFiles = await fs.readdir(extensionDir);
-      for (const file of haextensionFiles) {
-        if (file === 'private.key') continue;
-        const srcPath = path.join(extensionDir, file);
-        const destPath = path.join(tempExtensionDir, file);
-        const stat = await fs.stat(srcPath);
-        if (stat.isFile()) {
-          await fs.copyFile(srcPath, destPath);
-        } else if (stat.isDirectory()) {
-          const { execSync } = await import("child_process");
-          execSync(`cp -r "${srcPath}" "${destPath}"`, { stdio: "ignore" });
-        }
-      }
+      // Copy all files from haextension/ except private.key
+      // (manifest.json will be overwritten with empty signature afterwards)
+      await this.copyDirectory(extensionDir, tempExtensionDir, ['private.key']);
 
-      // Schreibe manifest.json mit leerer Signatur ins temp haextension Verzeichnis
-      // (überschreibt die vorher kopierte Version)
+      // Write manifest.json with empty signature to temp haextension directory
+      // (overwrites the previously copied version)
       const tempManifestPath = path.join(tempExtensionDir, "manifest.json");
       await fs.writeFile(
         tempManifestPath,
         JSON.stringify(canonicalManifestForHashing, null, 2)
       );
 
-      // Kopiere haextension.config.json wenn vorhanden
+      // Copy haextension.config.json if it exists
       const configPath = path.join(process.cwd(), "haextension.config.json");
       if (fsSync.existsSync(configPath)) {
         await fs.copyFile(configPath, path.join(tempDir, "haextension.config.json"));
       }
 
-      // Kopiere Migrations-Verzeichnis wenn migrationsDir im Manifest angegeben ist
+      // Copy migrations directory if migrationsDir is specified in manifest
       if (manifest.migrationsDir) {
         const config = readHaextensionConfig(process.cwd());
-        // Default: app/{migrationsDir} für Nuxt-Projekte
+        // Default: app/{migrationsDir} for Nuxt projects
         const migrationsSourceDir = config?.build?.migrationsSourceDir || `app/${manifest.migrationsDir}`;
         const migrationsSourcePath = path.join(process.cwd(), migrationsSourceDir);
 
         if (fsSync.existsSync(migrationsSourcePath)) {
           const tempMigrationsPath = path.join(tempDir, manifest.migrationsDir);
           await fs.mkdir(path.dirname(tempMigrationsPath), { recursive: true });
-          const { execSync } = await import("child_process");
-          execSync(`cp -r "${migrationsSourcePath}" "${tempMigrationsPath}"`, { stdio: "ignore" });
+          await fs.cp(migrationsSourcePath, tempMigrationsPath, { recursive: true });
           console.log(`✓ Migrations copied from ${migrationsSourceDir} to ${manifest.migrationsDir}`);
         } else {
           console.warn(`⚠ Migrations directory not found: ${migrationsSourcePath}`);
         }
       }
 
-      // Hash über das komplette temp Verzeichnis berechnen
+      // Compute hash over the complete temp directory
       contentHash = await this.hashDirectory(tempDir);
     } finally {
       // Cleanup temp directory
       await fs.rm(tempDir, { recursive: true, force: true }).catch(() => {});
     }
 
-    // 4. Echte Signatur aus diesem Hash erstellen
+    // 4. Create actual signature from this hash
     const signatureBuffer = await webcrypto.subtle.sign(
       "Ed25519",
       privateKey,
-      contentHash
+      new Uint8Array(contentHash)
     );
     const signatureHex = Buffer.from(signatureBuffer).toString("hex");
 
-    // 5. Finale manifest.json mit der echten Signatur erstellen
+    // 5. Create final manifest.json with the actual signature
     manifest.signature = signatureHex;
     await fs.writeFile(manifestPath, JSON.stringify(manifest, null, 2));
 
-    // === VERPACKUNG & AUFRÄUMEN ===
+    // === PACKAGING & CLEANUP ===
 
-    // 6. Das Verzeichnis zippen und haextension.config.json + haextension/ Ordner hinzufügen
+    // 6. Zip the directory and add haextension.config.json + haextension/ folder
     const finalOutputPath =
       outputPath || `${manifest.name}-${manifest.version}${EXTENSION_FILE_EXTENSION}`;
     const output = fsSync.createWriteStream(finalOutputPath);
@@ -241,7 +227,7 @@ export class ExtensionSigner {
 
     return new Promise((resolve, reject) => {
       output.on("close", async () => {
-        // Aufräumen: Die Original-Manifest-Datei wiederherstellen
+        // Cleanup: Restore the original manifest file
         await fs.writeFile(manifestPath, originalManifestContent);
         console.log("content_hash:", contentHash);
         console.log(
@@ -262,7 +248,7 @@ export class ExtensionSigner {
       });
 
       output.on("error", (err) => {
-        // Bei Fehler ebenfalls aufräumen
+        // Also cleanup on error
         fs.writeFile(manifestPath, originalManifestContent).finally(() =>
           reject(err)
         );
@@ -306,10 +292,10 @@ export class ExtensionSigner {
   // Helper Methods
 
   /**
-   * Sortiert rekursiv die Schlüssel aller Objekte in einer Datenstruktur alphabetisch,
-   * um einen kanonischen, deterministischen JSON-String zu erzeugen.
+   * Recursively sorts all object keys in a data structure alphabetically
+   * to produce a canonical, deterministic JSON string.
    */
-  private static sortObjectKeysRecursively(obj: any): any {
+  private static sortObjectKeysRecursively(obj: unknown): unknown {
     if (typeof obj !== "object" || obj === null) {
       return obj;
     }
@@ -318,12 +304,34 @@ export class ExtensionSigner {
       return obj.map((item) => this.sortObjectKeysRecursively(item));
     }
 
-    return Object.keys(obj)
+    return Object.keys(obj as Record<string, unknown>)
       .sort()
       .reduce((result, key) => {
-        result[key] = this.sortObjectKeysRecursively(obj[key]);
+        result[key] = this.sortObjectKeysRecursively((obj as Record<string, unknown>)[key]);
         return result;
-      }, {} as { [key: string]: any });
+      }, {} as Record<string, unknown>);
+  }
+
+  /**
+   * Recursively copies a directory, excluding specified files
+   */
+  private static async copyDirectory(
+    src: string,
+    dest: string,
+    excludeFiles: string[] = []
+  ): Promise<void> {
+    const entries = await fs.readdir(src, { withFileTypes: true });
+    for (const entry of entries) {
+      if (excludeFiles.includes(entry.name)) continue;
+      const srcPath = path.join(src, entry.name);
+      const destPath = path.join(dest, entry.name);
+      if (entry.isDirectory()) {
+        await fs.mkdir(destPath, { recursive: true });
+        await this.copyDirectory(srcPath, destPath, excludeFiles);
+      } else {
+        await fs.copyFile(srcPath, destPath);
+      }
+    }
   }
 
   private static async getAllFiles(dirPath: string): Promise<string[]> {
@@ -345,7 +353,7 @@ export class ExtensionSigner {
   ): Promise<Uint8Array> {
     const privateKey = await webcrypto.subtle.importKey(
       "pkcs8",
-      privateKeyBuffer,
+      new Uint8Array(privateKeyBuffer),
       { name: "Ed25519", namedCurve: "Ed25519" },
       true,
       ["sign"]

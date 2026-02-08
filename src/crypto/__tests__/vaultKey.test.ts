@@ -102,7 +102,10 @@ describe('vaultKey crypto utilities', () => {
       const wrapped = await wrapKey(keyToWrap, wrappingKey)
 
       // Corrupt the ciphertext
-      wrapped[20] ^= 0xff
+      const byteToCorrupt = wrapped[20]
+      if (byteToCorrupt !== undefined) {
+        wrapped[20] = byteToCorrupt ^ 0xff
+      }
 
       await expect(unwrapKey(wrapped, wrappingKey)).rejects.toThrow()
     })

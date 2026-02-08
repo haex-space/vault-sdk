@@ -17,8 +17,8 @@ import type { SqliteRemoteDatabase } from "drizzle-orm/sqlite-proxy";
 /**
  * Pending request tracking
  */
-export interface PendingRequest {
-  resolve: (value: unknown) => void;
+export interface PendingRequest<T = unknown> {
+  resolve: (value: T) => void;
   reject: (error: unknown) => void;
   timeout: NodeJS.Timeout;
 }

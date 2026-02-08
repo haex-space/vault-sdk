@@ -72,6 +72,7 @@ export default defineNuxtModule<ModuleOptions>({
     // CRITICAL: Install polyfill hook BEFORE any other module
     // This ensures polyfills load before color-mode or any other script
     if (options.injectPolyfills && nuxt.options.dev) {
+      // @ts-expect-error - nitro:config hook exists at runtime but types are incomplete in Nuxt 4
       nuxt.hook("nitro:config", (nitroConfig: any) => {
         nitroConfig.hooks = nitroConfig.hooks || {};
         nitroConfig.hooks["render:html"] =
@@ -144,9 +145,11 @@ export default defineNuxtModule<ModuleOptions>({
     }
 
     // Add hook to inject polyfills after HTML generation
+    // @ts-expect-error - nitro:build:public-assets hook exists at runtime but types are incomplete in Nuxt 4
     nuxt.hook("nitro:build:public-assets", async () => {
       try {
         // Use Nuxt's configured output directory
+        // @ts-expect-error - nitro options exist at runtime but types are incomplete in Nuxt 4
         const nitroOutput = nuxt.options.nitro?.output || {};
         const outputDir = nitroOutput.dir || ".output";
         const publicDir = nitroOutput.publicDir || "public";

@@ -7,14 +7,14 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   // Get manifest from runtime config (injected by Nuxt module)
   const manifest = nuxtApp.$config.public.haexVaultManifest as ExtensionManifest | null;
 
-  // 1. Erstelle die Client-Instanz
+  // 1. Create the client instance
   const client = new HaexVaultSdk({
-    // @ts-ignore
+    // @ts-expect-error - nuxtApp.payload.config may not have proper types
     debug: nuxtApp.payload.config.public.debug ?? false,
     manifest: manifest || undefined,
   });
 
-  // 2. Erstelle einen reaktiven Container (shallowRef ist performant)
+  // 2. Create a reactive container (shallowRef is performant)
   const state = shallowRef({
     isReady: false,
     isSetupComplete: false,

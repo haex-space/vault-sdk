@@ -15,7 +15,7 @@ export function installCookiePolyfill(): void {
   try {
     document.cookie = "__cookie_test__=1";
     cookiesWork = document.cookie.indexOf("__cookie_test__") !== -1;
-  } catch (e) {
+  } catch {
     console.warn("[HaexSpace] Cookies blocked – using in-memory fallback");
   }
 

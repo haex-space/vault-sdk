@@ -43,7 +43,7 @@ export function createDrizzleInstance<T extends Record<string, unknown>>(
       sql: string,
       params: unknown[],
       method: "get" | "run" | "all" | "values"
-    ) => {
+    ): Promise<{ rows: unknown[] }> => {
       try {
         // Drizzle uses different methods:
         // - "run": INSERT/UPDATE/DELETE without RETURNING
@@ -67,15 +67,15 @@ export function createDrizzleInstance<T extends Record<string, unknown>>(
 
           // For method="all", return rows (RETURNING clause or SELECT delegated by backend)
           if (method === "all") {
-            return { rows: result.rows || [] };
+            return { rows: (result.rows as unknown[]) || [] };
           }
 
           // For method="run", check if we have rows (RETURNING clause)
           if (result.rows && Array.isArray(result.rows) && result.rows.length > 0) {
-            return { rows: result.rows };
+            return { rows: result.rows as unknown[] };
           }
 
-          return result;
+          return { rows: [] };
         }
 
         // Read operations (SELECT without RETURNING)
@@ -87,7 +87,7 @@ export function createDrizzleInstance<T extends Record<string, unknown>>(
         const rows = result.rows as unknown[];
 
         if (method === "get") {
-          return { rows: rows.length > 0 ? rows.at(0) : undefined };
+          return { rows: rows.length > 0 ? [rows[0]] : [] };
         }
 
         return { rows };

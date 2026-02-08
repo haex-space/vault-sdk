@@ -35,7 +35,7 @@ export function readManifest(options: ReadManifestOptions): ExtensionManifest | 
     try {
       const packageJsonPath = resolvePath(rootDir, "package.json");
       packageJson = JSON.parse(readFileSync(packageJsonPath, "utf-8"));
-    } catch (pkgError) {
+    } catch {
       console.warn(`[@haex-space/vault-sdk] Warning: Could not read package.json`);
     }
 
@@ -78,7 +78,7 @@ export function readManifest(options: ReadManifestOptions): ExtensionManifest | 
 
     console.log(`✓ [@haex-space/vault-sdk] Loaded ${resolvedManifestPath}`);
     return manifest;
-  } catch (error) {
+  } catch {
     console.warn(
       `[@haex-space/vault-sdk] Warning: manifest.json not found at ${resolvedManifestPath}, extension info will not be available`
     );
