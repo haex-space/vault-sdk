@@ -176,6 +176,14 @@ export {
   type ExportedUserKeypair,
 } from './crypto/userKeypair';
 
+// Export space key crypto utilities
+export {
+  generateSpaceKey,
+  encryptSpaceKeyForRecipientAsync,
+  decryptSpaceKeyAsync,
+  type EncryptedSpaceKey,
+} from './crypto/spaceKey';
+
 // Export passkey crypto utilities
 export {
   generatePasskeyPairAsync,
