@@ -1,7 +1,5 @@
-import { importPublicKeyForKeyAgreementAsync, importPrivateKeyForKeyAgreementAsync } from './userKeypair'
+import { importPublicKeyForKeyAgreementAsync, importPrivateKeyForKeyAgreementAsync, KEY_AGREEMENT_ALGO } from './userKeypair'
 import { arrayBufferToBase64, base64ToArrayBuffer, generateVaultKey } from './vaultKey'
-
-const ECDH_ALGO = { name: 'ECDH', namedCurve: 'P-256' }
 
 export interface EncryptedSpaceKey {
   encryptedSpaceKey: string
@@ -16,7 +14,7 @@ export function generateSpaceKey(): Uint8Array {
 export async function encryptSpaceKeyForRecipientAsync(
   spaceKey: Uint8Array, recipientPublicKeyBase64: string,
 ): Promise<EncryptedSpaceKey> {
-  const ephemeral = await crypto.subtle.generateKey(ECDH_ALGO, true, ['deriveBits'])
+  const ephemeral = await crypto.subtle.generateKey(KEY_AGREEMENT_ALGO, true, ['deriveBits'])
   const recipientKey = await importPublicKeyForKeyAgreementAsync(recipientPublicKeyBase64)
 
   const sharedBits = await crypto.subtle.deriveBits(
@@ -45,7 +43,7 @@ export async function decryptSpaceKeyAsync(
   encrypted: EncryptedSpaceKey, ownPrivateKeyBase64: string,
 ): Promise<Uint8Array> {
   const ephPubKey = await crypto.subtle.importKey(
-    'spki', base64ToArrayBuffer(encrypted.ephemeralPublicKey), ECDH_ALGO, true, [],
+    'spki', base64ToArrayBuffer(encrypted.ephemeralPublicKey), KEY_AGREEMENT_ALGO, true, [],
   )
   const ownPrivKey = await importPrivateKeyForKeyAgreementAsync(ownPrivateKeyBase64)
 
