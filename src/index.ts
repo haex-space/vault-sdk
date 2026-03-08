@@ -170,6 +170,8 @@ export {
   importPrivateKeyForKeyAgreementAsync,
   encryptPrivateKeyAsync,
   decryptPrivateKeyAsync,
+  SIGNING_ALGO,
+  KEY_AGREEMENT_ALGO,
   type UserKeypair,
   type ExportedUserKeypair,
 } from './crypto/userKeypair';

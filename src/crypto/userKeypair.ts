@@ -1,7 +1,7 @@
 import { deriveKeyFromPassword, arrayBufferToBase64, base64ToArrayBuffer } from './vaultKey'
 
-const SIGNING_ALGO = { name: 'ECDSA', namedCurve: 'P-256' }
-const KEY_AGREEMENT_ALGO = { name: 'ECDH', namedCurve: 'P-256' }
+export const SIGNING_ALGO = { name: 'ECDSA', namedCurve: 'P-256' }
+export const KEY_AGREEMENT_ALGO = { name: 'ECDH', namedCurve: 'P-256' }
 
 export interface UserKeypair {
   publicKey: CryptoKey
@@ -43,7 +43,7 @@ export async function importPrivateKeyForKeyAgreementAsync(base64: string): Prom
 export async function encryptPrivateKeyAsync(
   privateKeyBase64: string, password: string,
 ): Promise<{ encryptedPrivateKey: string; nonce: string; salt: string }> {
-  const salt = crypto.getRandomValues(new Uint8Array(16))
+  const salt = crypto.getRandomValues(new Uint8Array(32))
   const derivedKey = await deriveKeyFromPassword(password, salt)
   const nonce = crypto.getRandomValues(new Uint8Array(12))
   const encrypted = await crypto.subtle.encrypt(
