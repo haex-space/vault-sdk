@@ -184,6 +184,13 @@ export {
   type EncryptedSpaceKey,
 } from './crypto/spaceKey';
 
+// Export record signing utilities
+export {
+  signRecordAsync,
+  verifyRecordSignatureAsync,
+  type SignableRecord,
+} from './crypto/recordSigning';
+
 // Export passkey crypto utilities
 export {
   generatePasskeyPairAsync,
