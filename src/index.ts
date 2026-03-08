@@ -160,6 +160,20 @@ export {
   base64ToArrayBuffer,
 } from './crypto/vaultKey';
 
+// Export user keypair crypto utilities
+export {
+  generateUserKeypairAsync,
+  exportUserKeypairAsync,
+  importUserPublicKeyAsync,
+  importUserPrivateKeyAsync,
+  importPublicKeyForKeyAgreementAsync,
+  importPrivateKeyForKeyAgreementAsync,
+  encryptPrivateKeyAsync,
+  decryptPrivateKeyAsync,
+  type UserKeypair,
+  type ExportedUserKeypair,
+} from './crypto/userKeypair';
+
 // Export passkey crypto utilities
 export {
   generatePasskeyPairAsync,
