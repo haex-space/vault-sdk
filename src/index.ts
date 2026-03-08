@@ -45,6 +45,9 @@ export type {
   RefreshRequest as SyncServerRefreshRequest,
   ServerInfo as SyncServerInfo,
   ErrorResponse as SyncServerErrorResponse,
+  CreateSpaceRequest,
+  InviteMemberRequest,
+  RegisterKeypairRequest,
 } from "./api/syncServer";
 
 export type {
@@ -84,6 +87,12 @@ export type {
   ExternalConnection,
   WebRequestOptions,
   WebResponse,
+  SpaceRole,
+  SharedSpace,
+  SpaceMemberInfo,
+  SpaceKeyGrantInfo,
+  SpaceInvite,
+  SpaceAccessTokenInfo,
 } from "./types";
 
 export {

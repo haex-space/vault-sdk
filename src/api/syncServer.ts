@@ -5,6 +5,8 @@
  * Used by haex-vault and extensions that need to interact with the sync server.
  */
 
+import type { SpaceRole } from '../types'
+
 // ============================================================================
 // Storage Configuration
 // ============================================================================
@@ -126,4 +128,28 @@ export interface ServerInfo {
 export interface ErrorResponse {
   /** Error message */
   error: string;
+}
+
+// ============================================================================
+// Shared Space API Types
+// ============================================================================
+
+export interface CreateSpaceRequest {
+  id: string
+  encryptedName: string
+  nameNonce: string
+  keyGrant: { encryptedSpaceKey: string; keyNonce: string; ephemeralPublicKey: string }
+}
+
+export interface InviteMemberRequest {
+  userId: string
+  role: SpaceRole
+  keyGrant: { encryptedSpaceKey: string; keyNonce: string; ephemeralPublicKey: string; generation: number }
+}
+
+export interface RegisterKeypairRequest {
+  publicKey: string
+  encryptedPrivateKey: string
+  privateKeyNonce: string
+  privateKeySalt: string
 }
