@@ -163,18 +163,12 @@ describe('record signing and verification', () => {
     const sigNull = await signRecordAsync(recordWithNull, keys.privateKey)
     const sigEmpty = await signRecordAsync(recordWithEmpty, keys.privateKey)
 
-    // The signatures themselves may differ due to ECDSA randomness,
-    // but we need to verify that a signature for one does NOT verify for the other
+    // null maps to '\x01NULL' sentinel, empty string stays as '', so canonical forms differ
     const nullVerifiesAsEmpty = await verifyRecordSignatureAsync(recordWithEmpty, sigNull, keys.publicKey)
     const emptyVerifiesAsNull = await verifyRecordSignatureAsync(recordWithNull, sigEmpty, keys.publicKey)
 
-    // Since both null and empty map to '' in canonicalize, they actually produce
-    // the same canonical form. This is a known limitation — the \0 separator
-    // still ensures field boundaries are unambiguous.
-    // However, if the implementation treats them differently, these should be false.
-    // With the current `?? ''` implementation, both produce the same canonical bytes.
-    // We test that the canonical forms are consistent:
-    expect(nullVerifiesAsEmpty).toBe(true)
-    expect(emptyVerifiesAsNull).toBe(true)
+    // Signatures should NOT be interchangeable between null and empty
+    expect(nullVerifiesAsEmpty).toBe(false)
+    expect(emptyVerifiesAsNull).toBe(false)
   })
 })

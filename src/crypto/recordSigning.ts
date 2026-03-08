@@ -13,8 +13,8 @@ function canonicalize(record: SignableRecord): Uint8Array {
   const parts = [
     record.tableName,
     record.rowPks,
-    record.columnName ?? '',
-    record.encryptedValue ?? '',
+    record.columnName === null ? '\x01NULL' : record.columnName,
+    record.encryptedValue === null ? '\x01NULL' : record.encryptedValue,
     record.hlcTimestamp,
   ].join('\0')
   return new TextEncoder().encode(parts)
