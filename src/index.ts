@@ -197,6 +197,8 @@ export {
 export {
   signRecordAsync,
   verifyRecordSignatureAsync,
+  signSpaceChallengeAsync,
+  verifySpaceChallengeAsync,
   type SignableRecord,
 } from './crypto/recordSigning';
 
