@@ -52,7 +52,7 @@ export async function deriveKeyFromPassword(
 /**
  * Generates a random vault key (32 bytes)
  */
-export function generateVaultKey(): Uint8Array {
+export function generateVaultKey(): Uint8Array<ArrayBuffer> {
   return crypto.getRandomValues(new Uint8Array(32))
 }
 
@@ -382,7 +382,7 @@ export function arrayBufferToBase64(buffer: ArrayBuffer | Uint8Array): string {
   return btoa(binary)
 }
 
-export function base64ToArrayBuffer(base64: string): Uint8Array {
+export function base64ToArrayBuffer(base64: string): Uint8Array<ArrayBuffer> {
   // Use Buffer for efficient base64 decoding (works in Node/Bun)
   if (typeof Buffer !== 'undefined') {
     return new Uint8Array(Buffer.from(base64, 'base64'))

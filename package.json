@@ -1,6 +1,6 @@
 {
   "name": "@haex-space/vault-sdk",
-  "version": "2.5.106",
+  "version": "2.5.107",
   "description": "SDK for building Haex Vault extensions",
   "repository": {
     "type": "git",
@@ -63,7 +63,7 @@
     "haex": "./dist/cli/index.js"
   },
   "scripts": {
-    "build": "tsup src/index.ts src/node.ts src/cli/index.ts src/vue.ts src/react.ts src/svelte.ts src/nuxt.ts src/vite.ts src/runtime/nuxt.plugin.client.ts --format cjs,esm --dts --external @nuxt/kit --external nuxt --external vite --external vue --external react --external svelte --external svelte/store && cp src/runtime/nuxt.types.d.ts dist/runtime/nuxt.types.d.ts",
+    "build": "tsup src/index.ts src/node.ts src/cli/index.ts src/vue.ts src/react.ts src/svelte.ts src/nuxt.ts src/vite.ts src/runtime/nuxt.plugin.client.ts --dts --format cjs,esm --external @nuxt/kit --external nuxt --external vite --external vue --external react --external svelte --external svelte/store && cp src/runtime/nuxt.types.d.ts dist/runtime/nuxt.types.d.ts",
     "dev": "tsup --watch",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",

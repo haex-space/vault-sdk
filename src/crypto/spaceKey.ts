@@ -7,12 +7,12 @@ export interface EncryptedSpaceKey {
   ephemeralPublicKey: string
 }
 
-export function generateSpaceKey(): Uint8Array {
+export function generateSpaceKey(): Uint8Array<ArrayBuffer> {
   return generateVaultKey() // 32 random bytes
 }
 
 export async function encryptSpaceKeyForRecipientAsync(
-  spaceKey: Uint8Array, recipientPublicKeyBase64: string,
+  spaceKey: Uint8Array<ArrayBuffer>, recipientPublicKeyBase64: string,
 ): Promise<EncryptedSpaceKey> {
   const ephemeral = await crypto.subtle.generateKey(KEY_AGREEMENT_ALGO, true, ['deriveBits'])
   const recipientKey = await importPublicKeyForKeyAgreementAsync(recipientPublicKeyBase64)

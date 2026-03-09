@@ -9,7 +9,7 @@ export interface SignableRecord {
   hlcTimestamp: string
 }
 
-function canonicalize(record: SignableRecord): Uint8Array {
+function canonicalize(record: SignableRecord): Uint8Array<ArrayBuffer> {
   const parts = [
     record.tableName,
     record.rowPks,

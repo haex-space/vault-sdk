@@ -12,11 +12,11 @@ import {
 
 const ECDSA_SIGN_ALGO = { name: 'ECDSA', hash: 'SHA-256' }
 
-async function signData(privateKey: CryptoKey, data: Uint8Array): Promise<ArrayBuffer> {
+async function signData(privateKey: CryptoKey, data: Uint8Array<ArrayBuffer>): Promise<ArrayBuffer> {
   return crypto.subtle.sign(ECDSA_SIGN_ALGO, privateKey, data)
 }
 
-async function verifySignature(publicKey: CryptoKey, signature: ArrayBuffer, data: Uint8Array): Promise<boolean> {
+async function verifySignature(publicKey: CryptoKey, signature: ArrayBuffer, data: Uint8Array<ArrayBuffer>): Promise<boolean> {
   return crypto.subtle.verify(ECDSA_SIGN_ALGO, publicKey, signature, data)
 }
 
