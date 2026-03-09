@@ -27,6 +27,7 @@ export * from "./externalBridge";
 export * from "./extension";
 export * from "./remoteStorage";
 export * from "./localsend";
+export * from "./spaces";
 
 // Re-export combined TAURI_COMMANDS for backwards compatibility
 import { DATABASE_COMMANDS } from "./database";
@@ -38,6 +39,7 @@ import { EXTERNAL_BRIDGE_COMMANDS } from "./externalBridge";
 import { EXTENSION_COMMANDS } from "./extension";
 import { REMOTE_STORAGE_COMMANDS } from "./remoteStorage";
 import { LOCALSEND_COMMANDS } from "./localsend";
+import { SPACE_COMMANDS } from "./spaces";
 
 export const TAURI_COMMANDS = {
   database: DATABASE_COMMANDS,
@@ -49,6 +51,7 @@ export const TAURI_COMMANDS = {
   extension: EXTENSION_COMMANDS,
   remoteStorage: REMOTE_STORAGE_COMMANDS,
   localsend: LOCALSEND_COMMANDS,
+  spaces: SPACE_COMMANDS,
 } as const;
 
 // Type helper to extract command string literals
@@ -61,4 +64,5 @@ export type TauriCommand =
   | (typeof EXTERNAL_BRIDGE_COMMANDS)[keyof typeof EXTERNAL_BRIDGE_COMMANDS]
   | (typeof EXTENSION_COMMANDS)[keyof typeof EXTENSION_COMMANDS]
   | (typeof REMOTE_STORAGE_COMMANDS)[keyof typeof REMOTE_STORAGE_COMMANDS]
-  | (typeof LOCALSEND_COMMANDS)[keyof typeof LOCALSEND_COMMANDS];
+  | (typeof LOCALSEND_COMMANDS)[keyof typeof LOCALSEND_COMMANDS]
+  | (typeof SPACE_COMMANDS)[keyof typeof SPACE_COMMANDS];

@@ -15,6 +15,7 @@ export { WebAPI } from "./api/web";
 export { PermissionsAPI } from "./api/permissions";
 export { RemoteStorageAPI } from "./api/remoteStorage";
 export { LocalSendAPI, LOCALSEND_EVENTS } from "./api/localsend";
+export { SpacesAPI, type SpaceAssignment } from "./api/spaces";
 export type {
   DeviceType,
   DeviceInfo,
