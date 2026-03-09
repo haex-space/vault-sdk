@@ -16,9 +16,8 @@ import type {
   SearchResult,
   MigrationResult,
   Migration,
-  ExternalResponse,
-  ExternalRequestHandler,
 } from "./types";
+import type { ExternalResponse, ExternalRequestHandler } from "./types/external";
 import { DEFAULT_TIMEOUT } from "./types";
 import { StorageAPI } from "./api/storage";
 import { DatabaseAPI } from "./api/database";
@@ -445,7 +444,7 @@ export class HaexVaultSdk {
     );
   }
 
-  private async handleExternalRequestInternal(request: import("./types").ExternalRequest): Promise<void> {
+  private async handleExternalRequestInternal(request: import("./types/external").ExternalRequest): Promise<void> {
     await handleExternalRequest(request, this.externalRequestHandlers, this.respondToExternalRequest.bind(this), this.log.bind(this));
   }
 

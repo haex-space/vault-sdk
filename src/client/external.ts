@@ -9,7 +9,7 @@ import type {
   ExternalRequest,
   ExternalResponse,
   ExternalRequestHandler,
-} from "../types";
+} from "../types/external";
 import type { LogFn } from "./context";
 import { EXTERNAL_BRIDGE_COMMANDS } from "../commands/externalBridge";
 

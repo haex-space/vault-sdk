@@ -4,16 +4,18 @@ import {
   ErrorCode,
   PermissionErrorCode,
   PermissionStatus,
-  ExternalConnectionState,
   isPermissionDeniedError,
   isPermissionPromptError,
   isPermissionError,
-  isExternalClientConnected,
-  canExternalClientSendRequests,
   getTableName,
   TABLE_SEPARATOR,
   DEFAULT_TIMEOUT,
 } from '../types'
+import {
+  ExternalConnectionState,
+  isExternalClientConnected,
+  canExternalClientSendRequests,
+} from '../types/external'
 
 describe('Types and Constants', () => {
   // ============================================================================

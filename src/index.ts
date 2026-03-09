@@ -74,25 +74,8 @@ export type {
   SearchResult,
   ContextChangedEvent,
   SearchRequestEvent,
-  ExternalRequestEvent,
-  ExternalRequest,
-  ExternalResponse,
-  ExternalRequestHandler,
-  AuthorizedClient,
-  BlockedClient,
-  RequestedExtension,
-  PendingAuthorization,
-  ExternalAuthDecision,
-  SessionAuthorization,
-  ExternalConnection,
   WebRequestOptions,
   WebResponse,
-  SpaceRole,
-  SharedSpace,
-  SpaceMemberInfo,
-  SpaceKeyGrantInfo,
-  SpaceInvite,
-  SpaceAccessTokenInfo,
 } from "./types";
 
 export {
@@ -102,10 +85,6 @@ export {
   DEFAULT_TIMEOUT,
   TABLE_SEPARATOR,
   getTableName,
-  ExternalConnectionState,
-  ExternalConnectionErrorCode,
-  isExternalClientConnected,
-  canExternalClientSendRequests,
   isPermissionDeniedError,
   isPermissionPromptError,
   isPermissionError,
@@ -118,8 +97,35 @@ export type {
   SyncTablesUpdatedEvent,
   FilteredSyncTablesResult,
   ExtensionRuntimeMode,
-  ExternalRequestPayload,
 } from "./types";
+
+export {
+  type ExternalRequestEvent,
+  type ExternalRequest,
+  type ExternalRequestPayload,
+  type ExternalResponse,
+  type ExternalRequestHandler,
+  type AuthorizedClient,
+  type BlockedClient,
+  type RequestedExtension,
+  type PendingAuthorization,
+  type ExternalAuthDecision,
+  type SessionAuthorization,
+  ExternalConnectionState,
+  ExternalConnectionErrorCode,
+  type ExternalConnection,
+  isExternalClientConnected,
+  canExternalClientSendRequests,
+} from "./types/external";
+
+export {
+  type SpaceRole,
+  type SharedSpace,
+  type SpaceMemberInfo,
+  type SpaceKeyGrantInfo,
+  type SpaceInvite,
+  type SpaceAccessTokenInfo,
+} from "./types/spaces";
 
 // Export event constants
 export { HAEXTENSION_EVENTS, type HaextensionEvent, EXTERNAL_EVENTS, type ExternalEvent } from './events';

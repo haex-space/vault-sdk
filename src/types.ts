@@ -1,34 +1,5 @@
 import { HAEXTENSION_EVENTS } from './events';
 
-// Re-export split type modules
-export {
-  type ExternalRequestEvent,
-  type ExternalRequest,
-  type ExternalRequestPayload,
-  type ExternalResponse,
-  type ExternalRequestHandler,
-  type AuthorizedClient,
-  type BlockedClient,
-  type RequestedExtension,
-  type PendingAuthorization,
-  type ExternalAuthDecision,
-  type SessionAuthorization,
-  ExternalConnectionState,
-  ExternalConnectionErrorCode,
-  type ExternalConnection,
-  isExternalClientConnected,
-  canExternalClientSendRequests,
-} from './types/external';
-
-export {
-  type SpaceRole,
-  type SharedSpace,
-  type SpaceMemberInfo,
-  type SpaceKeyGrantInfo,
-  type SpaceInvite,
-  type SpaceAccessTokenInfo,
-} from './types/spaces';
-
 // Constants
 export const DEFAULT_TIMEOUT = 30000; // 30 seconds in milliseconds
 export const TABLE_SEPARATOR = "__"; // Separator for table name components: {publicKey}__{extensionName}__{tableName}

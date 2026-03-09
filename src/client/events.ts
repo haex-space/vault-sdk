@@ -11,9 +11,9 @@ import type {
   HaexHubEvent,
   EventCallback,
   ContextChangedEvent,
-  ExternalRequestEvent,
   ApplicationContext,
 } from "../types";
+import type { ExternalRequestEvent } from "../types/external";
 import type { ClientConfig, PendingRequest, LogFn } from "./context";
 
 /**

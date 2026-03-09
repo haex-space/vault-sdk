@@ -10,8 +10,8 @@ import type {
   ExtensionInfo,
   ApplicationContext,
   EventCallback,
-  ExternalRequestHandler,
 } from "../types";
+import type { ExternalRequestHandler } from "../types/external";
 import type { SqliteRemoteDatabase } from "drizzle-orm/sqlite-proxy";
 
 /**
