@@ -1,5 +1,5 @@
 import { importPublicKeyForKeyAgreementAsync, importPrivateKeyForKeyAgreementAsync, KEY_AGREEMENT_ALGO } from './userKeypair'
-import { arrayBufferToBase64, base64ToArrayBuffer, generateVaultKey } from './vaultKey'
+import { arrayBufferToBase64, base64ToArrayBuffer, generateVaultKey, encryptString, decryptString } from './vaultKey'
 
 export interface EncryptedSpaceKey {
   encryptedSpaceKey: string
@@ -64,4 +64,33 @@ export async function decryptSpaceKeyAsync(
   )
 
   return new Uint8Array(decrypted)
+}
+
+/**
+ * Encrypt a space name using the raw space key.
+ * Returns the encrypted name and nonce as base64 strings.
+ */
+export async function encryptSpaceNameAsync(
+  spaceKey: Uint8Array,
+  spaceName: string,
+): Promise<{ encryptedName: string; nameNonce: string }> {
+  const cryptoKey = await crypto.subtle.importKey(
+    'raw', new Uint8Array(spaceKey).buffer as ArrayBuffer, { name: 'AES-GCM' }, false, ['encrypt'],
+  )
+  const { encryptedData, nonce } = await encryptString(spaceName, cryptoKey)
+  return { encryptedName: encryptedData, nameNonce: nonce }
+}
+
+/**
+ * Decrypt a space name using the raw space key.
+ */
+export async function decryptSpaceNameAsync(
+  spaceKey: Uint8Array,
+  encryptedName: string,
+  nameNonce: string,
+): Promise<string> {
+  const cryptoKey = await crypto.subtle.importKey(
+    'raw', new Uint8Array(spaceKey).buffer as ArrayBuffer, { name: 'AES-GCM' }, false, ['decrypt'],
+  )
+  return decryptString(encryptedName, nameNonce, cryptoKey)
 }

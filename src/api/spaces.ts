@@ -1,4 +1,5 @@
 import type { HaexVaultSdk } from "~/client";
+import type { DecryptedSpace, SyncBackendInfo } from "~/types/spaces";
 import { SPACE_COMMANDS } from "~/commands";
 
 // ============================================================================
@@ -106,6 +107,39 @@ export class SpacesAPI {
   async unassignRowAsync(tableName: string, rowPks: string, spaceId: string): Promise<number> {
     return this.unassignAsync([{ tableName, rowPks, spaceId }]);
   }
+
+  // ==========================================================================
+  // Space Management
+  // ==========================================================================
+
+  /**
+   * List all shared spaces the user is a member of.
+   * Returns spaces with decrypted names (decryption happens vault-side).
+   */
+  async listSpacesAsync(): Promise<DecryptedSpace[]> {
+    return this.client.request<DecryptedSpace[]>(SPACE_COMMANDS.list);
+  }
+
+  /**
+   * Create a new shared space.
+   * @param name - Human-readable space name
+   * @param serverUrl - The sync server URL to create the space on
+   * @returns The created space with decrypted name
+   */
+  async createSpaceAsync(name: string, serverUrl: string): Promise<DecryptedSpace> {
+    return this.client.request<DecryptedSpace>(SPACE_COMMANDS.create, {
+      name,
+      server_url: serverUrl,
+    });
+  }
+
+  /**
+   * List available sync backends that can host shared spaces.
+   * @returns Array of backend info with server URLs
+   */
+  async listSyncBackendsAsync(): Promise<SyncBackendInfo[]> {
+    return this.client.request<SyncBackendInfo[]>(SPACE_COMMANDS.listBackends);
+  }
 }
 
 // ============================================================================
@@ -118,18 +152,18 @@ interface SnakeCaseAssignment {
   space_id: string;
 }
 
-function toSnakeCase(a: SpaceAssignment): SnakeCaseAssignment {
+function toSnakeCase(assignment: SpaceAssignment): SnakeCaseAssignment {
   return {
-    table_name: a.tableName,
-    row_pks: a.rowPks,
-    space_id: a.spaceId,
+    table_name: assignment.tableName,
+    row_pks: assignment.rowPks,
+    space_id: assignment.spaceId,
   };
 }
 
-function fromSnakeCase(a: SnakeCaseAssignment): SpaceAssignment {
+function fromSnakeCase(assignment: SnakeCaseAssignment): SpaceAssignment {
   return {
-    tableName: a.table_name,
-    rowPks: a.row_pks,
-    spaceId: a.space_id,
+    tableName: assignment.table_name,
+    rowPks: assignment.row_pks,
+    spaceId: assignment.space_id,
   };
 }

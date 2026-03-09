@@ -126,6 +126,8 @@ export {
   type SpaceKeyGrantInfo,
   type SpaceInvite,
   type SpaceAccessTokenInfo,
+  type DecryptedSpace,
+  type SyncBackendInfo,
 } from "./types/spaces";
 
 // Export event constants
@@ -197,6 +199,8 @@ export {
   generateSpaceKey,
   encryptSpaceKeyForRecipientAsync,
   decryptSpaceKeyAsync,
+  encryptSpaceNameAsync,
+  decryptSpaceNameAsync,
   type EncryptedSpaceKey,
 } from './crypto/spaceKey';
 

@@ -53,3 +53,27 @@ export interface SpaceAccessTokenInfo {
   createdAt: string
   lastUsedAt: string | null
 }
+
+/**
+ * A shared space with its decrypted name.
+ * Returned by the extension API after vault-side decryption.
+ */
+export interface DecryptedSpace {
+  id: string
+  name: string
+  role: SpaceRole
+  canInvite: boolean
+  serverUrl: string
+  createdAt: string
+}
+
+/**
+ * Minimal sync backend info exposed to extensions.
+ * Extensions use this to pick a server when creating a space.
+ */
+export interface SyncBackendInfo {
+  id: string
+  name: string
+  serverUrl: string
+  isDefault: boolean
+}
