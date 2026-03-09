@@ -668,14 +668,17 @@ export interface SharedSpace {
   nameNonce: string
   currentKeyGeneration: number
   role: SpaceRole
+  canInvite: boolean
   createdAt: string
 }
 
 export interface SpaceMemberInfo {
-  userId: string
+  publicKey: string
+  label: string
   role: SpaceRole
+  canInvite: boolean
+  invitedBy: string | null
   joinedAt: string
-  publicKey?: string
 }
 
 export interface SpaceKeyGrantInfo {
