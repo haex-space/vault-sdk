@@ -360,7 +360,7 @@ export interface HaexHubConfig {
 
 // Web/Fetch Types
 export interface WebRequestOptions {
-  method?: "GET" | "POST" | "PUT" | "DELETE" | "PATCH" | "HEAD" | "OPTIONS";
+  method?: "GET" | "POST" | "PUT" | "DELETE" | "PATCH" | "HEAD" | "OPTIONS" | "PROPFIND" | "REPORT" | "MKCALENDAR" | "MKCOL" | "COPY" | "MOVE" | "LOCK" | "UNLOCK" | (string & {});
   headers?: Record<string, string>;
   body?: string | ArrayBuffer | Blob;
   timeout?: number;
