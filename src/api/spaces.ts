@@ -53,9 +53,7 @@ export class SpacesAPI {
    * @returns Number of assignments created
    */
   async assignAsync(assignments: SpaceAssignment[]): Promise<number> {
-    return this.client.request<number>(SPACE_COMMANDS.assign, {
-      assignments: assignments.map(toSnakeCase),
-    });
+    return this.client.request<number>(SPACE_COMMANDS.assign, { assignments });
   }
 
   /**
@@ -64,9 +62,7 @@ export class SpacesAPI {
    * @returns Number of assignments removed
    */
   async unassignAsync(assignments: SpaceAssignment[]): Promise<number> {
-    return this.client.request<number>(SPACE_COMMANDS.unassign, {
-      assignments: assignments.map(toSnakeCase),
-    });
+    return this.client.request<number>(SPACE_COMMANDS.unassign, { assignments });
   }
 
   /**
@@ -76,14 +72,10 @@ export class SpacesAPI {
    * @returns Array of space assignments
    */
   async getAssignmentsAsync(tableName: string, rowPks?: string): Promise<SpaceAssignment[]> {
-    const result = await this.client.request<SnakeCaseAssignment[]>(
+    return this.client.request<SpaceAssignment[]>(
       SPACE_COMMANDS.getAssignments,
-      {
-        table_name: tableName,
-        row_pks: rowPks,
-      },
+      { tableName, rowPks },
     );
-    return result.map(fromSnakeCase);
   }
 
   /**
@@ -129,7 +121,7 @@ export class SpacesAPI {
   async createSpaceAsync(name: string, serverUrl: string): Promise<DecryptedSpace> {
     return this.client.request<DecryptedSpace>(SPACE_COMMANDS.create, {
       name,
-      server_url: serverUrl,
+      serverUrl,
     });
   }
 
@@ -142,28 +134,3 @@ export class SpacesAPI {
   }
 }
 
-// ============================================================================
-// Internal helpers
-// ============================================================================
-
-interface SnakeCaseAssignment {
-  table_name: string;
-  row_pks: string;
-  space_id: string;
-}
-
-function toSnakeCase(assignment: SpaceAssignment): SnakeCaseAssignment {
-  return {
-    table_name: assignment.tableName,
-    row_pks: assignment.rowPks,
-    space_id: assignment.spaceId,
-  };
-}
-
-function fromSnakeCase(assignment: SnakeCaseAssignment): SpaceAssignment {
-  return {
-    tableName: assignment.table_name,
-    rowPks: assignment.row_pks,
-    spaceId: assignment.space_id,
-  };
-}
