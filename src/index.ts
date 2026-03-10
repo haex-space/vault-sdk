@@ -98,6 +98,9 @@ export type {
   SyncTablesUpdatedEvent,
   FilteredSyncTablesResult,
   ExtensionRuntimeMode,
+  IdentityClaim,
+  ClaimRequirement,
+  SignedClaimPresentation,
 } from "./types";
 
 export {
@@ -213,6 +216,12 @@ export {
   decryptSpaceNameAsync,
   type EncryptedSpaceKey,
 } from './crypto/spaceKey';
+
+// Export claim signing utilities
+export {
+  signClaimPresentationAsync,
+  verifyClaimPresentationAsync,
+} from './crypto/claims'
 
 // Export record signing utilities
 export {

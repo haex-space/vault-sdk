@@ -401,6 +401,28 @@ export enum ErrorCode {
   WEB_ERROR = "WEB_ERROR",
 }
 
+// Identity Claim Types
+export interface IdentityClaim {
+  type: string        // 'email' | 'name' | 'phone' | 'address' | custom
+  value: string
+  verifiedAt?: string // ISO timestamp, set after server verification
+  verifiedBy?: string // server URL that verified this claim
+}
+
+export interface ClaimRequirement {
+  type: string
+  required: boolean
+  label?: string      // human-readable description, e.g. "Email for verification"
+}
+
+export interface SignedClaimPresentation {
+  did: string
+  publicKey: string   // Base64 SPKI
+  claims: Record<string, string>  // type -> value (only approved claims)
+  timestamp: string   // ISO timestamp
+  signature: string   // ECDSA P-256 signature over canonical form
+}
+
 export class HaexVaultSdkError extends Error {
   constructor(
     public code: ErrorCode,
