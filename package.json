@@ -68,7 +68,8 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "release": "node scripts/release.js"
   },
   "author": "haex",
   "license": "ISC",

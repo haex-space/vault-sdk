@@ -197,6 +197,13 @@ export {
   type ExportedUserKeypair,
 } from './crypto/userKeypair';
 
+// Export did:key identity utilities
+export {
+  publicKeyToDidKeyAsync,
+  didKeyToPublicKeyAsync,
+  generateIdentityAsync,
+} from './crypto/didKey';
+
 // Export space key crypto utilities
 export {
   generateSpaceKey,
