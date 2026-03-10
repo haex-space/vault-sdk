@@ -74,7 +74,7 @@ export class SpacesAPI {
   async getAssignmentsAsync(tableName: string, rowPks?: string): Promise<SpaceAssignment[]> {
     return this.client.request<SpaceAssignment[]>(
       SPACE_COMMANDS.getAssignments,
-      { tableName, rowPks },
+      { tableName, rowPks: rowPks ? [rowPks] : undefined },
     );
   }
 
