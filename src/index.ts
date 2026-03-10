@@ -139,6 +139,9 @@ export { HAEXSPACE_MESSAGE_TYPES, type HaexspaceMessageType } from './messages';
 // Export Tauri command constants (for use in other projects like haex-vault)
 export { TAURI_COMMANDS, type TauriCommand } from './commands';
 
+// Export space command constants (for use in vault handler)
+export { SPACE_COMMANDS, type SpaceCommand } from './commands/spaces';
+
 // Export polyfill utilities for manual control if needed
 export {
   installPolyfills,
