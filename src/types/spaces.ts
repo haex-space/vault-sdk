@@ -2,7 +2,7 @@
 // Shared Space Types
 // ============================================================================
 
-export type SpaceRole = 'admin' | 'member' | 'viewer'
+export type SpaceRole = 'admin' | 'owner' | 'member' | 'reader'
 
 export interface SharedSpace {
   id: string
@@ -11,7 +11,6 @@ export interface SharedSpace {
   nameNonce: string
   currentKeyGeneration: number
   role: SpaceRole
-  canInvite: boolean
   createdAt: string
 }
 
@@ -19,7 +18,6 @@ export interface SpaceMemberInfo {
   publicKey: string
   label: string
   role: SpaceRole
-  canInvite: boolean
   invitedBy: string | null
   joinedAt: string
 }
@@ -62,7 +60,6 @@ export interface DecryptedSpace {
   id: string
   name: string
   role: SpaceRole
-  canInvite: boolean
   serverUrl: string
   createdAt: string
 }
