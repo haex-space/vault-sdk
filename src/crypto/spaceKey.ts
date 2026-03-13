@@ -1,9 +1,9 @@
 import { importPublicKeyForKeyAgreementAsync, importPrivateKeyForKeyAgreementAsync, KEY_AGREEMENT_ALGO } from './userKeypair'
 import { arrayBufferToBase64, base64ToArrayBuffer, generateVaultKey, encryptString, decryptString } from './vaultKey'
 
-export interface EncryptedSpaceKey {
-  encryptedSpaceKey: string
-  keyNonce: string
+export interface SealedData {
+  encryptedData: string
+  nonce: string
   ephemeralPublicKey: string
 }
 
@@ -11,9 +11,9 @@ export function generateSpaceKey(): Uint8Array<ArrayBuffer> {
   return generateVaultKey() // 32 random bytes
 }
 
-export async function encryptSpaceKeyForRecipientAsync(
-  spaceKey: Uint8Array<ArrayBuffer>, recipientPublicKeyBase64: string,
-): Promise<EncryptedSpaceKey> {
+export async function encryptWithPublicKeyAsync(
+  data: Uint8Array<ArrayBuffer>, recipientPublicKeyBase64: string,
+): Promise<SealedData> {
   const ephemeral = await crypto.subtle.generateKey(KEY_AGREEMENT_ALGO, true, ['deriveBits'])
   const recipientKey = await importPublicKeyForKeyAgreementAsync(recipientPublicKeyBase64)
 
@@ -29,21 +29,21 @@ export async function encryptSpaceKeyForRecipientAsync(
   )
 
   const nonce = crypto.getRandomValues(new Uint8Array(12))
-  const encrypted = await crypto.subtle.encrypt({ name: 'AES-GCM', iv: nonce }, aesKey, spaceKey)
+  const encrypted = await crypto.subtle.encrypt({ name: 'AES-GCM', iv: nonce }, aesKey, data)
   const ephPub = await crypto.subtle.exportKey('spki', ephemeral.publicKey)
 
   return {
-    encryptedSpaceKey: arrayBufferToBase64(encrypted),
-    keyNonce: arrayBufferToBase64(nonce),
+    encryptedData: arrayBufferToBase64(encrypted),
+    nonce: arrayBufferToBase64(nonce),
     ephemeralPublicKey: arrayBufferToBase64(ephPub),
   }
 }
 
-export async function decryptSpaceKeyAsync(
-  encrypted: EncryptedSpaceKey, ownPrivateKeyBase64: string,
+export async function decryptWithPrivateKeyAsync(
+  sealed: SealedData, ownPrivateKeyBase64: string,
 ): Promise<Uint8Array> {
   const ephPubKey = await crypto.subtle.importKey(
-    'spki', base64ToArrayBuffer(encrypted.ephemeralPublicKey), KEY_AGREEMENT_ALGO, true, [],
+    'spki', base64ToArrayBuffer(sealed.ephemeralPublicKey), KEY_AGREEMENT_ALGO, true, [],
   )
   const ownPrivKey = await importPrivateKeyForKeyAgreementAsync(ownPrivateKeyBase64)
 
@@ -59,8 +59,8 @@ export async function decryptSpaceKeyAsync(
   )
 
   const decrypted = await crypto.subtle.decrypt(
-    { name: 'AES-GCM', iv: base64ToArrayBuffer(encrypted.keyNonce) },
-    aesKey, base64ToArrayBuffer(encrypted.encryptedSpaceKey),
+    { name: 'AES-GCM', iv: base64ToArrayBuffer(sealed.nonce) },
+    aesKey, base64ToArrayBuffer(sealed.encryptedData),
   )
 
   return new Uint8Array(decrypted)

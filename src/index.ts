@@ -210,11 +210,11 @@ export {
 // Export space key crypto utilities
 export {
   generateSpaceKey,
-  encryptSpaceKeyForRecipientAsync,
-  decryptSpaceKeyAsync,
+  encryptWithPublicKeyAsync,
+  decryptWithPrivateKeyAsync,
   encryptSpaceNameAsync,
   decryptSpaceNameAsync,
-  type EncryptedSpaceKey,
+  type SealedData,
 } from './crypto/spaceKey';
 
 // Export claim signing utilities
