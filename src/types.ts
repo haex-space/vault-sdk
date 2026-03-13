@@ -322,6 +322,12 @@ export interface FilteredSyncTablesResult {
 
 export type EventCallback = (event: HaexHubEvent) => void;
 
+// Manifest i18n Types
+export interface ManifestI18nEntry {
+  name?: string | null;
+  description?: string | null;
+}
+
 // Manifest Types
 export interface ExtensionManifest {
   name: string;
@@ -348,6 +354,11 @@ export interface ExtensionManifest {
    * Example: "database/migrations"
    */
   migrationsDir?: string | null;
+  /**
+   * Locale-specific overrides for name, description, etc.
+   * Key is locale code (e.g. "de", "en"), value contains localized fields.
+   */
+  i18n?: Record<string, ManifestI18nEntry> | null;
 }
 
 // Config Types

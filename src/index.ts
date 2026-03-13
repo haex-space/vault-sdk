@@ -70,6 +70,7 @@ export type {
   DatabaseColumnInfo,
   ExtensionInfo,
   ExtensionManifest,
+  ManifestI18nEntry,
   ApplicationContext,
   SearchQuery,
   SearchResult,
