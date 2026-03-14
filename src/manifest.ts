@@ -39,8 +39,9 @@ export function readManifest(options: ReadManifestOptions): ExtensionManifest | 
       console.warn(`[@haex-space/vault-sdk] Warning: Could not read package.json`);
     }
 
-    // Use manifest values with fallback to package.json
-    const name = parsed.name ?? packageJson.name;
+    // Always use package.json name as stable technical identifier
+    // Display names are handled via i18n in the manifest
+    const name = packageJson.name;
     const version = parsed.version ?? packageJson.version;
     const author = parsed.author ?? packageJson.author ?? null;
     const homepage = parsed.homepage ?? packageJson.homepage ?? null;
