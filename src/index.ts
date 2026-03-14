@@ -206,6 +206,8 @@ export {
   publicKeyToDidKeyAsync,
   didKeyToPublicKeyAsync,
   generateIdentityAsync,
+  base58btcEncode,
+  base58btcDecode,
 } from './crypto/didKey';
 
 // Export space key crypto utilities

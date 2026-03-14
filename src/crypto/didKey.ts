@@ -4,7 +4,7 @@ import { arrayBufferToBase64 } from './vaultKey'
 // ── Base58-btc alphabet (Bitcoin) ────────────────────────────────────
 const BASE58_ALPHABET = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz'
 
-function base58btcEncode(bytes: Uint8Array): string {
+export function base58btcEncode(bytes: Uint8Array): string {
   // Count leading zeros
   let zeros = 0
   for (const b of bytes) {
@@ -30,7 +30,7 @@ function base58btcEncode(bytes: Uint8Array): string {
   return '1'.repeat(zeros) + digits.reverse().map(d => BASE58_ALPHABET[d]).join('')
 }
 
-function base58btcDecode(str: string): Uint8Array {
+export function base58btcDecode(str: string): Uint8Array {
   // Count leading '1's (= leading zero bytes)
   let zeros = 0
   for (const c of str) {
