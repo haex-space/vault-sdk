@@ -120,7 +120,7 @@ export class SpacesAPI {
    */
   async createSpaceAsync(name: string, serverUrl: string): Promise<DecryptedSpace> {
     return this.client.request<DecryptedSpace>(SPACE_COMMANDS.create, {
-      name,
+      spaceName: name,
       serverUrl,
     });
   }
