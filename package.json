@@ -1,6 +1,6 @@
 {
   "name": "@haex-space/vault-sdk",
-  "version": "2.6.1",
+  "version": "2.6.2",
   "description": "SDK for building Haex Vault extensions",
   "repository": {
     "type": "git",
