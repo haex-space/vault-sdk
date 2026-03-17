@@ -16,6 +16,13 @@ export { PermissionsAPI } from "./api/permissions";
 export { RemoteStorageAPI } from "./api/remoteStorage";
 export { LocalSendAPI, LOCALSEND_EVENTS } from "./api/localsend";
 export { SpacesAPI, type SpaceAssignment } from "./api/spaces";
+export { ShellAPI } from "./api/shell";
+export type {
+  ShellCreateOptions,
+  ShellCreateResponse,
+  ShellOutputEvent,
+  ShellExitEvent,
+} from "./api/shell";
 export type {
   DeviceType,
   DeviceInfo,
@@ -135,7 +142,7 @@ export {
 } from "./types/spaces";
 
 // Export event constants
-export { HAEXTENSION_EVENTS, type HaextensionEvent, EXTERNAL_EVENTS, type ExternalEvent } from './events';
+export { HAEXTENSION_EVENTS, type HaextensionEvent, EXTERNAL_EVENTS, type ExternalEvent, SHELL_EVENTS, type ShellEvent } from './events';
 
 // Export message type constants
 export { HAEXSPACE_MESSAGE_TYPES, type HaexspaceMessageType } from './messages';

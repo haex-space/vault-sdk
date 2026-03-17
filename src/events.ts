@@ -41,3 +41,16 @@ export const EXTERNAL_EVENTS = {
 } as const;
 
 export type ExternalEvent = typeof EXTERNAL_EVENTS[keyof typeof EXTERNAL_EVENTS];
+
+/**
+ * Events for shell/PTY sessions
+ */
+export const SHELL_EVENTS = {
+  /** PTY output data from a shell session */
+  OUTPUT: 'shell:output',
+
+  /** Shell session has exited */
+  EXIT: 'shell:exit',
+} as const;
+
+export type ShellEvent = typeof SHELL_EVENTS[keyof typeof SHELL_EVENTS];

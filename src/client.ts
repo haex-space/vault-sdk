@@ -27,6 +27,7 @@ import { PermissionsAPI } from "./api/permissions";
 import { RemoteStorageAPI } from "./api/remoteStorage";
 import { LocalSendAPI } from "./api/localsend";
 import { SpacesAPI } from "./api/spaces";
+import { ShellAPI } from "./api/shell";
 import { installConsoleForwarding } from "./polyfills/consoleForwarding";
 import type { SqliteRemoteDatabase } from "drizzle-orm/sqlite-proxy";
 
@@ -86,6 +87,7 @@ export class HaexVaultSdk {
   public readonly remoteStorage: RemoteStorageAPI;
   public readonly localsend: LocalSendAPI;
   public readonly spaces: SpacesAPI;
+  public readonly shell: ShellAPI;
 
   constructor(config: HaexHubConfig = {}) {
     this.config = {
@@ -102,6 +104,7 @@ export class HaexVaultSdk {
     this.remoteStorage = new RemoteStorageAPI(this);
     this.localsend = new LocalSendAPI(this);
     this.spaces = new SpacesAPI(this);
+    this.shell = new ShellAPI(this);
 
     installConsoleForwarding(this.config.debug);
 
