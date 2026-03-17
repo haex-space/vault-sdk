@@ -6,7 +6,7 @@
  * - IFrame mode (mobile/web)
  */
 
-import { HAEXTENSION_EVENTS, EXTERNAL_EVENTS } from "../events";
+import { HAEXTENSION_EVENTS, EXTERNAL_EVENTS, SHELL_EVENTS } from "../events";
 import { EXTENSION_COMMANDS } from "../commands";
 import { HAEXSPACE_MESSAGE_TYPES } from "../messages";
 import { ErrorCode, HaexVaultSdkError } from "../types";
@@ -188,6 +188,38 @@ async function setupTauriEventListeners(
     log("LocalSend event listeners setup complete");
   } catch (error) {
     log("Failed to setup LocalSend event listeners:", error);
+  }
+
+  // Listen for shell PTY events
+  log("Setting up Shell event listeners");
+  try {
+    await listen(SHELL_EVENTS.OUTPUT, (event) => {
+      if (event.payload) {
+        const payload = event.payload as { sessionId: string; data: string };
+        onEvent({
+          type: SHELL_EVENTS.OUTPUT,
+          data: event.payload,
+          timestamp: Date.now(),
+          ...payload,
+        } as unknown as HaexHubEvent);
+      }
+    });
+    log("Shell output listener registered");
+
+    await listen(SHELL_EVENTS.EXIT, (event) => {
+      if (event.payload) {
+        const payload = event.payload as { sessionId: string; exitCode: number | null };
+        onEvent({
+          type: SHELL_EVENTS.EXIT,
+          data: event.payload,
+          timestamp: Date.now(),
+          ...payload,
+        } as unknown as HaexHubEvent);
+      }
+    });
+    log("Shell exit listener registered");
+  } catch (error) {
+    log("Failed to setup Shell event listeners:", error);
   }
 }
 
