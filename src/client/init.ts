@@ -198,9 +198,9 @@ async function setupTauriEventListeners(
         const payload = event.payload as { sessionId: string; data: string };
         onEvent({
           type: SHELL_EVENTS.OUTPUT,
-          data: event.payload,
           timestamp: Date.now(),
-          ...payload,
+          sessionId: payload.sessionId,
+          data: payload.data,
         } as unknown as HaexHubEvent);
       }
     });
@@ -211,9 +211,9 @@ async function setupTauriEventListeners(
         const payload = event.payload as { sessionId: string; exitCode: number | null };
         onEvent({
           type: SHELL_EVENTS.EXIT,
-          data: event.payload,
           timestamp: Date.now(),
-          ...payload,
+          sessionId: payload.sessionId,
+          exitCode: payload.exitCode,
         } as unknown as HaexHubEvent);
       }
     });
