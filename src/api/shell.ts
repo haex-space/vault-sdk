@@ -17,6 +17,7 @@ export interface ShellCreateOptions {
 
 export interface ShellCreateResponse {
   sessionId: string;
+  shellName: string;
 }
 
 export interface ShellOutputEvent {
@@ -37,12 +38,11 @@ export class ShellAPI {
    * Returns a session ID used for subsequent write/resize/close operations.
    * Listen for shell output via `sdk.shell.onData()`.
    */
-  async create(options: ShellCreateOptions = {}): Promise<string> {
-    const result = await this.sdk.request<ShellCreateResponse>(
+  async create(options: ShellCreateOptions = {}): Promise<ShellCreateResponse> {
+    return await this.sdk.request<ShellCreateResponse>(
       SHELL_COMMANDS.create,
       { options }
     );
-    return result.sessionId;
   }
 
   /**
