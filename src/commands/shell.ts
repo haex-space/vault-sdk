@@ -6,6 +6,8 @@
  */
 
 export const SHELL_COMMANDS = {
+  /** List available shell environments (no permission required) */
+  listAvailable: "extension_shell_list_available",
   /** Create a new PTY shell session */
   create: "extension_shell_create",
   /** Write data to a shell session's stdin */

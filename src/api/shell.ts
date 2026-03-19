@@ -30,8 +30,21 @@ export interface ShellExitEvent {
   exitCode: number | null;
 }
 
+export interface ShellInfo {
+  name: string;
+  path: string;
+}
+
 export class ShellAPI {
   constructor(private readonly sdk: HaexVaultSdk) {}
+
+  /**
+   * List available shell environments on the host system.
+   * No filesystem permission required.
+   */
+  async listAvailable(): Promise<ShellInfo[]> {
+    return await this.sdk.request<ShellInfo[]>(SHELL_COMMANDS.listAvailable, {});
+  }
 
   /**
    * Create a new PTY shell session.
