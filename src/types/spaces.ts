@@ -2,7 +2,14 @@
 // Shared Space Types
 // ============================================================================
 
-export type SpaceRole = 'admin' | 'owner' | 'member' | 'reader'
+export const SpaceRoles = {
+  OWNER: 'owner',
+  ADMIN: 'admin',
+  MEMBER: 'member',
+  READER: 'reader',
+} as const
+
+export type SpaceRole = (typeof SpaceRoles)[keyof typeof SpaceRoles]
 
 export interface SharedSpace {
   id: string
