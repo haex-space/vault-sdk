@@ -110,7 +110,8 @@ export function processEvent(
   log: LogFn,
   eventListeners: Map<string, Set<EventCallback>>,
   onContextChanged: (context: ApplicationContext) => void,
-  onExternalRequest: (event: ExternalRequestEvent) => void
+  onExternalRequest: (event: ExternalRequestEvent) => void,
+  onActionRequest?: (event: ExternalRequestEvent) => void
 ): void {
   // Handle context changes
   if (event.type === HAEXTENSION_EVENTS.CONTEXT_CHANGED) {
@@ -123,6 +124,15 @@ export function processEvent(
   if (event.type === EXTERNAL_EVENTS.REQUEST) {
     const externalEvent = event as ExternalRequestEvent;
     onExternalRequest(externalEvent);
+    return; // Don't emit to regular event listeners
+  }
+
+  // Handle AI action requests (same handlers, different response route)
+  if (event.type === EXTERNAL_EVENTS.ACTION_REQUEST) {
+    const actionEvent = event as ExternalRequestEvent;
+    if (onActionRequest) {
+      onActionRequest(actionEvent);
+    }
     return; // Don't emit to regular event listeners
   }
 

@@ -140,6 +140,26 @@ async function setupTauriEventListeners(
     log("Failed to setup external request listener:", error);
   }
 
+  // Listen for AI action requests (routed to same handlers as external requests)
+  try {
+    await listen(EXTERNAL_EVENTS.ACTION_REQUEST, (event) => {
+      log("====== AI ACTION REQUEST RECEIVED ======");
+      log("Payload:", JSON.stringify(event.payload));
+      if (event.payload) {
+        onEvent({
+          type: EXTERNAL_EVENTS.ACTION_REQUEST,
+          data: event.payload,
+          timestamp: Date.now(),
+        } as unknown as HaexHubEvent);
+      } else {
+        log("AI action request event has no payload!");
+      }
+    });
+    log("AI action request listener registered successfully");
+  } catch (error) {
+    log("Failed to setup AI action request listener:", error);
+  }
+
   // Listen for file change events (from native file watcher)
   log("Registering file change listener for:", HAEXTENSION_EVENTS.FILE_CHANGED);
   try {

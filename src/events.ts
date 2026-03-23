@@ -36,6 +36,9 @@ export const EXTERNAL_EVENTS = {
   /** External request from authorized client */
   REQUEST: 'haextension:external:request',
 
+  /** AI action request (tool calls from AI assistant) */
+  ACTION_REQUEST: 'haextension:action:request',
+
   /** New external client requesting authorization */
   AUTHORIZATION_REQUEST: 'external:authorization-request',
 } as const;

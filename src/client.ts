@@ -49,6 +49,7 @@ import {
 } from "./client/events";
 import { createDrizzleInstance, queryRaw, executeRaw } from "./client/database";
 import { registerExternalHandler, handleExternalRequest, respondToExternalRequest } from "./client/external";
+import { AI_COMMANDS } from "./commands/ai";
 
 export class HaexVaultSdk {
   // Configuration
@@ -88,6 +89,13 @@ export class HaexVaultSdk {
   public readonly localsend: LocalSendAPI;
   public readonly spaces: SpacesAPI;
   public readonly shell: ShellAPI;
+
+  /** Unified action system - register handlers that work for both Bridge and AI requests */
+  public readonly actions = {
+    register: (action: string, handler: ExternalRequestHandler): (() => void) => {
+      return this.onExternalRequest(action, handler);
+    },
+  };
 
   constructor(config: HaexHubConfig = {}) {
     this.config = {
@@ -446,12 +454,24 @@ export class HaexVaultSdk {
         this._context = ctx;
         this.notifySubscribersInternal();
       },
-      (extEvent) => this.handleExternalRequestInternal(extEvent.data)
+      (extEvent) => this.handleExternalRequestInternal(extEvent.data),
+      (actionEvent) => this.handleActionRequestInternal(actionEvent.data)
     );
   }
 
   private async handleExternalRequestInternal(request: import("./types/external").ExternalRequest): Promise<void> {
     await handleExternalRequest(request, this.externalRequestHandlers, this.respondToExternalRequest.bind(this), this.log.bind(this));
+  }
+
+  private async handleActionRequestInternal(request: import("./types/external").ExternalRequest & { source?: string }): Promise<void> {
+    await handleExternalRequest(
+      request,
+      this.externalRequestHandlers,
+      async (response) => {
+        await this.request(AI_COMMANDS.actionRespond, response as unknown as Record<string, unknown>);
+      },
+      this.log.bind(this)
+    );
   }
 
   // ==========================================================================
