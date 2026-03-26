@@ -133,6 +133,25 @@ export interface SelectFileOptions {
   multiple?: boolean;
 }
 
+/**
+ * Well-known system directory identifiers.
+ * Resolved to platform-specific paths by haex-vault via Tauri's PathResolver.
+ */
+export enum KnownPath {
+  Home = "home",
+  Pictures = "pictures",
+  Downloads = "downloads",
+  Documents = "documents",
+  Desktop = "desktop",
+  Videos = "videos",
+}
+
+/**
+ * Map of known path names to their resolved absolute paths.
+ * Not all paths may be available on every platform.
+ */
+export type KnownPaths = Partial<Record<KnownPath, string>>;
+
 export class FilesystemAPI {
   constructor(private client: HaexVaultSdk) {}
 
@@ -335,6 +354,21 @@ export class FilesystemAPI {
     await this.client.request(
       FILESYSTEM_COMMANDS.copy,
       { from, to }
+    );
+  }
+
+  // ==========================================================================
+  // Known Paths (System Directories)
+  // ==========================================================================
+
+  /**
+   * Get well-known system directory paths (home, pictures, downloads, etc.)
+   * These paths are resolved via Tauri's PathResolver and are platform-aware.
+   * @returns Map of known path names to their absolute paths
+   */
+  async knownPaths(): Promise<KnownPaths> {
+    return this.client.request<KnownPaths>(
+      FILESYSTEM_COMMANDS.knownPaths
     );
   }
 

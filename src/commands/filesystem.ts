@@ -42,6 +42,9 @@ export const FILESYSTEM_COMMANDS = {
   /** Copy file or directory */
   copy: "extension_filesystem_copy",
 
+  /** Get well-known system directory paths */
+  knownPaths: "extension_filesystem_known_paths",
+
   // File watcher operations
   /** Start watching a directory for changes */
   watch: "extension_filesystem_watch",

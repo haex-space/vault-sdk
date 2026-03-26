@@ -5,11 +5,13 @@ import './polyfills';
 export { HaexVaultSdk } from "./client";
 export { DatabaseAPI } from "./api/database";
 export { FilesystemAPI } from "./api/filesystem";
+export { KnownPath } from "./api/filesystem";
 export type {
   FileStat,
   DirEntry,
   SelectFolderOptions,
   SelectFileOptions,
+  KnownPaths,
 } from "./api/filesystem";
 export { WebAPI } from "./api/web";
 export { PermissionsAPI } from "./api/permissions";
