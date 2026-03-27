@@ -16,6 +16,12 @@ export interface SpaceAssignment {
   rowPks: string;
   /** The shared space ID this row is assigned to */
   spaceId: string;
+  /** Optional group identifier for logically related assignments (e.g. a calendar ID groups the calendar row + all its event rows) */
+  groupId?: string;
+  /** Optional type label for display categorization (e.g. "Calendar", "Password Folder") */
+  type?: string;
+  /** Optional display label (e.g. "Personal", "Team Q1") */
+  label?: string;
 }
 
 // ============================================================================
