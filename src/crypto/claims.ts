@@ -1,4 +1,4 @@
-import { importUserPrivateKeyAsync, importUserPublicKeyAsync } from './userKeypair'
+import { importUserPrivateKeyAsync, importUserPublicKeyAsync, SIGNING_ALGO } from './userKeypair'
 import type { SignedClaimPresentation } from '../types'
 
 /**
@@ -22,7 +22,7 @@ export async function signClaimPresentationAsync(
   const privateKey = await importUserPrivateKeyAsync(privateKeyBase64)
   const data = new TextEncoder().encode(canonical)
   const sig = await crypto.subtle.sign(
-    { name: 'ECDSA', hash: 'SHA-256' },
+    SIGNING_ALGO,
     privateKey,
     data,
   )
@@ -52,7 +52,7 @@ export async function verifyClaimPresentationAsync(
   const sigBytes = Uint8Array.from(atob(signature), c => c.charCodeAt(0))
 
   return crypto.subtle.verify(
-    { name: 'ECDSA', hash: 'SHA-256' },
+    SIGNING_ALGO,
     pubKey,
     sigBytes,
     data,

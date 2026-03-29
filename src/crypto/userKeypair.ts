@@ -1,27 +1,46 @@
 import { deriveKeyFromPassword, arrayBufferToBase64, base64ToArrayBuffer } from './vaultKey'
 
-export const SIGNING_ALGO = { name: 'ECDSA', namedCurve: 'P-256' }
-export const KEY_AGREEMENT_ALGO = { name: 'ECDH', namedCurve: 'P-256' }
+export const SIGNING_ALGO: Algorithm = { name: 'Ed25519' }
+export const KEY_AGREEMENT_ALGO: Algorithm = { name: 'X25519' }
 
 export interface UserKeypair {
-  publicKey: CryptoKey
-  privateKey: CryptoKey
+  signingPublicKey: CryptoKey
+  signingPrivateKey: CryptoKey
+  agreementPublicKey: CryptoKey
+  agreementPrivateKey: CryptoKey
 }
 
 export interface ExportedUserKeypair {
-  publicKey: string   // Base64 SPKI
-  privateKey: string  // Base64 PKCS8
+  signingPublicKey: string    // Base64 SPKI (Ed25519)
+  signingPrivateKey: string   // Base64 PKCS8 (Ed25519)
+  agreementPublicKey: string  // Base64 SPKI (X25519)
+  agreementPrivateKey: string // Base64 PKCS8 (X25519)
 }
 
 export async function generateUserKeypairAsync(): Promise<UserKeypair> {
-  const keypair = await crypto.subtle.generateKey(SIGNING_ALGO, true, ['sign', 'verify'])
-  return { publicKey: keypair.publicKey, privateKey: keypair.privateKey }
+  const signing = await crypto.subtle.generateKey(SIGNING_ALGO, true, ['sign', 'verify']) as CryptoKeyPair
+  const agreement = await crypto.subtle.generateKey(KEY_AGREEMENT_ALGO, true, ['deriveBits']) as CryptoKeyPair
+  return {
+    signingPublicKey: signing.publicKey,
+    signingPrivateKey: signing.privateKey,
+    agreementPublicKey: agreement.publicKey,
+    agreementPrivateKey: agreement.privateKey,
+  }
 }
 
 export async function exportUserKeypairAsync(keypair: UserKeypair): Promise<ExportedUserKeypair> {
-  const pub = await crypto.subtle.exportKey('spki', keypair.publicKey)
-  const priv = await crypto.subtle.exportKey('pkcs8', keypair.privateKey)
-  return { publicKey: arrayBufferToBase64(pub), privateKey: arrayBufferToBase64(priv) }
+  const [sigPub, sigPriv, agrPub, agrPriv] = await Promise.all([
+    crypto.subtle.exportKey('spki', keypair.signingPublicKey),
+    crypto.subtle.exportKey('pkcs8', keypair.signingPrivateKey),
+    crypto.subtle.exportKey('spki', keypair.agreementPublicKey),
+    crypto.subtle.exportKey('pkcs8', keypair.agreementPrivateKey),
+  ])
+  return {
+    signingPublicKey: arrayBufferToBase64(sigPub),
+    signingPrivateKey: arrayBufferToBase64(sigPriv),
+    agreementPublicKey: arrayBufferToBase64(agrPub),
+    agreementPrivateKey: arrayBufferToBase64(agrPriv),
+  }
 }
 
 export async function importUserPublicKeyAsync(base64: string): Promise<CryptoKey> {

@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest'
 import {
   publicKeyToDidKeyAsync,
   didKeyToPublicKeyAsync,
+  didKeyToRawPublicKey,
   generateIdentityAsync,
 } from '../didKey'
 import {
@@ -10,22 +11,34 @@ import {
 } from '../userKeypair'
 
 describe('did:key', () => {
-  it('should generate a valid did:key from a P-256 public key', async () => {
+  it('should generate a valid did:key from an Ed25519 public key', async () => {
     const keypair = await generateUserKeypairAsync()
     const exported = await exportUserKeypairAsync(keypair)
-    const did = await publicKeyToDidKeyAsync(exported.publicKey)
+    const did = await publicKeyToDidKeyAsync(exported.signingPublicKey)
 
-    expect(did).toMatch(/^did:key:zDn/)
+    // Ed25519 did:key starts with z6Mk
+    expect(did).toMatch(/^did:key:z6Mk/)
   })
 
   it('should roundtrip: publicKey → did:key → publicKey', async () => {
     const keypair = await generateUserKeypairAsync()
     const exported = await exportUserKeypairAsync(keypair)
 
-    const did = await publicKeyToDidKeyAsync(exported.publicKey)
+    const did = await publicKeyToDidKeyAsync(exported.signingPublicKey)
     const recoveredPublicKey = await didKeyToPublicKeyAsync(did)
 
-    expect(recoveredPublicKey).toBe(exported.publicKey)
+    expect(recoveredPublicKey).toBe(exported.signingPublicKey)
+  })
+
+  it('should extract raw 32-byte public key from did:key', async () => {
+    const keypair = await generateUserKeypairAsync()
+    const exported = await exportUserKeypairAsync(keypair)
+    const did = await publicKeyToDidKeyAsync(exported.signingPublicKey)
+
+    const rawKey = didKeyToRawPublicKey(did)
+
+    expect(rawKey).toBeInstanceOf(Uint8Array)
+    expect(rawKey.length).toBe(32)
   })
 
   it('should produce different DIDs for different keys', async () => {
@@ -34,8 +47,8 @@ describe('did:key', () => {
     const exported1 = await exportUserKeypairAsync(keypair1)
     const exported2 = await exportUserKeypairAsync(keypair2)
 
-    const did1 = await publicKeyToDidKeyAsync(exported1.publicKey)
-    const did2 = await publicKeyToDidKeyAsync(exported2.publicKey)
+    const did1 = await publicKeyToDidKeyAsync(exported1.signingPublicKey)
+    const did2 = await publicKeyToDidKeyAsync(exported2.signingPublicKey)
 
     expect(did1).not.toBe(did2)
   })
@@ -44,8 +57,8 @@ describe('did:key', () => {
     const keypair = await generateUserKeypairAsync()
     const exported = await exportUserKeypairAsync(keypair)
 
-    const did1 = await publicKeyToDidKeyAsync(exported.publicKey)
-    const did2 = await publicKeyToDidKeyAsync(exported.publicKey)
+    const did1 = await publicKeyToDidKeyAsync(exported.signingPublicKey)
+    const did2 = await publicKeyToDidKeyAsync(exported.signingPublicKey)
 
     expect(did1).toBe(did2)
   })
@@ -55,15 +68,17 @@ describe('did:key', () => {
     await expect(didKeyToPublicKeyAsync('not-a-did')).rejects.toThrow()
   })
 
-  it('generateIdentityAsync should return did + keypair', async () => {
+  it('generateIdentityAsync should return did + both keypairs', async () => {
     const identity = await generateIdentityAsync()
 
-    expect(identity.did).toMatch(/^did:key:zDn/)
-    expect(identity.publicKeyBase64).toBeTruthy()
-    expect(identity.privateKeyBase64).toBeTruthy()
+    expect(identity.did).toMatch(/^did:key:z6Mk/)
+    expect(identity.signingPublicKey).toBeTruthy()
+    expect(identity.signingPrivateKey).toBeTruthy()
+    expect(identity.agreementPublicKey).toBeTruthy()
+    expect(identity.agreementPrivateKey).toBeTruthy()
 
-    // Verify the DID matches the public key
+    // Verify the DID matches the signing public key
     const recoveredPublicKey = await didKeyToPublicKeyAsync(identity.did)
-    expect(recoveredPublicKey).toBe(identity.publicKeyBase64)
+    expect(recoveredPublicKey).toBe(identity.signingPublicKey)
   })
 })

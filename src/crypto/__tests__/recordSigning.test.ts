@@ -30,8 +30,8 @@ describe('record signing and verification', () => {
 
   it('should sign and verify a record successfully', async () => {
     const keys = await generateExportedKeypair()
-    const signature = await signRecordAsync(sampleRecord, keys.privateKey)
-    const valid = await verifyRecordSignatureAsync(sampleRecord, signature, keys.publicKey)
+    const signature = await signRecordAsync(sampleRecord, keys.signingPrivateKey)
+    const valid = await verifyRecordSignatureAsync(sampleRecord, signature, keys.signingPublicKey)
     expect(valid).toBe(true)
   })
 
@@ -45,8 +45,8 @@ describe('record signing and verification', () => {
       hlcTimestamp: '2026-03-08T12:00:00.000Z-0002-node1',
     }
 
-    const signature = await signRecordAsync(deleteRecord, keys.privateKey)
-    const valid = await verifyRecordSignatureAsync(deleteRecord, signature, keys.publicKey)
+    const signature = await signRecordAsync(deleteRecord, keys.signingPrivateKey)
+    const valid = await verifyRecordSignatureAsync(deleteRecord, signature, keys.signingPublicKey)
     expect(valid).toBe(true)
   })
 
@@ -56,46 +56,46 @@ describe('record signing and verification', () => {
 
   it('should reject tampered tableName', async () => {
     const keys = await generateExportedKeypair()
-    const signature = await signRecordAsync(sampleRecord, keys.privateKey)
+    const signature = await signRecordAsync(sampleRecord, keys.signingPrivateKey)
 
     const tampered = { ...sampleRecord, tableName: 'notes' }
-    const valid = await verifyRecordSignatureAsync(tampered, signature, keys.publicKey)
+    const valid = await verifyRecordSignatureAsync(tampered, signature, keys.signingPublicKey)
     expect(valid).toBe(false)
   })
 
   it('should reject tampered rowPks', async () => {
     const keys = await generateExportedKeypair()
-    const signature = await signRecordAsync(sampleRecord, keys.privateKey)
+    const signature = await signRecordAsync(sampleRecord, keys.signingPrivateKey)
 
     const tampered = { ...sampleRecord, rowPks: '["xyz-999"]' }
-    const valid = await verifyRecordSignatureAsync(tampered, signature, keys.publicKey)
+    const valid = await verifyRecordSignatureAsync(tampered, signature, keys.signingPublicKey)
     expect(valid).toBe(false)
   })
 
   it('should reject tampered columnName', async () => {
     const keys = await generateExportedKeypair()
-    const signature = await signRecordAsync(sampleRecord, keys.privateKey)
+    const signature = await signRecordAsync(sampleRecord, keys.signingPrivateKey)
 
     const tampered = { ...sampleRecord, columnName: 'description' }
-    const valid = await verifyRecordSignatureAsync(tampered, signature, keys.publicKey)
+    const valid = await verifyRecordSignatureAsync(tampered, signature, keys.signingPublicKey)
     expect(valid).toBe(false)
   })
 
   it('should reject tampered encryptedValue', async () => {
     const keys = await generateExportedKeypair()
-    const signature = await signRecordAsync(sampleRecord, keys.privateKey)
+    const signature = await signRecordAsync(sampleRecord, keys.signingPrivateKey)
 
     const tampered = { ...sampleRecord, encryptedValue: 'dGFtcGVyZWQ=' }
-    const valid = await verifyRecordSignatureAsync(tampered, signature, keys.publicKey)
+    const valid = await verifyRecordSignatureAsync(tampered, signature, keys.signingPublicKey)
     expect(valid).toBe(false)
   })
 
   it('should reject tampered hlcTimestamp', async () => {
     const keys = await generateExportedKeypair()
-    const signature = await signRecordAsync(sampleRecord, keys.privateKey)
+    const signature = await signRecordAsync(sampleRecord, keys.signingPrivateKey)
 
     const tampered = { ...sampleRecord, hlcTimestamp: '2026-03-08T13:00:00.000Z-0001-node1' }
-    const valid = await verifyRecordSignatureAsync(tampered, signature, keys.publicKey)
+    const valid = await verifyRecordSignatureAsync(tampered, signature, keys.signingPublicKey)
     expect(valid).toBe(false)
   })
 
@@ -107,41 +107,38 @@ describe('record signing and verification', () => {
     const signer = await generateExportedKeypair()
     const other = await generateExportedKeypair()
 
-    const signature = await signRecordAsync(sampleRecord, signer.privateKey)
-    const valid = await verifyRecordSignatureAsync(sampleRecord, signature, other.publicKey)
+    const signature = await signRecordAsync(sampleRecord, signer.signingPrivateKey)
+    const valid = await verifyRecordSignatureAsync(sampleRecord, signature, other.signingPublicKey)
     expect(valid).toBe(false)
   })
 
   it('should reject tampered signature bytes', async () => {
     const keys = await generateExportedKeypair()
-    const signature = await signRecordAsync(sampleRecord, keys.privateKey)
+    const signature = await signRecordAsync(sampleRecord, keys.signingPrivateKey)
 
     // Flip a byte in the signature
     const sigBytes = base64ToArrayBuffer(signature)
     sigBytes[0] = sigBytes[0]! ^ 0xff
     const tamperedSig = arrayBufferToBase64(sigBytes)
 
-    const valid = await verifyRecordSignatureAsync(sampleRecord, tamperedSig, keys.publicKey)
+    const valid = await verifyRecordSignatureAsync(sampleRecord, tamperedSig, keys.signingPublicKey)
     expect(valid).toBe(false)
   })
 
   // ============================================================================
-  // ECDSA Non-Determinism Test
+  // Ed25519 Determinism Test
   // ============================================================================
 
-  it('should produce different signatures for the same input (ECDSA non-determinism)', async () => {
+  it('should produce identical signatures for the same input (Ed25519 is deterministic)', async () => {
     const keys = await generateExportedKeypair()
-    const sig1 = await signRecordAsync(sampleRecord, keys.privateKey)
-    const sig2 = await signRecordAsync(sampleRecord, keys.privateKey)
+    const sig1 = await signRecordAsync(sampleRecord, keys.signingPrivateKey)
+    const sig2 = await signRecordAsync(sampleRecord, keys.signingPrivateKey)
 
-    // ECDSA uses random k, so signatures should differ
-    expect(sig1).not.toBe(sig2)
+    // Ed25519 is deterministic — same key + same data = same signature
+    expect(sig1).toBe(sig2)
 
-    // But both should verify
-    const valid1 = await verifyRecordSignatureAsync(sampleRecord, sig1, keys.publicKey)
-    const valid2 = await verifyRecordSignatureAsync(sampleRecord, sig2, keys.publicKey)
-    expect(valid1).toBe(true)
-    expect(valid2).toBe(true)
+    const valid = await verifyRecordSignatureAsync(sampleRecord, sig1, keys.signingPublicKey)
+    expect(valid).toBe(true)
   })
 
   // ============================================================================
@@ -160,12 +157,12 @@ describe('record signing and verification', () => {
       columnName: '',
     }
 
-    const sigNull = await signRecordAsync(recordWithNull, keys.privateKey)
-    const sigEmpty = await signRecordAsync(recordWithEmpty, keys.privateKey)
+    const sigNull = await signRecordAsync(recordWithNull, keys.signingPrivateKey)
+    const sigEmpty = await signRecordAsync(recordWithEmpty, keys.signingPrivateKey)
 
     // null maps to '\x01NULL' sentinel, empty string stays as '', so canonical forms differ
-    const nullVerifiesAsEmpty = await verifyRecordSignatureAsync(recordWithEmpty, sigNull, keys.publicKey)
-    const emptyVerifiesAsNull = await verifyRecordSignatureAsync(recordWithNull, sigEmpty, keys.publicKey)
+    const nullVerifiesAsEmpty = await verifyRecordSignatureAsync(recordWithEmpty, sigNull, keys.signingPublicKey)
+    const emptyVerifiesAsNull = await verifyRecordSignatureAsync(recordWithNull, sigEmpty, keys.signingPublicKey)
 
     // Signatures should NOT be interchangeable between null and empty
     expect(nullVerifiesAsEmpty).toBe(false)

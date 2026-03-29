@@ -1,5 +1,5 @@
 import type { HaexVaultSdk } from "~/client";
-import type { DecryptedSpace, SyncBackendInfo } from "~/types/spaces";
+import type { DecryptedSpace } from "~/types/spaces";
 import { SPACE_COMMANDS } from "~/commands";
 
 // ============================================================================
@@ -118,25 +118,5 @@ export class SpacesAPI {
     return this.client.request<DecryptedSpace[]>(SPACE_COMMANDS.list);
   }
 
-  /**
-   * Create a new shared space.
-   * @param name - Human-readable space name
-   * @param serverUrl - The sync server URL to create the space on
-   * @returns The created space with decrypted name
-   */
-  async createSpaceAsync(name: string, serverUrl: string): Promise<DecryptedSpace> {
-    return this.client.request<DecryptedSpace>(SPACE_COMMANDS.create, {
-      spaceName: name,
-      serverUrl,
-    });
-  }
-
-  /**
-   * List available sync backends that can host shared spaces.
-   * @returns Array of backend info with server URLs
-   */
-  async listSyncBackendsAsync(): Promise<SyncBackendInfo[]> {
-    return this.client.request<SyncBackendInfo[]>(SPACE_COMMANDS.listBackends);
-  }
 }
 

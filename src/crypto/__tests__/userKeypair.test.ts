@@ -10,14 +10,12 @@ import {
   decryptPrivateKeyAsync,
 } from '../userKeypair'
 
-const ECDSA_SIGN_ALGO = { name: 'ECDSA', hash: 'SHA-256' }
-
 async function signData(privateKey: CryptoKey, data: Uint8Array<ArrayBuffer>): Promise<ArrayBuffer> {
-  return crypto.subtle.sign(ECDSA_SIGN_ALGO, privateKey, data)
+  return crypto.subtle.sign('Ed25519', privateKey, data)
 }
 
 async function verifySignature(publicKey: CryptoKey, signature: ArrayBuffer, data: Uint8Array<ArrayBuffer>): Promise<boolean> {
-  return crypto.subtle.verify(ECDSA_SIGN_ALGO, publicKey, signature, data)
+  return crypto.subtle.verify('Ed25519', publicKey, signature, data)
 }
 
 describe('userKeypair crypto utilities', () => {
@@ -26,27 +24,39 @@ describe('userKeypair crypto utilities', () => {
   // ============================================================================
 
   describe('generateUserKeypairAsync', () => {
-    it('should generate a valid P-256 keypair', async () => {
+    it('should generate a valid Ed25519 signing keypair', async () => {
       const keypair = await generateUserKeypairAsync()
 
-      expect(keypair.publicKey).toBeInstanceOf(CryptoKey)
-      expect(keypair.privateKey).toBeInstanceOf(CryptoKey)
-      expect(keypair.publicKey.algorithm).toMatchObject({ name: 'ECDSA', namedCurve: 'P-256' })
-      expect(keypair.privateKey.algorithm).toMatchObject({ name: 'ECDSA', namedCurve: 'P-256' })
+      expect(keypair.signingPublicKey).toBeInstanceOf(CryptoKey)
+      expect(keypair.signingPrivateKey).toBeInstanceOf(CryptoKey)
+      expect(keypair.signingPublicKey.algorithm).toMatchObject({ name: 'Ed25519' })
+      expect(keypair.signingPrivateKey.algorithm).toMatchObject({ name: 'Ed25519' })
+    })
+
+    it('should generate a valid X25519 agreement keypair', async () => {
+      const keypair = await generateUserKeypairAsync()
+
+      expect(keypair.agreementPublicKey).toBeInstanceOf(CryptoKey)
+      expect(keypair.agreementPrivateKey).toBeInstanceOf(CryptoKey)
+      expect(keypair.agreementPublicKey.algorithm).toMatchObject({ name: 'X25519' })
+      expect(keypair.agreementPrivateKey.algorithm).toMatchObject({ name: 'X25519' })
     })
 
     it('should generate extractable keys', async () => {
       const keypair = await generateUserKeypairAsync()
 
-      expect(keypair.publicKey.extractable).toBe(true)
-      expect(keypair.privateKey.extractable).toBe(true)
+      expect(keypair.signingPublicKey.extractable).toBe(true)
+      expect(keypair.signingPrivateKey.extractable).toBe(true)
+      expect(keypair.agreementPublicKey.extractable).toBe(true)
+      expect(keypair.agreementPrivateKey.extractable).toBe(true)
     })
 
     it('should generate keys with correct usages', async () => {
       const keypair = await generateUserKeypairAsync()
 
-      expect(keypair.publicKey.usages).toContain('verify')
-      expect(keypair.privateKey.usages).toContain('sign')
+      expect(keypair.signingPublicKey.usages).toContain('verify')
+      expect(keypair.signingPrivateKey.usages).toContain('sign')
+      expect(keypair.agreementPrivateKey.usages).toContain('deriveBits')
     })
 
     it('should generate unique keypairs each time', async () => {
@@ -56,8 +66,9 @@ describe('userKeypair crypto utilities', () => {
       const exported1 = await exportUserKeypairAsync(keypair1)
       const exported2 = await exportUserKeypairAsync(keypair2)
 
-      expect(exported1.publicKey).not.toBe(exported2.publicKey)
-      expect(exported1.privateKey).not.toBe(exported2.privateKey)
+      expect(exported1.signingPublicKey).not.toBe(exported2.signingPublicKey)
+      expect(exported1.signingPrivateKey).not.toBe(exported2.signingPrivateKey)
+      expect(exported1.agreementPublicKey).not.toBe(exported2.agreementPublicKey)
     })
   })
 
@@ -70,11 +81,10 @@ describe('userKeypair crypto utilities', () => {
       const keypair = await generateUserKeypairAsync()
       const exported = await exportUserKeypairAsync(keypair)
 
-      const importedPublicKey = await importUserPublicKeyAsync(exported.publicKey)
+      const importedPublicKey = await importUserPublicKeyAsync(exported.signingPublicKey)
 
-      // Sign with original private key, verify with imported public key
       const data = new TextEncoder().encode('test message')
-      const signature = await signData(keypair.privateKey, data)
+      const signature = await signData(keypair.signingPrivateKey, data)
       const valid = await verifySignature(importedPublicKey, signature, data)
 
       expect(valid).toBe(true)
@@ -84,12 +94,11 @@ describe('userKeypair crypto utilities', () => {
       const keypair = await generateUserKeypairAsync()
       const exported = await exportUserKeypairAsync(keypair)
 
-      const importedPrivateKey = await importUserPrivateKeyAsync(exported.privateKey)
+      const importedPrivateKey = await importUserPrivateKeyAsync(exported.signingPrivateKey)
 
-      // Sign with imported private key, verify with original public key
       const data = new TextEncoder().encode('test message')
       const signature = await signData(importedPrivateKey, data)
-      const valid = await verifySignature(keypair.publicKey, signature, data)
+      const valid = await verifySignature(keypair.signingPublicKey, signature, data)
 
       expect(valid).toBe(true)
     })
@@ -98,8 +107,8 @@ describe('userKeypair crypto utilities', () => {
       const keypair = await generateUserKeypairAsync()
       const exported = await exportUserKeypairAsync(keypair)
 
-      const importedPublicKey = await importUserPublicKeyAsync(exported.publicKey)
-      const importedPrivateKey = await importUserPrivateKeyAsync(exported.privateKey)
+      const importedPublicKey = await importUserPublicKeyAsync(exported.signingPublicKey)
+      const importedPrivateKey = await importUserPrivateKeyAsync(exported.signingPrivateKey)
 
       const data = new TextEncoder().encode('full roundtrip test')
       const signature = await signData(importedPrivateKey, data)
@@ -117,7 +126,7 @@ describe('userKeypair crypto utilities', () => {
     it('should import private key that can sign', async () => {
       const keypair = await generateUserKeypairAsync()
       const exported = await exportUserKeypairAsync(keypair)
-      const importedPrivateKey = await importUserPrivateKeyAsync(exported.privateKey)
+      const importedPrivateKey = await importUserPrivateKeyAsync(exported.signingPrivateKey)
 
       expect(importedPrivateKey.usages).toContain('sign')
 
@@ -129,7 +138,7 @@ describe('userKeypair crypto utilities', () => {
     it('should import public key that can verify', async () => {
       const keypair = await generateUserKeypairAsync()
       const exported = await exportUserKeypairAsync(keypair)
-      const importedPublicKey = await importUserPublicKeyAsync(exported.publicKey)
+      const importedPublicKey = await importUserPublicKeyAsync(exported.signingPublicKey)
 
       expect(importedPublicKey.usages).toContain('verify')
     })
@@ -144,33 +153,30 @@ describe('userKeypair crypto utilities', () => {
       ]
 
       for (const data of testData) {
-        const signature = await signData(keypair.privateKey, data)
-        const valid = await verifySignature(keypair.publicKey, signature, data)
+        const signature = await signData(keypair.signingPrivateKey, data)
+        const valid = await verifySignature(keypair.signingPublicKey, signature, data)
         expect(valid).toBe(true)
       }
     })
   })
 
   // ============================================================================
-  // Key Agreement Import Tests (ECDH)
+  // Key Agreement Import Tests (X25519)
   // ============================================================================
 
-  describe('key agreement import (ECDH)', () => {
-    it('should import keys for ECDH key agreement', async () => {
-      // Generate two keypairs (Alice and Bob)
+  describe('key agreement import (X25519)', () => {
+    it('should import keys for X25519 key agreement', async () => {
       const alice = await generateUserKeypairAsync()
       const bob = await generateUserKeypairAsync()
 
       const aliceExported = await exportUserKeypairAsync(alice)
       const bobExported = await exportUserKeypairAsync(bob)
 
-      // Import for key agreement
-      const alicePrivateKA = await importPrivateKeyForKeyAgreementAsync(aliceExported.privateKey)
-      const bobPublicKA = await importPublicKeyForKeyAgreementAsync(bobExported.publicKey)
+      const alicePrivateKA = await importPrivateKeyForKeyAgreementAsync(aliceExported.agreementPrivateKey)
+      const bobPublicKA = await importPublicKeyForKeyAgreementAsync(bobExported.agreementPublicKey)
 
-      // Derive shared bits
       const sharedBits = await crypto.subtle.deriveBits(
-        { name: 'ECDH', public: bobPublicKA },
+        { name: 'X25519', public: bobPublicKA } as EcdhKeyDeriveParams,
         alicePrivateKA,
         256,
       )
@@ -185,25 +191,22 @@ describe('userKeypair crypto utilities', () => {
       const aliceExported = await exportUserKeypairAsync(alice)
       const bobExported = await exportUserKeypairAsync(bob)
 
-      // Alice derives shared secret using her private key + Bob's public key
-      const alicePrivateKA = await importPrivateKeyForKeyAgreementAsync(aliceExported.privateKey)
-      const bobPublicKA = await importPublicKeyForKeyAgreementAsync(bobExported.publicKey)
+      const alicePrivateKA = await importPrivateKeyForKeyAgreementAsync(aliceExported.agreementPrivateKey)
+      const bobPublicKA = await importPublicKeyForKeyAgreementAsync(bobExported.agreementPublicKey)
       const sharedFromAlice = await crypto.subtle.deriveBits(
-        { name: 'ECDH', public: bobPublicKA },
+        { name: 'X25519', public: bobPublicKA } as EcdhKeyDeriveParams,
         alicePrivateKA,
         256,
       )
 
-      // Bob derives shared secret using his private key + Alice's public key
-      const bobPrivateKA = await importPrivateKeyForKeyAgreementAsync(bobExported.privateKey)
-      const alicePublicKA = await importPublicKeyForKeyAgreementAsync(aliceExported.publicKey)
+      const bobPrivateKA = await importPrivateKeyForKeyAgreementAsync(bobExported.agreementPrivateKey)
+      const alicePublicKA = await importPublicKeyForKeyAgreementAsync(aliceExported.agreementPublicKey)
       const sharedFromBob = await crypto.subtle.deriveBits(
-        { name: 'ECDH', public: alicePublicKA },
+        { name: 'X25519', public: alicePublicKA } as EcdhKeyDeriveParams,
         bobPrivateKA,
         256,
       )
 
-      // Both sides should derive the same shared secret
       const aliceSharedBase64 = Buffer.from(sharedFromAlice).toString('base64')
       const bobSharedBase64 = Buffer.from(sharedFromBob).toString('base64')
       expect(aliceSharedBase64).toBe(bobSharedBase64)
@@ -218,19 +221,17 @@ describe('userKeypair crypto utilities', () => {
       const bobExported = await exportUserKeypairAsync(bob)
       const charlieExported = await exportUserKeypairAsync(charlie)
 
-      // Alice-Bob shared secret
-      const alicePrivateKA = await importPrivateKeyForKeyAgreementAsync(aliceExported.privateKey)
-      const bobPublicKA = await importPublicKeyForKeyAgreementAsync(bobExported.publicKey)
+      const alicePrivateKA = await importPrivateKeyForKeyAgreementAsync(aliceExported.agreementPrivateKey)
+      const bobPublicKA = await importPublicKeyForKeyAgreementAsync(bobExported.agreementPublicKey)
       const sharedAliceBob = await crypto.subtle.deriveBits(
-        { name: 'ECDH', public: bobPublicKA },
+        { name: 'X25519', public: bobPublicKA } as EcdhKeyDeriveParams,
         alicePrivateKA,
         256,
       )
 
-      // Alice-Charlie shared secret
-      const charliePublicKA = await importPublicKeyForKeyAgreementAsync(charlieExported.publicKey)
+      const charliePublicKA = await importPublicKeyForKeyAgreementAsync(charlieExported.agreementPublicKey)
       const sharedAliceCharlie = await crypto.subtle.deriveBits(
-        { name: 'ECDH', public: charliePublicKA },
+        { name: 'X25519', public: charliePublicKA } as EcdhKeyDeriveParams,
         alicePrivateKA,
         256,
       )
@@ -250,7 +251,7 @@ describe('userKeypair crypto utilities', () => {
       const exported = await exportUserKeypairAsync(keypair)
       const password = 'strong-password-123'
 
-      const encrypted = await encryptPrivateKeyAsync(exported.privateKey, password)
+      const encrypted = await encryptPrivateKeyAsync(exported.signingPrivateKey, password)
       const decrypted = await decryptPrivateKeyAsync(
         encrypted.encryptedPrivateKey,
         encrypted.nonce,
@@ -258,7 +259,7 @@ describe('userKeypair crypto utilities', () => {
         password,
       )
 
-      expect(decrypted).toBe(exported.privateKey)
+      expect(decrypted).toBe(exported.signingPrivateKey)
     })
 
     it('should produce different ciphertext each time (random salt + nonce)', async () => {
@@ -266,8 +267,8 @@ describe('userKeypair crypto utilities', () => {
       const exported = await exportUserKeypairAsync(keypair)
       const password = 'test-password'
 
-      const encrypted1 = await encryptPrivateKeyAsync(exported.privateKey, password)
-      const encrypted2 = await encryptPrivateKeyAsync(exported.privateKey, password)
+      const encrypted1 = await encryptPrivateKeyAsync(exported.signingPrivateKey, password)
+      const encrypted2 = await encryptPrivateKeyAsync(exported.signingPrivateKey, password)
 
       expect(encrypted1.encryptedPrivateKey).not.toBe(encrypted2.encryptedPrivateKey)
       expect(encrypted1.nonce).not.toBe(encrypted2.nonce)
@@ -278,7 +279,7 @@ describe('userKeypair crypto utilities', () => {
       const keypair = await generateUserKeypairAsync()
       const exported = await exportUserKeypairAsync(keypair)
 
-      const encrypted = await encryptPrivateKeyAsync(exported.privateKey, 'password')
+      const encrypted = await encryptPrivateKeyAsync(exported.signingPrivateKey, 'password')
 
       const base64Regex = /^[A-Za-z0-9+/]*={0,2}$/
       expect(encrypted.encryptedPrivateKey).toMatch(base64Regex)
@@ -291,7 +292,7 @@ describe('userKeypair crypto utilities', () => {
       const exported = await exportUserKeypairAsync(keypair)
       const password = 'test-password'
 
-      const encrypted = await encryptPrivateKeyAsync(exported.privateKey, password)
+      const encrypted = await encryptPrivateKeyAsync(exported.signingPrivateKey, password)
       const decryptedBase64 = await decryptPrivateKeyAsync(
         encrypted.encryptedPrivateKey,
         encrypted.nonce,
@@ -299,11 +300,10 @@ describe('userKeypair crypto utilities', () => {
         password,
       )
 
-      // Import the decrypted key and use it to sign
       const recoveredKey = await importUserPrivateKeyAsync(decryptedBase64)
       const data = new TextEncoder().encode('verify recovered key')
       const signature = await signData(recoveredKey, data)
-      const valid = await verifySignature(keypair.publicKey, signature, data)
+      const valid = await verifySignature(keypair.signingPublicKey, signature, data)
 
       expect(valid).toBe(true)
     })
@@ -318,7 +318,7 @@ describe('userKeypair crypto utilities', () => {
       const keypair = await generateUserKeypairAsync()
       const exported = await exportUserKeypairAsync(keypair)
 
-      const encrypted = await encryptPrivateKeyAsync(exported.privateKey, 'correct-password')
+      const encrypted = await encryptPrivateKeyAsync(exported.signingPrivateKey, 'correct-password')
 
       await expect(
         decryptPrivateKeyAsync(
@@ -334,9 +334,8 @@ describe('userKeypair crypto utilities', () => {
       const keypair = await generateUserKeypairAsync()
       const exported = await exportUserKeypairAsync(keypair)
 
-      const encrypted = await encryptPrivateKeyAsync(exported.privateKey, 'password')
+      const encrypted = await encryptPrivateKeyAsync(exported.signingPrivateKey, 'password')
 
-      // Generate a different nonce
       const badNonce = Buffer.from(crypto.getRandomValues(new Uint8Array(12))).toString('base64')
 
       await expect(
@@ -360,10 +359,9 @@ describe('userKeypair crypto utilities', () => {
       const keypair2 = await generateUserKeypairAsync()
 
       const data = new TextEncoder().encode('isolation test')
-      const signature = await signData(keypair1.privateKey, data)
+      const signature = await signData(keypair1.signingPrivateKey, data)
 
-      // Verify with wrong public key should fail
-      const valid = await verifySignature(keypair2.publicKey, signature, data)
+      const valid = await verifySignature(keypair2.signingPublicKey, signature, data)
       expect(valid).toBe(false)
     })
 
@@ -371,10 +369,10 @@ describe('userKeypair crypto utilities', () => {
       const keypair = await generateUserKeypairAsync()
 
       const data = new TextEncoder().encode('original data')
-      const signature = await signData(keypair.privateKey, data)
+      const signature = await signData(keypair.signingPrivateKey, data)
 
       const tamperedData = new TextEncoder().encode('tampered data')
-      const valid = await verifySignature(keypair.publicKey, signature, tamperedData)
+      const valid = await verifySignature(keypair.signingPublicKey, signature, tamperedData)
       expect(valid).toBe(false)
     })
   })
@@ -389,26 +387,28 @@ describe('userKeypair crypto utilities', () => {
       const exported = await exportUserKeypairAsync(keypair)
 
       const base64Regex = /^[A-Za-z0-9+/]*={0,2}$/
-      expect(exported.publicKey).toMatch(base64Regex)
-      expect(exported.privateKey).toMatch(base64Regex)
+      expect(exported.signingPublicKey).toMatch(base64Regex)
+      expect(exported.signingPrivateKey).toMatch(base64Regex)
+      expect(exported.agreementPublicKey).toMatch(base64Regex)
+      expect(exported.agreementPrivateKey).toMatch(base64Regex)
     })
 
-    it('should export public key in SPKI format (non-empty)', async () => {
+    it('should export Ed25519 public key in SPKI format', async () => {
       const keypair = await generateUserKeypairAsync()
       const exported = await exportUserKeypairAsync(keypair)
 
-      expect(exported.publicKey.length).toBeGreaterThan(0)
-      // P-256 SPKI public key is typically 91 bytes → ~124 chars Base64
-      expect(exported.publicKey.length).toBeGreaterThan(50)
+      expect(exported.signingPublicKey.length).toBeGreaterThan(0)
+      // Ed25519 SPKI public key is 44 bytes → ~60 chars Base64
+      expect(exported.signingPublicKey.length).toBeGreaterThan(30)
     })
 
-    it('should export private key in PKCS8 format (non-empty)', async () => {
+    it('should export Ed25519 private key in PKCS8 format', async () => {
       const keypair = await generateUserKeypairAsync()
       const exported = await exportUserKeypairAsync(keypair)
 
-      expect(exported.privateKey.length).toBeGreaterThan(0)
-      // P-256 PKCS8 private key is typically 138 bytes → ~184 chars Base64
-      expect(exported.privateKey.length).toBeGreaterThan(100)
+      expect(exported.signingPrivateKey.length).toBeGreaterThan(0)
+      // Ed25519 PKCS8 private key is 48 bytes → ~64 chars Base64
+      expect(exported.signingPrivateKey.length).toBeGreaterThan(30)
     })
   })
 })

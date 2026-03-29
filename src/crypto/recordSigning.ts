@@ -1,4 +1,4 @@
-import { importUserPrivateKeyAsync, importUserPublicKeyAsync } from './userKeypair'
+import { importUserPrivateKeyAsync, importUserPublicKeyAsync, SIGNING_ALGO } from './userKeypair'
 import { arrayBufferToBase64, base64ToArrayBuffer } from './vaultKey'
 
 export interface SignableRecord {
@@ -24,7 +24,7 @@ export async function signRecordAsync(
   record: SignableRecord, privateKeyBase64: string,
 ): Promise<string> {
   const key = await importUserPrivateKeyAsync(privateKeyBase64)
-  const sig = await crypto.subtle.sign({ name: 'ECDSA', hash: 'SHA-256' }, key, canonicalize(record))
+  const sig = await crypto.subtle.sign(SIGNING_ALGO, key, canonicalize(record))
   return arrayBufferToBase64(sig)
 }
 
@@ -33,7 +33,7 @@ export async function verifyRecordSignatureAsync(
 ): Promise<boolean> {
   const key = await importUserPublicKeyAsync(publicKeyBase64)
   return crypto.subtle.verify(
-    { name: 'ECDSA', hash: 'SHA-256' }, key,
+    SIGNING_ALGO, key,
     base64ToArrayBuffer(signatureBase64), canonicalize(record),
   )
 }
@@ -59,7 +59,7 @@ export async function signSpaceChallengeAsync(
   const timestamp = new Date().toISOString()
   const key = await importUserPrivateKeyAsync(privateKeyBase64)
   const sig = await crypto.subtle.sign(
-    { name: 'ECDSA', hash: 'SHA-256' }, key, canonicalizeChallenge(spaceId, timestamp),
+    SIGNING_ALGO, key, canonicalizeChallenge(spaceId, timestamp),
   )
   return { signature: arrayBufferToBase64(sig), timestamp }
 }
@@ -83,7 +83,7 @@ export async function verifySpaceChallengeAsync(
   try {
     const key = await importUserPublicKeyAsync(publicKeyBase64)
     const isValid = await crypto.subtle.verify(
-      { name: 'ECDSA', hash: 'SHA-256' }, key,
+      SIGNING_ALGO, key,
       base64ToArrayBuffer(signatureBase64), canonicalizeChallenge(spaceId, timestamp),
     )
     return isValid

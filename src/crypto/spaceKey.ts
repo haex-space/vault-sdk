@@ -14,11 +14,11 @@ export function generateSpaceKey(): Uint8Array<ArrayBuffer> {
 export async function encryptWithPublicKeyAsync(
   data: Uint8Array<ArrayBuffer>, recipientPublicKeyBase64: string,
 ): Promise<SealedData> {
-  const ephemeral = await crypto.subtle.generateKey(KEY_AGREEMENT_ALGO, true, ['deriveBits'])
+  const ephemeral = await crypto.subtle.generateKey(KEY_AGREEMENT_ALGO, true, ['deriveBits']) as CryptoKeyPair
   const recipientKey = await importPublicKeyForKeyAgreementAsync(recipientPublicKeyBase64)
 
   const sharedBits = await crypto.subtle.deriveBits(
-    { name: 'ECDH', public: recipientKey }, ephemeral.privateKey, 256,
+    { ...KEY_AGREEMENT_ALGO, public: recipientKey } as EcdhKeyDeriveParams, ephemeral.privateKey, 256,
   )
 
   const aesKey = await crypto.subtle.deriveKey(
@@ -48,7 +48,7 @@ export async function decryptWithPrivateKeyAsync(
   const ownPrivKey = await importPrivateKeyForKeyAgreementAsync(ownPrivateKeyBase64)
 
   const sharedBits = await crypto.subtle.deriveBits(
-    { name: 'ECDH', public: ephPubKey }, ownPrivKey, 256,
+    { ...KEY_AGREEMENT_ALGO, public: ephPubKey }, ownPrivKey, 256,
   )
 
   const aesKey = await crypto.subtle.deriveKey(

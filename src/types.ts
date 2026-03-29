@@ -431,7 +431,7 @@ export interface SignedClaimPresentation {
   publicKey: string   // Base64 SPKI
   claims: Record<string, string>  // type -> value (only approved claims)
   timestamp: string   // ISO timestamp
-  signature: string   // ECDSA P-256 signature over canonical form
+  signature: string   // Ed25519 signature over canonical form
 }
 
 export class HaexVaultSdkError extends Error {
