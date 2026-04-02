@@ -144,7 +144,7 @@ export interface CreateSpaceRequest {
 export interface InviteMemberRequest {
   publicKey: string
   label: string
-  capability: string
+  capabilities: string[]
   keyGrant: { encryptedSpaceKey: string; keyNonce: string; ephemeralPublicKey: string; generation: number }
 }
 
