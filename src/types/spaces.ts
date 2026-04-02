@@ -56,6 +56,7 @@ export interface DecryptedSpace {
   name: string
   originUrl: string
   createdAt: string
+  capabilities: string[]
 }
 
 /**
