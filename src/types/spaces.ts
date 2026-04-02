@@ -47,13 +47,14 @@ export interface SpaceAccessTokenInfo {
 }
 
 /**
- * A shared space with its decrypted name.
+ * A space with its decrypted name.
  * Returned by the extension API after vault-side decryption.
+ * Includes both local and remote (shared) spaces.
  */
 export interface DecryptedSpace {
   id: string
   name: string
-  serverUrl: string
+  originUrl: string
   createdAt: string
 }
 
