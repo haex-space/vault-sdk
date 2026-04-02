@@ -2,29 +2,18 @@
 // Shared Space Types
 // ============================================================================
 
-export const SpaceRoles = {
-  OWNER: 'owner',
-  ADMIN: 'admin',
-  MEMBER: 'member',
-  READER: 'reader',
-} as const
-
-export type SpaceRole = (typeof SpaceRoles)[keyof typeof SpaceRoles]
-
 export interface SharedSpace {
   id: string
   ownerId: string
   encryptedName: string
   nameNonce: string
   currentKeyGeneration: number
-  role: SpaceRole
   createdAt: string
 }
 
 export interface SpaceMemberInfo {
   publicKey: string
   label: string
-  role: SpaceRole
   invitedBy: string | null
   joinedAt: string
 }
@@ -46,13 +35,11 @@ export interface SpaceInvite {
   keyNonce: string
   ephemeralPublicKey: string
   generation: number
-  role: SpaceRole
 }
 
 export interface SpaceAccessTokenInfo {
   id: string
   publicKey: string
-  role: SpaceRole
   label: string | null
   revoked: boolean
   createdAt: string
@@ -66,7 +53,6 @@ export interface SpaceAccessTokenInfo {
 export interface DecryptedSpace {
   id: string
   name: string
-  role: SpaceRole
   serverUrl: string
   createdAt: string
 }

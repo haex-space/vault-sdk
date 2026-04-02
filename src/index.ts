@@ -133,8 +133,6 @@ export {
 } from "./types/external";
 
 export {
-  SpaceRoles,
-  type SpaceRole,
   type SharedSpace,
   type SpaceMemberInfo,
   type SpaceKeyGrantInfo,
