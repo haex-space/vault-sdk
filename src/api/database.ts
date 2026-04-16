@@ -35,9 +35,9 @@ export class DatabaseAPI {
     });
   }
 
-  async transaction(statements: string[]): Promise<void> {
+  async transaction(statements: Array<{ sql: string; params?: unknown[] }>): Promise<void> {
     await this.client.request(DATABASE_COMMANDS.transaction, {
-      statements,
+      statements: statements.map(s => [s.sql, s.params || []]),
     });
   }
 
