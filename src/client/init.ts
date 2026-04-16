@@ -15,6 +15,16 @@ import { LOCALSEND_EVENTS } from "../api/localsend";
 import type { ClientContext, ClientConfig, LogFn } from "./context";
 
 /**
+ * Timeout for the main-window → iframe port handshake.
+ *
+ * The main window sends the port on iframe `load`. If we haven't received a
+ * port after this timeout, either the host is not Haex Vault or the iframe
+ * got orphaned — `ready()` will reject and extensions can surface a clear
+ * error to the user instead of hanging forever on pending requests.
+ */
+const PORT_HANDSHAKE_TIMEOUT_MS = 10_000;
+
+/**
  * Tauri API types
  */
 interface TauriInvoke {
@@ -356,28 +366,49 @@ async function setupLocalSendEventListeners(
 }
 
 /**
- * Initialize in iframe mode
+ * Initialize in iframe mode.
+ *
+ * Handshake flow (since SDK 3.0):
+ *   1. Install a one-shot `message` listener on `window` that filters for
+ *      `HAEXSPACE_MESSAGE_TYPES.PORT_INIT`. This is the *only* message we
+ *      ever accept on the window listener.
+ *   2. Main window sends the `MessagePort` via `iframe.contentWindow.postMessage(
+ *      { type: PORT_INIT }, "*", [port2])` once the iframe has loaded.
+ *   3. On receipt, switch to port-based messaging — attach the real message
+ *      handler to the port, remove the window listener, send a
+ *      `PORT_READY` back on the port so main can flush any events buffered
+ *      during the handshake.
+ *   4. Continue with the normal init (load manifest info, request context).
+ *
+ * If the handshake doesn't complete within `PORT_HANDSHAKE_TIMEOUT_MS`, the
+ * promise rejects so extensions can surface a clear error instead of hanging
+ * on `sdk.ready()` forever.
  */
 export async function initIframeMode(
   ctx: ClientContext,
   log: LogFn,
   messageHandler: (event: MessageEvent) => void,
   request: <T>(method: string, params?: Record<string, unknown>) => Promise<T>
-): Promise<{ context: ApplicationContext }> {
-  // Verify we're in an iframe
+): Promise<{ context: ApplicationContext; port: MessagePort }> {
   if (!isInIframe()) {
     throw new HaexVaultSdkError(ErrorCode.NOT_IN_IFRAME, "errors.not_in_iframe");
   }
 
-  // Setup message listener
+  const port = await waitForHostPortAsync(log);
+
+  // Route all future messages over the port. The caller stores the port on
+  // the client class (we return it below); here we only wire the listener.
   ctx.handlers.messageHandler = messageHandler;
-  window.addEventListener("message", messageHandler);
+  port.addEventListener("message", messageHandler);
+  port.start();
+
+  // ACK — main flushes its buffered events once this arrives.
+  port.postMessage({ type: HAEXSPACE_MESSAGE_TYPES.PORT_READY });
 
   ctx.state.isNativeWindow = false;
   ctx.state.initialized = true;
-  log("HaexVault SDK initialized in iframe mode");
+  log("HaexVault SDK initialized in iframe mode (MessagePort transport)");
 
-  // Load extension info from manifest if provided
   if (ctx.config.manifest) {
     ctx.state.extensionInfo = {
       publicKey: ctx.config.manifest.publicKey,
@@ -388,15 +419,62 @@ export async function initIframeMode(
     log("Extension info loaded from manifest:", ctx.state.extensionInfo);
   }
 
-  // Send debug info in debug mode
   sendDebugInfo(ctx.config);
 
-  // Request context - this also acts as a handshake
   const context = await request<ApplicationContext>(EXTENSION_COMMANDS.getContext);
   ctx.state.context = context;
   log("Application context received:", context);
 
-  return { context };
+  return { context, port };
+}
+
+/**
+ * Wait for the main window to transfer a `MessagePort` via PORT_INIT.
+ *
+ * Installed as a single window-level listener. It filters strictly on the
+ * PORT_INIT type so unrelated postMessage traffic (e.g. dev-tools, browser
+ * extensions injecting scripts) cannot resolve the handshake with a fake port.
+ */
+function waitForHostPortAsync(log: LogFn): Promise<MessagePort> {
+  return new Promise<MessagePort>((resolve, reject) => {
+    let settled = false;
+
+    const cleanup = () => {
+      window.removeEventListener("message", handler);
+    };
+
+    const timeoutId = setTimeout(() => {
+      if (settled) return;
+      settled = true;
+      cleanup();
+      reject(
+        new HaexVaultSdkError(
+          ErrorCode.TIMEOUT,
+          "errors.port_handshake_timeout",
+          { timeout: PORT_HANDSHAKE_TIMEOUT_MS }
+        )
+      );
+    }, PORT_HANDSHAKE_TIMEOUT_MS);
+
+    const handler = (event: MessageEvent) => {
+      const type = (event.data as { type?: string } | null)?.type;
+      if (type !== HAEXSPACE_MESSAGE_TYPES.PORT_INIT) return;
+
+      const port = event.ports[0];
+      if (!port) {
+        log("PORT_INIT received but event.ports is empty — ignoring");
+        return;
+      }
+
+      if (settled) return;
+      settled = true;
+      clearTimeout(timeoutId);
+      cleanup();
+      resolve(port);
+    };
+
+    window.addEventListener("message", handler);
+  });
 }
 
 /**

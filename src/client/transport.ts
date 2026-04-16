@@ -18,7 +18,13 @@ export function generateRequestId(counter: number): string {
 }
 
 /**
- * Send a request via postMessage (iframe mode)
+ * Send a request to the main window over the dedicated MessagePort (iframe
+ * mode, since SDK 3.0).
+ *
+ * The port is established during the PORT_INIT handshake in `initIframeMode`.
+ * Without a port the SDK is not yet connected to the host and requests must
+ * fail fast rather than sit in `pendingRequests` waiting for a response that
+ * can never arrive.
  */
 export function sendPostMessage<T>(
   method: string,
@@ -26,8 +32,18 @@ export function sendPostMessage<T>(
   requestId: string,
   config: ClientConfig,
   extensionInfo: ExtensionInfo | null,
-  pendingRequests: Map<string, PendingRequest>
+  pendingRequests: Map<string, PendingRequest>,
+  port: MessagePort | null
 ): Promise<T> {
+  if (!port) {
+    return Promise.reject(
+      new HaexVaultSdkError(
+        ErrorCode.EXTENSION_NOT_INITIALIZED,
+        "errors.port_not_connected"
+      )
+    );
+  }
+
   const request: HaexHubRequest = {
     method,
     params,
@@ -46,20 +62,17 @@ export function sendPostMessage<T>(
 
     pendingRequests.set(requestId, { resolve: resolve as (value: unknown) => void, reject, timeout });
 
-    // Use wildcard origin since extensions are sandboxed in their own protocol
-    const targetOrigin = "*";
-
     if (config.debug) {
       console.log("[SDK Debug] ========== Sending Request ==========");
       console.log("[SDK Debug] Request ID:", requestId);
       console.log("[SDK Debug] Method:", request.method);
       console.log("[SDK Debug] Params:", request.params);
-      console.log("[SDK Debug] Target origin:", targetOrigin);
+      console.log("[SDK Debug] Transport: MessagePort");
       console.log("[SDK Debug] Extension info:", extensionInfo);
       console.log("[SDK Debug] ========================================");
     }
 
-    window.parent.postMessage({ id: requestId, ...request }, targetOrigin);
+    port.postMessage({ id: requestId, ...request });
   });
 }
 

@@ -64,7 +64,10 @@ export interface ClientPromises {
 }
 
 /**
- * Message handler reference (for cleanup)
+ * Message handler reference (for cleanup). The SDK holds the actual
+ * `MessagePort` in iframe mode as a private field on the client class —
+ * it is returned from `initIframeMode` rather than carried here, because
+ * the context object is constructed inline per init call.
  */
 export interface ClientHandlers {
   messageHandler: ((event: MessageEvent) => void) | null;

@@ -17,7 +17,13 @@ import type { ExternalRequestEvent } from "../types/external";
 import type { ClientConfig, PendingRequest, LogFn } from "./context";
 
 /**
- * Create a message handler for iframe mode
+ * Create a message handler for iframe mode.
+ *
+ * Since SDK 3.0 this runs against a private `MessagePort` (installed after
+ * the PORT_INIT handshake in `initIframeMode`). The port is only reachable
+ * from whoever holds its pair — the main window — so we no longer need the
+ * origin/source checks that the old `window.addEventListener("message")`
+ * path required. The port is the trust anchor.
  */
 export function createMessageHandler(
   config: ClientConfig,
@@ -28,25 +34,12 @@ export function createMessageHandler(
   return (event: MessageEvent) => {
     if (config.debug) {
       console.log("[SDK Debug] ========== Message Received ==========");
-      console.log("[SDK Debug] Event origin:", event.origin);
-      console.log(
-        "[SDK Debug] Event source:",
-        event.source === window.parent ? "parent window" : "unknown"
-      );
       console.log("[SDK Debug] Event data:", event.data);
       console.log("[SDK Debug] Extension info loaded:", !!extensionInfo());
       console.log(
         "[SDK Debug] Pending requests count:",
         pendingRequests.size
       );
-    }
-
-    // Verify message comes from parent window
-    if (event.source !== window.parent) {
-      if (config.debug) {
-        console.error("[SDK Debug] ❌ REJECTED: Message not from parent window!");
-      }
-      return;
     }
 
     const data = event.data as HaexHubResponse | HaexHubEvent;

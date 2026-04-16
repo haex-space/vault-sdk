@@ -71,6 +71,13 @@ export class HaexVaultSdk {
 
   // Handlers
   private messageHandler: ((event: MessageEvent) => void) | null = null;
+  /**
+   * MessagePort obtained from the main window during iframe-mode handshake.
+   * `null` until `initIframe()` completes successfully. Every outbound
+   * request in iframe mode flows through this port; `sendPostMessage` rejects
+   * if called before the handshake finishes.
+   */
+  private hostPort: MessagePort | null = null;
 
   // Promises
   private readyPromise: Promise<void>;
@@ -311,7 +318,15 @@ export class HaexVaultSdk {
     }
 
     const requestId = generateRequestId(++this.requestCounter);
-    return sendPostMessage<T>(method, resolvedParams, requestId, this.config, this._extensionInfo, this.pendingRequests);
+    return sendPostMessage<T>(
+      method,
+      resolvedParams,
+      requestId,
+      this.config,
+      this._extensionInfo,
+      this.pendingRequests,
+      this.hostPort
+    );
   }
 
   // ==========================================================================
@@ -389,7 +404,7 @@ export class HaexVaultSdk {
       this.handleEvent.bind(this)
     );
 
-    const { context } = await initIframeMode(
+    const { context, port } = await initIframeMode(
       {
         config: this.config,
         state: {
@@ -421,6 +436,7 @@ export class HaexVaultSdk {
       this.messageHandler,
       this.request.bind(this)
     );
+    this.hostPort = port;
 
     // Load extension info from manifest if provided
     if (this.config.manifest) {
