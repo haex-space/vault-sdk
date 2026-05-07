@@ -331,6 +331,8 @@ export interface ManifestI18nEntry {
 // Manifest Types
 export interface ExtensionManifest {
   name: string;
+  /** Human-readable display name. Falls back to `name` when absent. */
+  displayName?: string | null;
   version: string;
   author?: string | null;
   entry?: string | null;

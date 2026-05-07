@@ -2,6 +2,17 @@ import type { HaexVaultSdk } from "../client";
 import type { DatabaseQueryResult, MigrationResult, Migration } from "../types";
 import { DATABASE_COMMANDS } from "../commands";
 
+// Wrap identifiers in double quotes so names with dashes or reserved-ish
+// characters still work. Security validation happens in haex-vault.
+function quoteIdent(identifier: string): string {
+  // If already quoted, pass through unchanged.
+  if (identifier.startsWith('"') && identifier.endsWith('"')) {
+    return identifier;
+  }
+  // Escape any embedded double quote per SQL standard (" -> "").
+  return `"${identifier.replace(/"/g, '""')}"`;
+}
+
 export class DatabaseAPI {
   constructor(private client: HaexVaultSdk) {}
 
@@ -42,12 +53,12 @@ export class DatabaseAPI {
   }
 
   async createTable(tableName: string, columns: string): Promise<void> {
-    const query = `CREATE TABLE IF NOT EXISTS ${tableName} (${columns})`;
+    const query = `CREATE TABLE IF NOT EXISTS ${quoteIdent(tableName)} (${columns})`;
     await this.execute(query);
   }
 
   async dropTable(tableName: string): Promise<void> {
-    const query = `DROP TABLE IF EXISTS ${tableName}`;
+    const query = `DROP TABLE IF EXISTS ${quoteIdent(tableName)}`;
     await this.execute(query);
   }
 
@@ -84,11 +95,10 @@ export class DatabaseAPI {
   ): Promise<number> {
     const keys = Object.keys(data);
     const values = Object.values(data);
+    const quotedCols = keys.map(quoteIdent).join(", ");
     const placeholders = keys.map(() => "?").join(", ");
 
-    const query = `INSERT INTO ${tableName} (${keys.join(
-      ", "
-    )}) VALUES (${placeholders})`;
+    const query = `INSERT INTO ${quoteIdent(tableName)} (${quotedCols}) VALUES (${placeholders})`;
     const result = await this.execute(query, values);
 
     return result.lastInsertId ?? -1;
@@ -102,9 +112,9 @@ export class DatabaseAPI {
   ): Promise<number> {
     const keys = Object.keys(data);
     const values = Object.values(data);
-    const setClause = keys.map((key) => `${key} = ?`).join(", ");
+    const setClause = keys.map((key) => `${quoteIdent(key)} = ?`).join(", ");
 
-    const query = `UPDATE ${tableName} SET ${setClause} WHERE ${where}`;
+    const query = `UPDATE ${quoteIdent(tableName)} SET ${setClause} WHERE ${where}`;
     const result = await this.execute(query, [
       ...values,
       ...(whereParams || []),
@@ -118,7 +128,7 @@ export class DatabaseAPI {
     where: string,
     whereParams?: unknown[]
   ): Promise<number> {
-    const query = `DELETE FROM ${tableName} WHERE ${where}`;
+    const query = `DELETE FROM ${quoteIdent(tableName)} WHERE ${where}`;
     const result = await this.execute(query, whereParams);
     return result.rowsAffected;
   }
@@ -129,8 +139,8 @@ export class DatabaseAPI {
     whereParams?: unknown[]
   ): Promise<number> {
     const query = where
-      ? `SELECT COUNT(*) as count FROM ${tableName} WHERE ${where}`
-      : `SELECT COUNT(*) as count FROM ${tableName}`;
+      ? `SELECT COUNT(*) as count FROM ${quoteIdent(tableName)} WHERE ${where}`
+      : `SELECT COUNT(*) as count FROM ${quoteIdent(tableName)}`;
 
     const result = await this.queryOne<{ count: number }>(query, whereParams);
     return result?.count ?? 0;

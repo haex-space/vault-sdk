@@ -414,7 +414,7 @@ export async function initIframeMode(
       publicKey: ctx.config.manifest.publicKey,
       name: ctx.config.manifest.name,
       version: ctx.config.manifest.version,
-      displayName: ctx.config.manifest.name,
+      displayName: ctx.config.manifest.displayName ?? ctx.config.manifest.name,
     };
     log("Extension info loaded from manifest:", ctx.state.extensionInfo);
   }

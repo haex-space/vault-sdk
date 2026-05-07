@@ -141,11 +141,10 @@ export function emitEvent(
   log: LogFn,
   eventListeners: Map<string, Set<EventCallback>>
 ): void {
-  console.log("[HaexVault SDK] emitEvent called with:", event.type, event);
-  console.log("[HaexVault SDK] Registered event types:", Array.from(eventListeners.keys()));
-  log("Event received:", event);
+  log("emitEvent called with:", event.type, event);
+  log("Registered event types:", Array.from(eventListeners.keys()));
   const listeners = eventListeners.get(event.type);
-  console.log("[HaexVault SDK] Listeners for", event.type, ":", listeners?.size ?? 0);
+  log("Listeners for", event.type, ":", listeners?.size ?? 0);
   if (listeners) {
     listeners.forEach((callback) => callback(event));
   }

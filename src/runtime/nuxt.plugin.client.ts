@@ -25,18 +25,14 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   await client.ready();
 
   // 4. Setze den initialen State, sobald der Client bereit ist
-  console.log('[Nuxt Plugin] Client ready, context:', client.context);
   state.value = {
     isReady: true,
     isSetupComplete: false,
     context: client.context,
   };
-  console.log('[Nuxt Plugin] Initial state set:', state.value);
 
   // 5. Nutze dein Pub/Sub-Pattern, um auf künftige Updates zu lauschen
   client.subscribe(() => {
-    console.log('[Nuxt Plugin] Client context updated:', client.context);
-
     // Check if setup was completed (setupCompleted is set by client.setupComplete())
     const isSetupComplete = client.setupCompleted;
 
@@ -46,7 +42,6 @@ export default defineNuxtPlugin(async (nuxtApp) => {
       context: client.context,
       isSetupComplete,
     };
-    console.log('[Nuxt Plugin] State updated:', state.value);
   });
 
   // 6. Note: We DON'T call setupComplete() automatically anymore!
