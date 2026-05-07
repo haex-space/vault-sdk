@@ -28,6 +28,8 @@ import { RemoteStorageAPI } from "./api/remoteStorage";
 import { LocalSendAPI } from "./api/localsend";
 import { SpacesAPI } from "./api/spaces";
 import { ShellAPI } from "./api/shell";
+import { PasswordsAPI } from "./api/passwords";
+import { MailAPI } from "./api/mail";
 import { installConsoleForwarding } from "./polyfills/consoleForwarding";
 import type { SqliteRemoteDatabase } from "drizzle-orm/sqlite-proxy";
 
@@ -82,6 +84,7 @@ export class HaexVaultSdk {
   // Promises
   private readyPromise: Promise<void>;
   private resolveReady!: () => void;
+  private rejectReady!: (error: unknown) => void;
   private setupPromise: Promise<void> | null = null;
   private setupHook: (() => Promise<void>) | null = null;
 
@@ -96,6 +99,8 @@ export class HaexVaultSdk {
   public readonly localsend: LocalSendAPI;
   public readonly spaces: SpacesAPI;
   public readonly shell: ShellAPI;
+  public readonly passwords: PasswordsAPI;
+  public readonly mail: MailAPI;
 
   /** Unified action system - register handlers that work for both Bridge and AI requests */
   public readonly actions = {
@@ -120,14 +125,24 @@ export class HaexVaultSdk {
     this.localsend = new LocalSendAPI(this);
     this.spaces = new SpacesAPI(this);
     this.shell = new ShellAPI(this);
+    this.passwords = new PasswordsAPI(this);
+    this.mail = new MailAPI(this);
 
     installConsoleForwarding(this.config.debug);
 
-    this.readyPromise = new Promise((resolve) => {
+    this.readyPromise = new Promise((resolve, reject) => {
       this.resolveReady = resolve;
+      this.rejectReady = reject;
     });
 
-    this.init();
+    // `init()` is async but intentionally not awaited in the constructor.
+    // If it throws (e.g. port handshake timeout, Tauri invoke failure), we
+    // reject `readyPromise` so callers of `ready()` surface a clear error
+    // instead of hanging forever.
+    this.init().catch((error) => {
+      this.log("Init failed:", error);
+      this.rejectReady(error);
+    });
   }
 
   // ==========================================================================
@@ -164,9 +179,17 @@ export class HaexVaultSdk {
   }
 
   public destroy(): void {
-    if (this.messageHandler) {
-      window.removeEventListener("message", this.messageHandler);
+    // The message handler is installed on the private MessagePort obtained
+    // during the PORT_INIT handshake (see initIframeMode), not on `window`.
+    // Removing it from `window` is a no-op and leaks the port.
+    if (this.messageHandler && this.hostPort) {
+      this.hostPort.removeEventListener("message", this.messageHandler);
     }
+    if (this.hostPort) {
+      this.hostPort.close();
+      this.hostPort = null;
+    }
+    this.messageHandler = null;
 
     this.pendingRequests.forEach(({ timeout }) => clearTimeout(timeout));
     this.pendingRequests.clear();
@@ -444,7 +467,7 @@ export class HaexVaultSdk {
         publicKey: this.config.manifest.publicKey,
         name: this.config.manifest.name,
         version: this.config.manifest.version,
-        displayName: this.config.manifest.name,
+        displayName: this.config.manifest.displayName ?? this.config.manifest.name,
       };
       this.notifySubscribersInternal();
     }

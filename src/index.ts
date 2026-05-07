@@ -25,6 +25,31 @@ export type {
   ShellOutputEvent,
   ShellExitEvent,
 } from "./api/shell";
+export { PasswordsAPI } from "./api/passwords";
+export type {
+  PasswordItemSummary,
+  PasswordItemFull,
+  PasswordKeyValue,
+  PasswordKeyValueInput,
+  PasswordInput,
+} from "./types/passwords";
+export { MailAPI } from "./api/mail";
+export type {
+  ConnectionSecurity,
+  ImapConfig,
+  SmtpConfig,
+  MailAccount,
+  MailAddress,
+  MailboxInfo,
+  MessageEnvelope,
+  Attachment as MailAttachment,
+  MailMessage,
+  FetchRange as MailFetchRange,
+  OutgoingAttachment,
+  OutgoingMessage,
+} from "./types/mail";
+export { PASSWORD_COMMANDS, type PasswordCommand } from "./commands/passwords";
+export { MAIL_COMMANDS, type MailCommand } from "./commands/mail";
 export type {
   DeviceType,
   DeviceInfo,

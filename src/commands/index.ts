@@ -29,6 +29,8 @@ export * from "./remoteStorage";
 export * from "./localsend";
 export * from "./spaces";
 export * from "./shell";
+export * from "./passwords";
+export * from "./mail";
 
 // Re-export combined TAURI_COMMANDS for backwards compatibility
 import { DATABASE_COMMANDS } from "./database";
@@ -42,6 +44,8 @@ import { REMOTE_STORAGE_COMMANDS } from "./remoteStorage";
 import { LOCALSEND_COMMANDS } from "./localsend";
 import { SPACE_COMMANDS } from "./spaces";
 import { SHELL_COMMANDS } from "./shell";
+import { PASSWORD_COMMANDS } from "./passwords";
+import { MAIL_COMMANDS } from "./mail";
 
 export const TAURI_COMMANDS = {
   database: DATABASE_COMMANDS,
@@ -55,6 +59,8 @@ export const TAURI_COMMANDS = {
   localsend: LOCALSEND_COMMANDS,
   spaces: SPACE_COMMANDS,
   shell: SHELL_COMMANDS,
+  passwords: PASSWORD_COMMANDS,
+  mail: MAIL_COMMANDS,
 } as const;
 
 // Type helper to extract command string literals
@@ -69,4 +75,6 @@ export type TauriCommand =
   | (typeof REMOTE_STORAGE_COMMANDS)[keyof typeof REMOTE_STORAGE_COMMANDS]
   | (typeof LOCALSEND_COMMANDS)[keyof typeof LOCALSEND_COMMANDS]
   | (typeof SPACE_COMMANDS)[keyof typeof SPACE_COMMANDS]
-  | (typeof SHELL_COMMANDS)[keyof typeof SHELL_COMMANDS];
+  | (typeof SHELL_COMMANDS)[keyof typeof SHELL_COMMANDS]
+  | (typeof PASSWORD_COMMANDS)[keyof typeof PASSWORD_COMMANDS]
+  | (typeof MAIL_COMMANDS)[keyof typeof MAIL_COMMANDS];
