@@ -31,8 +31,53 @@ interface TauriInvoke {
   invoke: <T>(cmd: string, args?: Record<string, unknown>) => Promise<T>;
 }
 
+/**
+ * Tauri v2 listen() options.
+ *
+ * `target` pins which emits this listener will match. We have to set
+ * an explicit AnyLabel/Webview target because Tauri 2.11 production
+ * builds do NOT deliver `emit_to(label, …)` events to listeners that
+ * registered with the default `{ kind: 'Any' }` target — the regression
+ * silently broke the haex-pass external-bridge flow and every other
+ * extension that relied on label-targeted emits from haex-vault.
+ *
+ * Passing a string is shorthand for `{ kind: 'AnyLabel', label }`.
+ */
+type TauriEventTarget =
+  | string
+  | { kind: "Any" }
+  | { kind: "AnyLabel"; label: string }
+  | { kind: "App" }
+  | { kind: "Window"; label: string }
+  | { kind: "Webview"; label: string }
+  | { kind: "WebviewWindow"; label: string };
+
+interface TauriListenOptions {
+  target?: TauriEventTarget;
+}
+
 interface TauriEvent {
-  listen: (event: string, handler: (event: { payload: unknown }) => void) => Promise<() => void>;
+  listen: (
+    event: string,
+    handler: (event: { payload: unknown }) => void,
+    options?: TauriListenOptions
+  ) => Promise<() => void>;
+}
+
+/**
+ * Read the current webview's label from Tauri internals. Used as the
+ * `target` for listen() so events emitted via emit_to(label, …) reach
+ * us (default `{ kind: 'Any' }` would be silently dropped).
+ *
+ * Falls back to undefined if the metadata is missing (e.g. very early
+ * boot before Tauri injects internals) — caller should treat that as
+ * "register without target" and accept the same drop risk.
+ */
+function getCurrentWebviewLabel(): string | undefined {
+  const internals = (window as unknown as {
+    __TAURI_INTERNALS__?: { metadata?: { currentWebview?: { label?: string } } };
+  }).__TAURI_INTERNALS__;
+  return internals?.metadata?.currentWebview?.label;
 }
 
 /**
@@ -104,6 +149,22 @@ async function setupTauriEventListeners(
 ): Promise<void> {
   const { listen } = getTauriEvent();
 
+  // Pin every listener below to this webview's own label. Tauri 2.11
+  // routes emit_to(label, …) events only to listeners with a matching
+  // AnyLabel/Webview target — registering with the default `{ kind: 'Any' }`
+  // would silently drop the host's label-scoped emits.
+  const webviewLabel = getCurrentWebviewLabel();
+  const listenOptions: TauriListenOptions | undefined = webviewLabel
+    ? { target: webviewLabel }
+    : undefined;
+  if (!webviewLabel) {
+    log(
+      "WARNING: could not read __TAURI_INTERNALS__.metadata.currentWebview.label — "
+        + "registering listeners without a target. Label-scoped emits from the host "
+        + "will not be delivered until the metadata is available.",
+    );
+  }
+
   log("Setting up Tauri event listener for:", HAEXTENSION_EVENTS.CONTEXT_CHANGED);
 
   // Listen for context changes
@@ -124,7 +185,7 @@ async function setupTauriEventListeners(
       } else {
         log("Event received but no context in payload:", event);
       }
-    });
+    }, listenOptions);
     log("Context change listener registered successfully");
   } catch (error) {
     log("Failed to setup context change listener:", error);
@@ -144,7 +205,7 @@ async function setupTauriEventListeners(
       } else {
         log("External request event has no payload!");
       }
-    });
+    }, listenOptions);
     log("External request listener registered successfully");
   } catch (error) {
     log("Failed to setup external request listener:", error);
@@ -164,7 +225,7 @@ async function setupTauriEventListeners(
       } else {
         log("AI action request event has no payload!");
       }
-    });
+    }, listenOptions);
     log("AI action request listener registered successfully");
   } catch (error) {
     log("Failed to setup AI action request listener:", error);
@@ -186,7 +247,7 @@ async function setupTauriEventListeners(
           timestamp: Date.now(),
         } as FileChangeEvent);
       }
-    });
+    }, listenOptions);
     log("File change listener registered successfully");
   } catch (error) {
     log("Failed to setup file change listener:", error);
@@ -205,7 +266,7 @@ async function setupTauriEventListeners(
           timestamp: Date.now(),
         });
       }
-    });
+    }, listenOptions);
     log("Sync tables updated listener registered successfully");
   } catch (error) {
     log("Failed to setup sync tables updated listener:", error);
@@ -214,7 +275,7 @@ async function setupTauriEventListeners(
   // Listen for LocalSend events
   log("Setting up LocalSend event listeners");
   try {
-    await setupLocalSendEventListeners(log, onEvent);
+    await setupLocalSendEventListeners(log, onEvent, listenOptions);
     log("LocalSend event listeners setup complete");
   } catch (error) {
     log("Failed to setup LocalSend event listeners:", error);
@@ -233,7 +294,7 @@ async function setupTauriEventListeners(
           data: payload.data,
         } as unknown as HaexHubEvent);
       }
-    });
+    }, listenOptions);
     log("Shell output listener registered");
 
     await listen(SHELL_EVENTS.EXIT, (event) => {
@@ -246,7 +307,7 @@ async function setupTauriEventListeners(
           exitCode: payload.exitCode,
         } as unknown as HaexHubEvent);
       }
-    });
+    }, listenOptions);
     log("Shell exit listener registered");
   } catch (error) {
     log("Failed to setup Shell event listeners:", error);
@@ -254,11 +315,16 @@ async function setupTauriEventListeners(
 }
 
 /**
- * Setup LocalSend event listeners for WebView mode
+ * Setup LocalSend event listeners for WebView mode.
+ *
+ * `listenOptions` should pin every listener to this webview's own
+ * label so the host's `emit_to(label, …)` calls reach us. See the
+ * comment on `setupTauriEventListeners` for why this is mandatory.
  */
 async function setupLocalSendEventListeners(
   log: LogFn,
-  onEvent: (event: HaexHubEvent) => void
+  onEvent: (event: HaexHubEvent) => void,
+  listenOptions: TauriListenOptions | undefined
 ): Promise<void> {
   const { listen } = getTauriEvent();
 
@@ -273,7 +339,7 @@ async function setupLocalSendEventListeners(
           timestamp: Date.now(),
         });
       }
-    });
+    }, listenOptions);
     log("LocalSend device discovered listener registered");
   } catch (error) {
     log("Failed to setup LocalSend device discovered listener:", error);
@@ -290,7 +356,7 @@ async function setupLocalSendEventListeners(
           timestamp: Date.now(),
         });
       }
-    });
+    }, listenOptions);
     log("LocalSend device lost listener registered");
   } catch (error) {
     log("Failed to setup LocalSend device lost listener:", error);
@@ -307,7 +373,7 @@ async function setupLocalSendEventListeners(
           timestamp: Date.now(),
         });
       }
-    });
+    }, listenOptions);
     log("LocalSend transfer request listener registered");
   } catch (error) {
     log("Failed to setup LocalSend transfer request listener:", error);
@@ -324,7 +390,7 @@ async function setupLocalSendEventListeners(
           timestamp: Date.now(),
         });
       }
-    });
+    }, listenOptions);
     log("LocalSend transfer progress listener registered");
   } catch (error) {
     log("Failed to setup LocalSend transfer progress listener:", error);
@@ -341,7 +407,7 @@ async function setupLocalSendEventListeners(
           timestamp: Date.now(),
         });
       }
-    });
+    }, listenOptions);
     log("LocalSend transfer complete listener registered");
   } catch (error) {
     log("Failed to setup LocalSend transfer complete listener:", error);
@@ -358,7 +424,7 @@ async function setupLocalSendEventListeners(
           timestamp: Date.now(),
         });
       }
-    });
+    }, listenOptions);
     log("LocalSend transfer failed listener registered");
   } catch (error) {
     log("Failed to setup LocalSend transfer failed listener:", error);
