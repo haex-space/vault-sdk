@@ -113,16 +113,6 @@ describe("initIframeMode — handshake happy path", () => {
     });
     hostPort.start();
 
-    // Stub out `request(getContext)` — the handshake doesn't need a real
-    // context round-trip, we're only testing port setup. The request resolves
-    // immediately so initIframeMode returns.
-    const request = vi.fn(async () => ({
-      theme: "dark",
-      locale: "en",
-      platform: "linux",
-      deviceId: "dev-1",
-    }));
-
     const messageHandler = vi.fn();
 
     // Kick off the init; immediately fire the PORT_INIT so the handshake
@@ -131,14 +121,10 @@ describe("initIframeMode — handshake happy path", () => {
       makeContext(),
       silentLog,
       messageHandler,
-      request as unknown as <T>(
-        method: string,
-        params?: Record<string, unknown>
-      ) => Promise<T>
     );
     sendPortFromHost(channel.port2);
 
-    const { port } = await initPromise;
+    const port = await initPromise;
     expect(port).toBe(channel.port2);
 
     // Give the microtask queue a chance to deliver PORT_READY on the host side.
@@ -168,7 +154,6 @@ describe("initIframeMode — handshake timeout", () => {
       makeContext(),
       silentLog,
       vi.fn(),
-      vi.fn() as unknown as <T>() => Promise<T>
     );
     // Attach a catch handler eagerly so the timer-driven rejection is not
     // flagged as unhandled before the await below picks it up.
@@ -192,13 +177,11 @@ describe("initIframeMode — hostile / malformed window messages", () => {
     makeIframeContext();
 
     const messageHandler = vi.fn();
-    const request = vi.fn().mockResolvedValue({});
 
     const initPromise = initIframeMode(
       makeContext(),
       silentLog,
       messageHandler,
-      request as unknown as <T>() => Promise<T>
     );
 
     // A flurry of innocuous/attack messages arrives on the window first.
@@ -224,7 +207,7 @@ describe("initIframeMode — hostile / malformed window messages", () => {
     const channel = new MessageChannel();
     sendPortFromHost(channel.port2);
 
-    const { port } = await initPromise;
+    const port = await initPromise;
     expect(port).toBe(channel.port2);
   });
 
@@ -236,7 +219,6 @@ describe("initIframeMode — hostile / malformed window messages", () => {
       makeContext(),
       silentLog,
       vi.fn(),
-      vi.fn() as unknown as <T>() => Promise<T>
     );
     const caught: unknown[] = [];
     initPromise.catch((e) => caught.push(e));
@@ -264,7 +246,6 @@ describe("initIframeMode — hostile / malformed window messages", () => {
       makeContext(),
       silentLog,
       vi.fn(),
-      (async () => ({} as unknown)) as unknown as <T>() => Promise<T>
     );
     sendPortFromHost(channel.port2);
     await initPromise;

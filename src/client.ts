@@ -41,6 +41,7 @@ import {
   parseTableName as parseTableNameFn,
 } from "./client/tableName";
 import { isInIframe, hasTauri, initNativeMode, initIframeMode } from "./client/init";
+import { EXTENSION_COMMANDS } from "./commands";
 import { sendPostMessage, sendInvoke, generateRequestId } from "./client/transport";
 import {
   createMessageHandler,
@@ -427,7 +428,7 @@ export class HaexVaultSdk {
       this.handleEvent.bind(this)
     );
 
-    const { context, port } = await initIframeMode(
+    const port = await initIframeMode(
       {
         config: this.config,
         state: {
@@ -457,7 +458,6 @@ export class HaexVaultSdk {
       },
       this.log.bind(this),
       this.messageHandler,
-      this.request.bind(this)
     );
     this.hostPort = port;
 
@@ -472,6 +472,8 @@ export class HaexVaultSdk {
       this.notifySubscribersInternal();
     }
 
+    const context = await this.request<ApplicationContext>(EXTENSION_COMMANDS.getContext);
+    this.log("Application context received:", context);
     this._context = context;
     this.isNativeWindow = false;
     this.initialized = true;

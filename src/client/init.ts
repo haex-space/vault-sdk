@@ -444,7 +444,8 @@ async function setupLocalSendEventListeners(
  *      handler to the port, remove the window listener, send a
  *      `PORT_READY` back on the port so main can flush any events buffered
  *      during the handshake.
- *   4. Continue with the normal init (load manifest info, request context).
+ *   4. Load manifest-derived extension info and return the port. Fetching
+ *      the application context is the caller's responsibility.
  *
  * If the handshake doesn't complete within `PORT_HANDSHAKE_TIMEOUT_MS`, the
  * promise rejects so extensions can surface a clear error instead of hanging
@@ -454,16 +455,13 @@ export async function initIframeMode(
   ctx: ClientContext,
   log: LogFn,
   messageHandler: (event: MessageEvent) => void,
-  request: <T>(method: string, params?: Record<string, unknown>) => Promise<T>
-): Promise<{ context: ApplicationContext; port: MessagePort }> {
+): Promise<MessagePort> {
   if (!isInIframe()) {
     throw new HaexVaultSdkError(ErrorCode.NOT_IN_IFRAME, "errors.not_in_iframe");
   }
 
   const port = await waitForHostPortAsync(log);
 
-  // Route all future messages over the port. The caller stores the port on
-  // the client class (we return it below); here we only wire the listener.
   ctx.handlers.messageHandler = messageHandler;
   port.addEventListener("message", messageHandler);
   port.start();
@@ -487,11 +485,7 @@ export async function initIframeMode(
 
   sendDebugInfo(ctx.config);
 
-  const context = await request<ApplicationContext>(EXTENSION_COMMANDS.getContext);
-  ctx.state.context = context;
-  log("Application context received:", context);
-
-  return { context, port };
+  return port;
 }
 
 /**
