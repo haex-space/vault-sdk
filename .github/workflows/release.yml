@@ -54,7 +54,10 @@ jobs:
     needs: test
     runs-on: ubuntu-latest
     permissions:
-      contents: write
+      # contents:read is the default, listed here so the diff with the previous
+      # GitHub-release-creating version is intentional. id-token:write is for
+      # npm OIDC.
+      contents: read
       id-token: write
     steps:
       - name: Checkout repository
@@ -93,129 +96,9 @@ jobs:
       - name: Build
         run: pnpm build
 
-      - name: Get version
-        run: echo "PACKAGE_VERSION=$(node -p "require('./package.json').version")" >> $GITHUB_ENV
-
-      - name: Generate release notes
-        id: release-notes
-        run: |
-          CURRENT_TAG="v${PACKAGE_VERSION}"
-          echo "Current tag: $CURRENT_TAG"
-
-          # Find the previous tag
-          PREVIOUS_TAG=$(git tag -l 'v*' --sort=-v:refname | grep -A1 "^${CURRENT_TAG}$" | tail -1)
-
-          if [ "$PREVIOUS_TAG" = "$CURRENT_TAG" ] || [ -z "$PREVIOUS_TAG" ]; then
-            PREVIOUS_TAG=$(git describe --tags --abbrev=0 "${CURRENT_TAG}^" 2>/dev/null || echo "")
-          fi
-
-          echo "Previous tag: '$PREVIOUS_TAG'"
-
-          if [ -z "$PREVIOUS_TAG" ] || [ "$PREVIOUS_TAG" = "$CURRENT_TAG" ]; then
-            COMMITS=$(git log --pretty=format:"%s|%b" --no-merges)
-          else
-            COMMITS=$(git log ${PREVIOUS_TAG}..${CURRENT_TAG} --pretty=format:"%s|%b" --no-merges)
-          fi
-
-          # Parse commits into categories
-          BREAKING=""
-          FEATURES=""
-          FIXES=""
-
-          while IFS='|' read -r subject body; do
-            if [[ "$subject" == "Bump version to"* ]]; then
-              continue
-            fi
-
-            DETAILS=""
-            if [ -n "$body" ]; then
-              DETAILS=$(echo "$body" | grep -E "^- " | head -10 || true)
-            fi
-
-            if [[ "$subject" == break:* ]] || [[ "$subject" == break\(*\):* ]] || [[ "$subject" == BREAKING* ]] || [[ "$body" == *"BREAKING CHANGE"* ]]; then
-              CLEAN=$(echo "$subject" | sed 's/^break[^:]*: //' | sed 's/^BREAKING CHANGE: //')
-              BREAKING="${BREAKING}- ${CLEAN}"$'\n'
-              if [ -n "$DETAILS" ]; then
-                BREAKING="${BREAKING}${DETAILS}"$'\n'
-              fi
-            elif [[ "$subject" == feat:* ]] || [[ "$subject" == feat\(*\):* ]] || [[ "$subject" == feature:* ]] || [[ "$subject" == feature\(*\):* ]]; then
-              CLEAN=$(echo "$subject" | sed 's/^feat[^:]*: //' | sed 's/^feature[^:]*: //')
-              FEATURES="${FEATURES}- ${CLEAN}"$'\n'
-              if [ -n "$DETAILS" ]; then
-                FEATURES="${FEATURES}${DETAILS}"$'\n'
-              fi
-            elif [[ "$subject" == fix:* ]] || [[ "$subject" == fix\(*\):* ]]; then
-              CLEAN=$(echo "$subject" | sed 's/^fix[^:]*: //')
-              FIXES="${FIXES}- ${CLEAN}"$'\n'
-              if [ -n "$DETAILS" ]; then
-                FIXES="${FIXES}${DETAILS}"$'\n'
-              fi
-            fi
-          done <<< "$COMMITS"
-
-          # Build release notes
-          NOTES=""
-
-          if [ -n "$BREAKING" ]; then
-            NOTES="${NOTES}## Breaking Changes"$'\n\n'"${BREAKING}"$'\n'
-          fi
-
-          if [ -n "$FEATURES" ]; then
-            NOTES="${NOTES}## Features"$'\n\n'"${FEATURES}"$'\n'
-          fi
-
-          if [ -n "$FIXES" ]; then
-            NOTES="${NOTES}## Bug Fixes"$'\n\n'"${FIXES}"$'\n'
-          fi
-
-          if [ -z "$NOTES" ]; then
-            NOTES="Release v${PACKAGE_VERSION}"$'\n\n'"See commit history for changes."
-          fi
-
-          echo "$NOTES" > release_notes.md
-          echo "Generated release notes:"
-          cat release_notes.md
-
-      - name: Create GitHub Release
-        uses: actions/github-script@v8
-        with:
-          script: |
-            const fs = require('fs');
-            const releaseNotes = fs.readFileSync('release_notes.md', 'utf8');
-            const tagName = `v${process.env.PACKAGE_VERSION}`;
-
-            // Check if release already exists
-            let existingRelease = null;
-            try {
-              const { data: releases } = await github.rest.repos.listReleases({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                per_page: 10
-              });
-              existingRelease = releases.find(r => r.tag_name === tagName);
-            } catch (e) {
-              console.log('No existing releases found');
-            }
-
-            if (existingRelease) {
-              console.log(`Found existing release for ${tagName}, deleting...`);
-              await github.rest.repos.deleteRelease({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                release_id: existingRelease.id
-              });
-            }
-
-            await github.rest.repos.createRelease({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              tag_name: tagName,
-              name: `@haex-space/vault-sdk v${process.env.PACKAGE_VERSION}`,
-              body: releaseNotes,
-              draft: false,
-              prerelease: false
-            });
-
+      # GitHub release + changelog are owned by release-please
+      # (.github/workflows/release-please.yml). This workflow only needs to
+      # publish the npm artifact once the tag for that release lands.
       - name: Publish to npm
         run: pnpm publish --access public --no-git-checks
         env:
