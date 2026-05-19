@@ -128,6 +128,10 @@ export type ExternalAuthDecision = 'allow' | 'deny';
 export interface SessionAuthorization {
   /** Unique client identifier (public key fingerprint) */
   clientId: string;
+  /** Human-readable client name (e.g. "haex-pass Browser Extension") */
+  clientName: string;
+  /** Client's public key (base64) */
+  publicKey: string;
   /** Extension ID this client can access */
   extensionId: string;
 }
