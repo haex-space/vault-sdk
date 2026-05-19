@@ -102,7 +102,15 @@ jobs:
       #
       # Authentication uses npm's OIDC trusted-publishing — see the package
       # settings on npmjs.com. The id-token:write permission above is what
-      # lets pnpm exchange the workflow's OIDC token for an npm publish
-      # token, so no NPM_TOKEN secret is needed (or honored).
+      # lets the CLI exchange the workflow's OIDC token for an npm publish
+      # token, so no NPM_TOKEN secret is needed.
+      #
+      # We explicitly call `npm publish` (not `pnpm publish`) after bumping
+      # npm to >=11.5.1 because that's the version that knows how to do the
+      # OIDC exchange. Node 22 ships with npm 10.x which only signs the
+      # provenance attestation but still wants a static token for the upload
+      # itself — that fails as a misleading 404.
+      - name: Upgrade npm for OIDC trusted publishing
+        run: npm install -g npm@latest
       - name: Publish to npm
-        run: pnpm publish --access public --provenance --no-git-checks
+        run: npm publish --access public --provenance
