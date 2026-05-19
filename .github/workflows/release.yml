@@ -110,7 +110,8 @@ jobs:
       # OIDC exchange. Node 22 ships with npm 10.x which only signs the
       # provenance attestation but still wants a static token for the upload
       # itself — that fails as a misleading 404.
-      - name: Upgrade npm for OIDC trusted publishing
-        run: npm install -g npm@latest
       - name: Publish to npm
-        run: npm publish --access public --provenance
+        # `npx --yes npm@latest` avoids the cross-major-version self-upgrade
+        # bug ("Cannot find module 'promise-retry'") that hits a plain
+        # `npm install -g npm@latest` on Node 22 / bundled npm 10.x.
+        run: npx --yes npm@latest publish --access public --provenance
