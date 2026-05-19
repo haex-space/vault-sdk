@@ -99,7 +99,10 @@ jobs:
       # GitHub release + changelog are owned by release-please
       # (.github/workflows/release-please.yml). This workflow only needs to
       # publish the npm artifact once the tag for that release lands.
+      #
+      # Authentication uses npm's OIDC trusted-publishing — see the package
+      # settings on npmjs.com. The id-token:write permission above is what
+      # lets pnpm exchange the workflow's OIDC token for an npm publish
+      # token, so no NPM_TOKEN secret is needed (or honored).
       - name: Publish to npm
-        run: pnpm publish --access public --no-git-checks
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: pnpm publish --access public --provenance --no-git-checks
