@@ -53,6 +53,13 @@ import {
 import { createDrizzleInstance, queryRaw, executeRaw } from "./client/database";
 import { registerExternalHandler, handleExternalRequest, respondToExternalRequest } from "./client/external";
 import { AI_COMMANDS } from "./commands/ai";
+import { HAEXTENSION_EVENTS } from "./events";
+import {
+  PermissionWaiterRegistry,
+  withPermissionRetry,
+  permissionKey,
+  type PermissionResolvedData,
+} from "./client/permissionRetry";
 
 export class HaexVaultSdk {
   // Configuration
@@ -71,6 +78,7 @@ export class HaexVaultSdk {
   private readonly eventListeners: Map<string, Set<EventCallback>> = new Map();
   private readonly externalRequestHandlers: Map<string, ExternalRequestHandler> = new Map();
   private readonly reactiveSubscribers: Set<() => void> = new Set();
+  private readonly permissionWaiters = new PermissionWaiterRegistry();
 
   // Handlers
   private messageHandler: ((event: MessageEvent) => void) | null = null;
@@ -130,6 +138,17 @@ export class HaexVaultSdk {
     this.mail = new MailAPI(this);
 
     installConsoleForwarding(this.config.debug);
+
+    // Resolve any request awaiting a permission decision once the host reports
+    // the user's choice. Extensions may also subscribe to this event directly.
+    this.on(HAEXTENSION_EVENTS.PERMISSION_RESOLVED, (event) => {
+      const data = (event as { data?: PermissionResolvedData }).data;
+      if (!data) return;
+      this.permissionWaiters.resolve(
+        permissionKey(data.resourceType, data.action, data.target),
+        data.decision === "denied" ? "denied" : "granted"
+      );
+    });
 
     this.readyPromise = new Promise((resolve, reject) => {
       this.resolveReady = resolve;
@@ -329,28 +348,38 @@ export class HaexVaultSdk {
   public async request<T = unknown, P = Record<string, unknown>>(method: string, params?: P): Promise<T> {
     const resolvedParams = (params ?? {}) as Record<string, unknown>;
 
-    if (this.isNativeWindow && hasTauri()) {
-      // In native WebView mode, add extension credentials to params
-      // These are needed by extension_* commands for permission checks
-      // Note: "name" is the standard parameter name used by all extension commands
-      const paramsWithCredentials = {
-        ...resolvedParams,
-        publicKey: this._extensionInfo?.publicKey,
-        name: this._extensionInfo?.name,
-      };
-      return sendInvoke<T>(method, paramsWithCredentials, this.config, this.log.bind(this));
-    }
+    // Send the command once. On a PromptRequired error, withPermissionRetry
+    // waits for the user's decision and re-invokes `send` — so permission
+    // prompts are handled uniformly for every command, transparently.
+    const send = (): Promise<T> => {
+      if (this.isNativeWindow && hasTauri()) {
+        // In native WebView mode, add extension credentials to params
+        // These are needed by extension_* commands for permission checks
+        // Note: "name" is the standard parameter name used by all extension commands
+        const paramsWithCredentials = {
+          ...resolvedParams,
+          publicKey: this._extensionInfo?.publicKey,
+          name: this._extensionInfo?.name,
+        };
+        return sendInvoke<T>(method, paramsWithCredentials, this.config, this.log.bind(this));
+      }
 
-    const requestId = generateRequestId(++this.requestCounter);
-    return sendPostMessage<T>(
-      method,
-      resolvedParams,
-      requestId,
-      this.config,
-      this._extensionInfo,
-      this.pendingRequests,
-      this.hostPort
-    );
+      const requestId = generateRequestId(++this.requestCounter);
+      return sendPostMessage<T>(
+        method,
+        resolvedParams,
+        requestId,
+        this.config,
+        this._extensionInfo,
+        this.pendingRequests,
+        this.hostPort
+      );
+    };
+
+    // Note: the decision timeout inside withPermissionRetry is intentionally
+    // long (minutes) — independent of the per-request timeout — because it
+    // covers how long the user may take to answer the prompt.
+    return withPermissionRetry(send, this.permissionWaiters, this.log.bind(this));
   }
 
   // ==========================================================================

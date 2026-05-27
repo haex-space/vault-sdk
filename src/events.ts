@@ -25,6 +25,11 @@ export const HAEXTENSION_EVENTS = {
 
   /** Tables have been updated via sync (CRDT pull from server) */
   SYNC_TABLES_UPDATED: 'haextension:sync:tables-updated',
+
+  /** A runtime permission prompt was resolved (granted/denied) by the user.
+   *  The SDK uses this to auto-retry the original request; extensions may also
+   *  subscribe via `client.on(HAEXTENSION_EVENTS.PERMISSION_RESOLVED, ...)`. */
+  PERMISSION_RESOLVED: 'extension:permission-resolved',
 } as const;
 
 export type HaextensionEvent = typeof HAEXTENSION_EVENTS[keyof typeof HAEXTENSION_EVENTS];

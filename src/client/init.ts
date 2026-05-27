@@ -10,7 +10,7 @@ import { HAEXTENSION_EVENTS, EXTERNAL_EVENTS, SHELL_EVENTS } from "../events";
 import { EXTENSION_COMMANDS } from "../commands";
 import { HAEXSPACE_MESSAGE_TYPES } from "../messages";
 import { ErrorCode, HaexVaultSdkError } from "../types";
-import type { ExtensionInfo, ApplicationContext, HaexHubEvent, FileChangeEvent } from "../types";
+import type { ExtensionInfo, ApplicationContext, HaexHubEvent } from "../types";
 import { LOCALSEND_EVENTS } from "../api/localsend";
 import type { ClientContext, ClientConfig, LogFn } from "./context";
 
@@ -139,6 +139,42 @@ export async function initNativeMode(
 }
 
 /**
+ * Shapes a raw Tauri event payload into the extra fields of a HaexHubEvent.
+ * Default behaviour places the payload under `data`; legacy events that
+ * flatten specific fields onto the event object provide their own shaper.
+ */
+type EventShaper = (payload: unknown) => Record<string, unknown>;
+
+/**
+ * Register a single Tauri listener that forwards the event onto the SDK event
+ * bus via `onEvent`. Centralizes the previously copy-pasted
+ * try / listen / onEvent({ type, data, timestamp }) / catch boilerplate so
+ * every host event is registered and emitted the same way.
+ */
+async function forwardEvent(
+  listen: TauriEvent["listen"],
+  log: LogFn,
+  onEvent: (event: HaexHubEvent) => void,
+  listenOptions: TauriListenOptions | undefined,
+  eventName: string,
+  shape?: EventShaper
+): Promise<void> {
+  try {
+    await listen(eventName, (event) => {
+      if (event.payload == null) {
+        log(`Event '${eventName}' received with no payload`);
+        return;
+      }
+      const extra = shape ? shape(event.payload) : { data: event.payload };
+      onEvent({ type: eventName, timestamp: Date.now(), ...extra } as HaexHubEvent);
+    }, listenOptions);
+    log(`Listener registered: ${eventName}`);
+  } catch (error) {
+    log(`Failed to register listener '${eventName}':`, error);
+  }
+}
+
+/**
  * Setup Tauri event listeners for context changes and external requests
  */
 async function setupTauriEventListeners(
@@ -191,244 +227,38 @@ async function setupTauriEventListeners(
     log("Failed to setup context change listener:", error);
   }
 
-  // Listen for external requests
-  try {
-    await listen(EXTERNAL_EVENTS.REQUEST, (event) => {
-      log("====== EXTERNAL REQUEST RECEIVED ======");
-      log("Event payload:", JSON.stringify(event.payload, null, 2));
-      if (event.payload) {
-        onEvent({
-          type: EXTERNAL_EVENTS.REQUEST,
-          data: event.payload,
-          timestamp: Date.now(),
-        });
-      } else {
-        log("External request event has no payload!");
-      }
-    }, listenOptions);
-    log("External request listener registered successfully");
-  } catch (error) {
-    log("Failed to setup external request listener:", error);
+  // All remaining host events are forwarded 1:1 onto the SDK event bus.
+  // Most carry their payload under `data`; the few legacy events that flatten
+  // specific fields onto the event object pass a shaper to reproduce that.
+
+  // Standard "{ data: payload }" events.
+  for (const eventName of [
+    HAEXTENSION_EVENTS.PERMISSION_RESOLVED,
+    EXTERNAL_EVENTS.REQUEST,
+    EXTERNAL_EVENTS.ACTION_REQUEST,
+    ...Object.values(LOCALSEND_EVENTS),
+  ]) {
+    await forwardEvent(listen, log, onEvent, listenOptions, eventName);
   }
 
-  // Listen for AI action requests (routed to same handlers as external requests)
-  try {
-    await listen(EXTERNAL_EVENTS.ACTION_REQUEST, (event) => {
-      log("====== AI ACTION REQUEST RECEIVED ======");
-      log("Payload:", JSON.stringify(event.payload));
-      if (event.payload) {
-        onEvent({
-          type: EXTERNAL_EVENTS.ACTION_REQUEST,
-          data: event.payload,
-          timestamp: Date.now(),
-        } as unknown as HaexHubEvent);
-      } else {
-        log("AI action request event has no payload!");
-      }
-    }, listenOptions);
-    log("AI action request listener registered successfully");
-  } catch (error) {
-    log("Failed to setup AI action request listener:", error);
-  }
+  // Sync event nests its payload as { tables }.
+  await forwardEvent(listen, log, onEvent, listenOptions, HAEXTENSION_EVENTS.SYNC_TABLES_UPDATED, (payload) => ({
+    data: { tables: (payload as { tables: string[] }).tables },
+  }));
 
-  // Listen for file change events (from native file watcher)
-  log("Registering file change listener for:", HAEXTENSION_EVENTS.FILE_CHANGED);
-  try {
-    await listen(HAEXTENSION_EVENTS.FILE_CHANGED, (event) => {
-      log("File change event received:", event.payload);
-      if (event.payload) {
-        const payload = event.payload as { ruleId: string; changeType: string; path?: string };
-        // Cast to FileChangeEvent which extends HaexHubEvent
-        onEvent({
-          type: HAEXTENSION_EVENTS.FILE_CHANGED,
-          ruleId: payload.ruleId,
-          changeType: payload.changeType,
-          path: payload.path,
-          timestamp: Date.now(),
-        } as FileChangeEvent);
-      }
-    }, listenOptions);
-    log("File change listener registered successfully");
-  } catch (error) {
-    log("Failed to setup file change listener:", error);
-  }
-
-  // Listen for sync tables updated events (from CRDT pull)
-  log("Registering sync tables updated listener for:", HAEXTENSION_EVENTS.SYNC_TABLES_UPDATED);
-  try {
-    await listen(HAEXTENSION_EVENTS.SYNC_TABLES_UPDATED, (event) => {
-      log("Sync tables updated event received:", event.payload);
-      if (event.payload) {
-        const payload = event.payload as { tables: string[] };
-        onEvent({
-          type: HAEXTENSION_EVENTS.SYNC_TABLES_UPDATED,
-          data: { tables: payload.tables },
-          timestamp: Date.now(),
-        });
-      }
-    }, listenOptions);
-    log("Sync tables updated listener registered successfully");
-  } catch (error) {
-    log("Failed to setup sync tables updated listener:", error);
-  }
-
-  // Listen for LocalSend events
-  log("Setting up LocalSend event listeners");
-  try {
-    await setupLocalSendEventListeners(log, onEvent, listenOptions);
-    log("LocalSend event listeners setup complete");
-  } catch (error) {
-    log("Failed to setup LocalSend event listeners:", error);
-  }
-
-  // Listen for shell PTY events
-  log("Setting up Shell event listeners");
-  try {
-    await listen(SHELL_EVENTS.OUTPUT, (event) => {
-      if (event.payload) {
-        const payload = event.payload as { sessionId: string; data: string };
-        onEvent({
-          type: SHELL_EVENTS.OUTPUT,
-          timestamp: Date.now(),
-          sessionId: payload.sessionId,
-          data: payload.data,
-        } as unknown as HaexHubEvent);
-      }
-    }, listenOptions);
-    log("Shell output listener registered");
-
-    await listen(SHELL_EVENTS.EXIT, (event) => {
-      if (event.payload) {
-        const payload = event.payload as { sessionId: string; exitCode: number | null };
-        onEvent({
-          type: SHELL_EVENTS.EXIT,
-          timestamp: Date.now(),
-          sessionId: payload.sessionId,
-          exitCode: payload.exitCode,
-        } as unknown as HaexHubEvent);
-      }
-    }, listenOptions);
-    log("Shell exit listener registered");
-  } catch (error) {
-    log("Failed to setup Shell event listeners:", error);
-  }
-}
-
-/**
- * Setup LocalSend event listeners for WebView mode.
- *
- * `listenOptions` should pin every listener to this webview's own
- * label so the host's `emit_to(label, …)` calls reach us. See the
- * comment on `setupTauriEventListeners` for why this is mandatory.
- */
-async function setupLocalSendEventListeners(
-  log: LogFn,
-  onEvent: (event: HaexHubEvent) => void,
-  listenOptions: TauriListenOptions | undefined
-): Promise<void> {
-  const { listen } = getTauriEvent();
-
-  // Listen for device discovered events
-  try {
-    await listen(LOCALSEND_EVENTS.deviceDiscovered, (event) => {
-      log("LocalSend device discovered:", event.payload);
-      if (event.payload) {
-        onEvent({
-          type: LOCALSEND_EVENTS.deviceDiscovered,
-          data: event.payload,
-          timestamp: Date.now(),
-        });
-      }
-    }, listenOptions);
-    log("LocalSend device discovered listener registered");
-  } catch (error) {
-    log("Failed to setup LocalSend device discovered listener:", error);
-  }
-
-  // Listen for device lost events
-  try {
-    await listen(LOCALSEND_EVENTS.deviceLost, (event) => {
-      log("LocalSend device lost:", event.payload);
-      if (event.payload) {
-        onEvent({
-          type: LOCALSEND_EVENTS.deviceLost,
-          data: event.payload,
-          timestamp: Date.now(),
-        });
-      }
-    }, listenOptions);
-    log("LocalSend device lost listener registered");
-  } catch (error) {
-    log("Failed to setup LocalSend device lost listener:", error);
-  }
-
-  // Listen for transfer request events
-  try {
-    await listen(LOCALSEND_EVENTS.transferRequest, (event) => {
-      log("LocalSend transfer request:", event.payload);
-      if (event.payload) {
-        onEvent({
-          type: LOCALSEND_EVENTS.transferRequest,
-          data: event.payload,
-          timestamp: Date.now(),
-        });
-      }
-    }, listenOptions);
-    log("LocalSend transfer request listener registered");
-  } catch (error) {
-    log("Failed to setup LocalSend transfer request listener:", error);
-  }
-
-  // Listen for transfer progress events
-  try {
-    await listen(LOCALSEND_EVENTS.transferProgress, (event) => {
-      log("LocalSend transfer progress event:", event);
-      if (event.payload) {
-        onEvent({
-          type: LOCALSEND_EVENTS.transferProgress,
-          data: event.payload,
-          timestamp: Date.now(),
-        });
-      }
-    }, listenOptions);
-    log("LocalSend transfer progress listener registered");
-  } catch (error) {
-    log("Failed to setup LocalSend transfer progress listener:", error);
-  }
-
-  // Listen for transfer complete events
-  try {
-    await listen(LOCALSEND_EVENTS.transferComplete, (event) => {
-      log("LocalSend transfer complete:", event.payload);
-      if (event.payload) {
-        onEvent({
-          type: LOCALSEND_EVENTS.transferComplete,
-          data: event.payload,
-          timestamp: Date.now(),
-        });
-      }
-    }, listenOptions);
-    log("LocalSend transfer complete listener registered");
-  } catch (error) {
-    log("Failed to setup LocalSend transfer complete listener:", error);
-  }
-
-  // Listen for transfer failed events
-  try {
-    await listen(LOCALSEND_EVENTS.transferFailed, (event) => {
-      log("LocalSend transfer failed:", event.payload);
-      if (event.payload) {
-        onEvent({
-          type: LOCALSEND_EVENTS.transferFailed,
-          data: event.payload,
-          timestamp: Date.now(),
-        });
-      }
-    }, listenOptions);
-    log("LocalSend transfer failed listener registered");
-  } catch (error) {
-    log("Failed to setup LocalSend transfer failed listener:", error);
-  }
+  // Legacy events that flatten fields directly onto the event object.
+  await forwardEvent(listen, log, onEvent, listenOptions, HAEXTENSION_EVENTS.FILE_CHANGED, (payload) => {
+    const { ruleId, changeType, path } = payload as { ruleId: string; changeType: string; path?: string };
+    return { ruleId, changeType, path };
+  });
+  await forwardEvent(listen, log, onEvent, listenOptions, SHELL_EVENTS.OUTPUT, (payload) => {
+    const { sessionId, data } = payload as { sessionId: string; data: string };
+    return { sessionId, data };
+  });
+  await forwardEvent(listen, log, onEvent, listenOptions, SHELL_EVENTS.EXIT, (payload) => {
+    const { sessionId, exitCode } = payload as { sessionId: string; exitCode: number | null };
+    return { sessionId, exitCode };
+  });
 }
 
 /**
