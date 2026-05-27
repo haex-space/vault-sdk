@@ -21,7 +21,12 @@ export class WebAPI {
       } else if (options.body instanceof Blob) {
         bodyParam = await this.blobToBase64(options.body);
       } else {
-        bodyParam = options.body;
+        // String body — encode as UTF-8 then base64. The host always decodes
+        // request bodies from base64, so raw strings must not be passed through.
+        const bytes = new TextEncoder().encode(options.body);
+        bodyParam = this.arrayBufferToBase64(
+          bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength)
+        );
       }
     }
 
