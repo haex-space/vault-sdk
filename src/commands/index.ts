@@ -31,6 +31,7 @@ export * from "./spaces";
 export * from "./shell";
 export * from "./passwords";
 export * from "./mail";
+export * from "./notifications";
 
 // Re-export combined TAURI_COMMANDS for backwards compatibility
 import { DATABASE_COMMANDS } from "./database";
@@ -46,6 +47,7 @@ import { SPACE_COMMANDS } from "./spaces";
 import { SHELL_COMMANDS } from "./shell";
 import { PASSWORD_COMMANDS } from "./passwords";
 import { MAIL_COMMANDS } from "./mail";
+import { NOTIFICATION_COMMANDS } from "./notifications";
 
 export const TAURI_COMMANDS = {
   database: DATABASE_COMMANDS,
@@ -61,6 +63,7 @@ export const TAURI_COMMANDS = {
   shell: SHELL_COMMANDS,
   passwords: PASSWORD_COMMANDS,
   mail: MAIL_COMMANDS,
+  notifications: NOTIFICATION_COMMANDS,
 } as const;
 
 // Type helper to extract command string literals
@@ -77,4 +80,5 @@ export type TauriCommand =
   | (typeof SPACE_COMMANDS)[keyof typeof SPACE_COMMANDS]
   | (typeof SHELL_COMMANDS)[keyof typeof SHELL_COMMANDS]
   | (typeof PASSWORD_COMMANDS)[keyof typeof PASSWORD_COMMANDS]
-  | (typeof MAIL_COMMANDS)[keyof typeof MAIL_COMMANDS];
+  | (typeof MAIL_COMMANDS)[keyof typeof MAIL_COMMANDS]
+  | (typeof NOTIFICATION_COMMANDS)[keyof typeof NOTIFICATION_COMMANDS];

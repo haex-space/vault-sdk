@@ -6,7 +6,7 @@
  * - IFrame mode (mobile/web)
  */
 
-import { HAEXTENSION_EVENTS, EXTERNAL_EVENTS, SHELL_EVENTS } from "../events";
+import { HAEXTENSION_EVENTS, EXTERNAL_EVENTS, SHELL_EVENTS, NOTIFICATION_EVENTS } from "../events";
 import { EXTENSION_COMMANDS } from "../commands";
 import { HAEXSPACE_MESSAGE_TYPES } from "../messages";
 import { ErrorCode, HaexVaultSdkError } from "../types";
@@ -236,6 +236,7 @@ async function setupTauriEventListeners(
     HAEXTENSION_EVENTS.PERMISSION_RESOLVED,
     EXTERNAL_EVENTS.REQUEST,
     EXTERNAL_EVENTS.ACTION_REQUEST,
+    NOTIFICATION_EVENTS.CLICK,
     ...Object.values(LOCALSEND_EVENTS),
   ]) {
     await forwardEvent(listen, log, onEvent, listenOptions, eventName);

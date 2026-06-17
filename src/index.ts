@@ -48,8 +48,16 @@ export type {
   OutgoingAttachment,
   OutgoingMessage,
 } from "./types/mail";
+export { NotificationsAPI } from "./api/notifications";
+export type {
+  DeepLink,
+  NotificationAction,
+  NotificationOptions,
+  NotificationClickEvent,
+} from "./api/notifications";
 export { PASSWORD_COMMANDS, type PasswordCommand } from "./commands/passwords";
 export { MAIL_COMMANDS, type MailCommand } from "./commands/mail";
+export { NOTIFICATION_COMMANDS, type NotificationCommand } from "./commands/notifications";
 export type {
   DeviceType,
   DeviceInfo,
@@ -168,7 +176,7 @@ export {
 } from "./types/spaces";
 
 // Export event constants
-export { HAEXTENSION_EVENTS, type HaextensionEvent, EXTERNAL_EVENTS, type ExternalEvent, SHELL_EVENTS, type ShellEvent } from './events';
+export { HAEXTENSION_EVENTS, type HaextensionEvent, EXTERNAL_EVENTS, type ExternalEvent, SHELL_EVENTS, type ShellEvent, NOTIFICATION_EVENTS, type NotificationEvent } from './events';
 
 // Export message type constants
 export { HAEXSPACE_MESSAGE_TYPES, type HaexspaceMessageType } from './messages';

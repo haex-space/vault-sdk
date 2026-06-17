@@ -35,6 +35,16 @@ export const HAEXTENSION_EVENTS = {
 export type HaextensionEvent = typeof HAEXTENSION_EVENTS[keyof typeof HAEXTENSION_EVENTS];
 
 /**
+ * Events for the generic notifications API.
+ */
+export const NOTIFICATION_EVENTS = {
+  /** A click on one of this extension's notifications (body or action button). */
+  CLICK: 'haextension:notification:click',
+} as const;
+
+export type NotificationEvent = typeof NOTIFICATION_EVENTS[keyof typeof NOTIFICATION_EVENTS];
+
+/**
  * Events for external client communication (browser extensions, CLI tools, servers, etc.)
  */
 export const EXTERNAL_EVENTS = {
