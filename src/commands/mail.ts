@@ -17,6 +17,8 @@ export const MAIL_COMMANDS = {
   fetchEnvelopes: "extension_mail_fetch_envelopes",
   /** Full message fetch (envelope + body + attachment metadata) */
   fetchMessage: "extension_mail_fetch_message",
+  /** Fetch a single attachment's bytes (base64) by part index */
+  fetchAttachment: "extension_mail_fetch_attachment",
   /** Set or unset IMAP flags on a UID set */
   setFlags: "extension_mail_set_flags",
   /** MOVE messages between mailboxes (COPY+EXPUNGE fallback) */

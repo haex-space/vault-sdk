@@ -74,6 +74,27 @@ export class MailAPI {
   }
 
   /**
+   * Fetch a single attachment's raw bytes by its `partIndex` (from the
+   * `attachments` array of a fetched `MailMessage`), returned as a
+   * standard-alphabet base64 string. The base64 form drops straight into
+   * `OutgoingAttachment.data` when forwarding, and decodes to bytes for
+   * viewing or downloading.
+   */
+  async fetchAttachmentAsync(
+    imap: ImapConfig,
+    mailbox: string,
+    uid: number,
+    partIndex: number,
+  ): Promise<string> {
+    return this.client.request<string>(MAIL_COMMANDS.fetchAttachment, {
+      imap,
+      mailbox,
+      uid,
+      partIndex,
+    });
+  }
+
+  /**
    * Set or unset IMAP flags. Use `flags=["\\Seen"]` + `add=true` to
    * mark messages as read; `add=false` removes the flag(s).
    */
