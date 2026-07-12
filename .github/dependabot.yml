@@ -17,6 +17,12 @@ updates:
         update-types:
           - "minor"
           - "patch"
+    ignore:
+      # archiver 8 is ESM-only; the SDK ships a dual CJS+ESM build and a CJS
+      # CLI bin that cannot require() an ESM-only dependency. Hold the major
+      # until the package is migrated to ESM-only output.
+      - dependency-name: "archiver"
+        update-types: ["version-update:semver-major"]
 
   # GitHub Actions
   - package-ecosystem: "github-actions"
