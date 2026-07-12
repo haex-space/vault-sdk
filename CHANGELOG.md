@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.5.0](https://github.com/haex-space/vault-sdk/compare/v3.4.0...v3.5.0) (2026-07-12)
+
+
+### Features
+
+* **mail:** add hasAttachments to MessageEnvelope ([#34](https://github.com/haex-space/vault-sdk/issues/34)) ([1c4e78e](https://github.com/haex-space/vault-sdk/commit/1c4e78e589dd3534391c8e0a69200c7a362fcf5f))
+
 ## [3.4.0](https://github.com/haex-space/vault-sdk/compare/v3.3.0...v3.4.0) (2026-07-12)
 
 
