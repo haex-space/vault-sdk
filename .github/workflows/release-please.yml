@@ -17,7 +17,7 @@ jobs:
       # on Conventional Commits since the last release. Merging that PR causes
       # this action's next run to create the tag and GitHub release — which in
       # turn fires release.yml (npm publish on tag push).
-      - uses: googleapis/release-please-action@v4
+      - uses: googleapis/release-please-action@v5
         with:
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
