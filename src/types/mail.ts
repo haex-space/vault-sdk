@@ -60,6 +60,8 @@ export interface MessageEnvelope {
   inReplyTo?: string;
   references: string[];
   size?: number;
+  /** Whether the message has any non-primary-body MIME part (regular attachment or inline cid part). */
+  hasAttachments: boolean;
 }
 
 export interface Attachment {
