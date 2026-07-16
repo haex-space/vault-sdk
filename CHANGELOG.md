@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.5.1](https://github.com/haex-space/vault-sdk/compare/v3.5.0...v3.5.1) (2026-07-16)
+
+
+### Bug Fixes
+
+* **deps:** silence TS6.0 baseUrl deprecation for typescript 6.0.3 bump ([4da0f67](https://github.com/haex-space/vault-sdk/commit/4da0f67daf3a993fa7b951b3ffbf8d635cd365d6))
+
 ## [3.5.0](https://github.com/haex-space/vault-sdk/compare/v3.4.0...v3.5.0) (2026-07-12)
 
 
