@@ -2,7 +2,8 @@
  * Mail Commands (IMAP fetch + SMTP send).
  *
  * Permissions are split protocol-wise: `fetch` covers all IMAP
- * operations (list/read/flag/move/append), `send` covers SMTP. Target
+ * operations (list/read/flag/move/append), `send` covers SMTP, `poll`
+ * covers background new-mail watching (startWatch/stopWatch). Target
  * matches mail-server hostnames; subdomain match is supported, so
  * target="gmail.com" grants access to "imap.gmail.com" and
  * "smtp.gmail.com".
@@ -29,6 +30,10 @@ export const MAIL_COMMANDS = {
   sendMessage: "extension_mail_send_message",
   /** Build RFC822 bytes without sending (for Drafts via APPEND) */
   buildRfc822: "extension_mail_build_rfc822",
+  /** Start (or replace) a background poll watch for an account/mailbox */
+  startWatch: "extension_mail_start_watch",
+  /** Stop a background poll watch */
+  stopWatch: "extension_mail_stop_watch",
 } as const;
 
 export type MailCommand = (typeof MAIL_COMMANDS)[keyof typeof MAIL_COMMANDS];
