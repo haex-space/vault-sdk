@@ -1,5 +1,13 @@
 # Changelog
 
+## [3.6.0](https://github.com/haex-space/vault-sdk/compare/v3.5.1...v3.6.0) (2026-07-17)
+
+
+### Features
+
+* **mail:** add background new-mail watch API ([8f83d82](https://github.com/haex-space/vault-sdk/commit/8f83d82155241513a5b95e267708b9c923414ff8))
+* **mail:** add background new-mail watch API ([044d8be](https://github.com/haex-space/vault-sdk/commit/044d8be8f502f50d62b42397e7c581674226b79e))
+
 ## [3.5.1](https://github.com/haex-space/vault-sdk/compare/v3.5.0...v3.5.1) (2026-07-16)
 
 
