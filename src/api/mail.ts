@@ -8,7 +8,9 @@ import type {
   OutgoingMessage,
   SmtpConfig,
 } from "../types/mail";
+import type { EventCallback } from "../types";
 import { MAIL_COMMANDS } from "../commands/mail";
+import { MAIL_EVENTS } from "../events";
 
 /**
  * Mail operations through the host vault.
@@ -17,6 +19,8 @@ import { MAIL_COMMANDS } from "../commands/mail";
  *  - All IMAP operations require `mail` permission with action `fetch`
  *    on `imap.host`.
  *  - SMTP send requires `mail` permission with action `send` on `smtp.host`.
+ *  - Background watching requires `mail` permission with action `poll`
+ *    on the account's IMAP host.
  *  - target="gmail.com" matches "imap.gmail.com" / "smtp.gmail.com".
  *
  * Credentials live with the caller (typically loaded from
@@ -172,5 +176,48 @@ export class MailAPI {
       imapHost,
       message,
     });
+  }
+
+  /**
+   * Start (or replace) a background poll watch for `accountId`/`mailboxName`.
+   * The host resolves credentials itself from `accountId` — no `ImapConfig`
+   * is passed in. Requires `mail` permission with action `poll` on the
+   * account's IMAP host (prompted on first call, same as `fetch`/`send`).
+   *
+   * `intervalSeconds` is clamped host-side to [30, 3600]. Listen for
+   * results via `onNewMessages`.
+   */
+  async startWatchingAsync(
+    accountId: string,
+    mailboxName: string,
+    intervalSeconds: number,
+  ): Promise<void> {
+    return this.client.request<void>(MAIL_COMMANDS.startWatch, {
+      accountId,
+      mailboxName,
+      intervalSeconds,
+    });
+  }
+
+  /** Stop a background poll watch previously started with `startWatchingAsync`. */
+  async stopWatchingAsync(accountId: string, mailboxName: string): Promise<void> {
+    return this.client.request<void>(MAIL_COMMANDS.stopWatch, {
+      accountId,
+      mailboxName,
+    });
+  }
+
+  /**
+   * Register a callback for new-mail notifications from any active watch.
+   * `event.data` is a `MailNewMessagesEvent` — check `accountId`/`mailboxName`
+   * before refreshing if watching more than one account.
+   */
+  onNewMessages(callback: EventCallback): void {
+    this.client.on(MAIL_EVENTS.NEW_MESSAGES, callback);
+  }
+
+  /** Remove a new-mail callback registered with `onNewMessages`. */
+  offNewMessages(callback: EventCallback): void {
+    this.client.off(MAIL_EVENTS.NEW_MESSAGES, callback);
   }
 }

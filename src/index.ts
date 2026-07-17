@@ -47,6 +47,7 @@ export type {
   FetchRange as MailFetchRange,
   OutgoingAttachment,
   OutgoingMessage,
+  MailNewMessagesEvent,
 } from "./types/mail";
 export { NotificationsAPI } from "./api/notifications";
 export type {
@@ -176,7 +177,7 @@ export {
 } from "./types/spaces";
 
 // Export event constants
-export { HAEXTENSION_EVENTS, type HaextensionEvent, EXTERNAL_EVENTS, type ExternalEvent, SHELL_EVENTS, type ShellEvent, NOTIFICATION_EVENTS, type NotificationEvent } from './events';
+export { HAEXTENSION_EVENTS, type HaextensionEvent, EXTERNAL_EVENTS, type ExternalEvent, SHELL_EVENTS, type ShellEvent, NOTIFICATION_EVENTS, type NotificationEvent, MAIL_EVENTS, type MailEvent } from './events';
 
 // Export message type constants
 export { HAEXSPACE_MESSAGE_TYPES, type HaexspaceMessageType } from './messages';
