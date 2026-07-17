@@ -19,6 +19,8 @@ import { MAIL_EVENTS } from "../events";
  *  - All IMAP operations require `mail` permission with action `fetch`
  *    on `imap.host`.
  *  - SMTP send requires `mail` permission with action `send` on `smtp.host`.
+ *  - Background watching requires `mail` permission with action `poll`
+ *    on the account's IMAP host.
  *  - target="gmail.com" matches "imap.gmail.com" / "smtp.gmail.com".
  *
  * Credentials live with the caller (typically loaded from
