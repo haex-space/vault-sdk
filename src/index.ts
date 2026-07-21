@@ -169,6 +169,7 @@ export {
 export {
   type SharedSpace,
   type SpaceMemberInfo,
+  type SpaceMember,
   type SpaceKeyGrantInfo,
   type SpaceInvite,
   type SpaceAccessTokenInfo,

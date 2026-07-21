@@ -16,6 +16,8 @@ export const SPACE_COMMANDS = {
   unassign: "extension_space_unassign",
   /** Get space assignments for a table */
   getAssignments: "extension_space_get_assignments",
+  /** Get members of a shared space */
+  getMembers: "extension_space_get_members",
   /** List all spaces the user is a member of (with decrypted names) */
   list: "extension_space_list",
   /** Create a new shared space */
