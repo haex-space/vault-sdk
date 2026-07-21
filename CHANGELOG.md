@@ -1,5 +1,13 @@
 # Changelog
 
+## [3.7.0](https://github.com/haex-space/vault-sdk/compare/v3.6.0...v3.7.0) (2026-07-21)
+
+
+### Features
+
+* **spaces:** expose assignment author + space members to extensions ([93eb36e](https://github.com/haex-space/vault-sdk/commit/93eb36ec98d02806496bd2a3fe0b56447c272ef0))
+* **spaces:** expose assignment author and space members to extensions ([7bba3f4](https://github.com/haex-space/vault-sdk/commit/7bba3f4fe4a4c16b5a69d38a6364a9b452e42bae))
+
 ## [3.6.0](https://github.com/haex-space/vault-sdk/compare/v3.5.1...v3.6.0) (2026-07-17)
 
 
