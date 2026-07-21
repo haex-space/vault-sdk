@@ -18,6 +18,15 @@ export interface SpaceMemberInfo {
   joinedAt: string
 }
 
+export interface SpaceMember {
+  /** DID of this member (did:key:z...) */
+  did: string
+  /** Display label (identity name) */
+  label: string
+  /** True if this member is one of the current vault's own identities */
+  isSelf: boolean
+}
+
 export interface SpaceKeyGrantInfo {
   spaceId: string
   generation: number

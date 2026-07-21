@@ -1,5 +1,5 @@
 import type { HaexVaultSdk } from "~/client";
-import type { DecryptedSpace } from "~/types/spaces";
+import type { DecryptedSpace, SpaceMember } from "~/types/spaces";
 import { SPACE_COMMANDS } from "~/commands";
 
 // ============================================================================
@@ -22,6 +22,8 @@ export interface SpaceAssignment {
   type?: string;
   /** Optional display label (e.g. "Personal", "Team Q1") */
   label?: string;
+  /** DID of the member who created this assignment (did:key:z...). Undefined for local/legacy rows. */
+  authoredByDid?: string;
 }
 
 // ============================================================================
@@ -116,6 +118,14 @@ export class SpacesAPI {
    */
   async listSpacesAsync(): Promise<DecryptedSpace[]> {
     return this.client.request<DecryptedSpace[]>(SPACE_COMMANDS.list);
+  }
+
+  /**
+   * List members of a shared space (DID + label), flagging the current user.
+   * Used to resolve assignment authors to names and to detect own vs shared-in content.
+   */
+  async getMembersAsync(spaceId: string): Promise<SpaceMember[]> {
+    return this.client.request<SpaceMember[]>(SPACE_COMMANDS.getMembers, { spaceId });
   }
 
 }
