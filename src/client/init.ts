@@ -324,8 +324,9 @@ export async function initIframeMode(
  * Wait for the main window to transfer a `MessagePort` via PORT_INIT.
  *
  * Installed as a single window-level listener. It filters strictly on the
- * PORT_INIT type so unrelated postMessage traffic (e.g. dev-tools, browser
- * extensions injecting scripts) cannot resolve the handshake with a fake port.
+ * PORT_INIT type sent by `window.parent`, so unrelated postMessage traffic
+ * (dev-tools, browser extensions, sibling frames) cannot resolve the
+ * handshake with a fake port.
  */
 function waitForHostPortAsync(log: LogFn): Promise<MessagePort> {
   return new Promise<MessagePort>((resolve, reject) => {
@@ -351,6 +352,14 @@ function waitForHostPortAsync(log: LogFn): Promise<MessagePort> {
     const handler = (event: MessageEvent) => {
       const type = (event.data as { type?: string } | null)?.type;
       if (type !== HAEXSPACE_MESSAGE_TYPES.PORT_INIT) return;
+
+      // Only the embedding host may hand us the port. A sibling frame can
+      // reach this window via `top.frames[i].postMessage` and race the host
+      // with a port of its own.
+      if (event.source !== window.parent) {
+        log("PORT_INIT from a window other than the parent — ignoring");
+        return;
+      }
 
       const port = event.ports[0];
       if (!port) {
