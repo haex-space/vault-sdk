@@ -6,7 +6,7 @@ import { getExtensionDir, readHaextensionConfig } from "~/config";
 import { readManifest } from "~/manifest";
 import { BUNDLE_FILE_EXTENSION, BUNDLE_LIMITS, BundleError } from "~/bundle/format";
 import { createSignedBundleEntriesAsync, fromHex, type BundleEntry, type SignedFile } from "~/bundle/sign";
-import { verifyBundleEntriesAsync } from "~/bundle/verify";
+import { verifyBundleEntriesAsync, type VerifiedBundle } from "~/bundle/verify";
 import { readBundleArchive, writeBundleArchive } from "~/bundle/zip";
 import type { JsonValue } from "~/bundle/jcs";
 
@@ -84,6 +84,8 @@ export class ExtensionSigner {
       )),
     );
 
+    // `./db/` and `db` name the same folder; the manifest and the bundle paths must both use `db`.
+    manifest.migrationsDir = manifest.migrationsDir?.replace(/^(?:\.\/)+/, "").replace(/\/+$/, "") || null;
     if (manifest.migrationsDir) {
       const config = readHaextensionConfig(rootDir);
       const sourceDir = config?.build?.migrationsSourceDir || `app/${manifest.migrationsDir}`;
@@ -93,8 +95,7 @@ export class ExtensionSigner {
         () => false,
       );
       if (exists) {
-        const prefix = `${manifest.migrationsDir.replace(/\/+$/, "")}/`;
-        files.push(...(await this.collectFilesAsync(sourcePath, prefix)));
+        files.push(...(await this.collectFilesAsync(sourcePath, `${manifest.migrationsDir}/`)));
         console.log(`✓ Adding migrations from ${sourceDir} as ${manifest.migrationsDir}`);
       } else {
         console.warn(`⚠ Migrations directory not found: ${sourcePath}`);
@@ -109,24 +110,29 @@ export class ExtensionSigner {
     const finalOutputPath = outputPath || `${manifest.name}-${manifest.version}${BUNDLE_FILE_EXTENSION}`;
     await fs.writeFile(finalOutputPath, writeBundleArchive(entries));
 
-    const result = await this.verifyPackage(finalOutputPath);
-    if (!result.valid) {
+    try {
+      await this.verifyFileAsync(finalOutputPath);
+    } catch (error) {
       await fs.rm(finalOutputPath, { force: true });
-      throw new Error(`Verification of the written bundle failed: ${result.error}`);
+      throw error;
     }
     console.log(`✓ Extension packaged: ${finalOutputPath} (${entries.length} files)`);
     return finalOutputPath;
   }
 
+  /** Reads and verifies a `.xt` file; throws a `BundleError` naming the first failing rule. */
+  private static async verifyFileAsync(packagePath: string): Promise<VerifiedBundle> {
+    const { size } = await fs.stat(packagePath);
+    if (size > BUNDLE_LIMITS.archiveBytes) {
+      throw new BundleError("archive_too_large", `archive is larger than ${BUNDLE_LIMITS.archiveBytes} bytes`);
+    }
+    return verifyBundleEntriesAsync(readBundleArchive(await fs.readFile(packagePath)));
+  }
+
   /** Verifies a `.xt` file exactly like a host does (bundle format v2). */
   static async verifyPackage(packagePath: string): Promise<PackageVerifyResult> {
     try {
-      const { size } = await fs.stat(packagePath);
-      if (size > BUNDLE_LIMITS.archiveBytes) {
-        throw new BundleError("archive_too_large", `archive is larger than ${BUNDLE_LIMITS.archiveBytes} bytes`);
-      }
-      const archive = await fs.readFile(packagePath);
-      const { manifest, files } = await verifyBundleEntriesAsync(readBundleArchive(archive));
+      const { manifest, files } = await this.verifyFileAsync(packagePath);
       return { valid: true, manifest, files };
     } catch (error) {
       if (error instanceof BundleError) {

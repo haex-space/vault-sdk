@@ -102,6 +102,20 @@ describe("ExtensionSigner.packageExtension (format v2)", () => {
     await expect(pack()).rejects.toMatchObject({ kind: "manifest_not_canonical" });
   });
 
+  it.each(["db/migrations/", "./db/migrations"])("normalizes migrationsDir %s in the manifest and the paths", async (dir) => {
+    await write("haextension/manifest.json", JSON.stringify({ publicKey: keypair.publicKey, migrationsDir: dir }));
+    const result = await ExtensionSigner.verifyPackage(await pack());
+    if (!result.valid) throw new Error(result.error);
+    expect(result.manifest.migrationsDir).toBe("db/migrations");
+    expect(result.files.map((f) => f.path)).toContain("db/migrations/0000_init.sql");
+  });
+
+  it("keeps the error kind and removes the file when the written bundle fails verification", async () => {
+    await write("package.json", JSON.stringify({ name: "@scope/test-ext", version: "1.0.0" }));
+    await expect(pack()).rejects.toMatchObject({ kind: "manifest_invalid" });
+    await expect(fs.stat(path.join(projectDir, "out.xt"))).rejects.toMatchObject({ code: "ENOENT" });
+  });
+
   it("detects a changed file after signing", async () => {
     const file = await pack();
     const entries = readBundleArchive(await fs.readFile(file)).map((e) =>
