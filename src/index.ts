@@ -50,6 +50,7 @@ export type {
   MailNewMessagesEvent,
 } from "./types/mail";
 export { NotificationsAPI } from "./api/notifications";
+export { TabAPI } from "./api/tab";
 export type {
   DeepLink,
   NotificationAction,

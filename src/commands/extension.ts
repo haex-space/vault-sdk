@@ -24,6 +24,8 @@ export const EXTENSION_COMMANDS = {
   filterSyncTables: "extension_filter_sync_tables",
   /** Emit sync tables to webviews (host-only, desktop only) */
   emitSyncTables: "extension_emit_sync_tables",
+  /** Ask the host to mark (or unmark) this extension's own tab as wanting attention */
+  tabAttention: "extension_tab_attention",
 } as const;
 
 export type ExtensionCommand = (typeof EXTENSION_COMMANDS)[keyof typeof EXTENSION_COMMANDS];
