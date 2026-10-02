@@ -15,3 +15,15 @@ export {
 } from './manifest';
 
 export type { ExtensionManifest } from './types';
+
+// Bundle format `haextension-bundle/2` (WebAssembly build of crates/haex-bundle)
+export {
+  BUNDLE_FILE_EXTENSION,
+  BundleError,
+  buildBundle,
+  maxBundleBytes,
+  verifyBundle,
+  type BundleEntry,
+  type SignedFile,
+  type VerifiedBundle,
+} from './bundle';

@@ -40,6 +40,16 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pnpm-store-
 
+      - name: Setup Rust (haex-bundle and its WebAssembly build)
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+
+      - name: Install wasm-bindgen (the version crates/haex-bundle pins)
+        uses: taiki-e/install-action@v2
+        with:
+          tool: wasm-bindgen@0.2.129
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
@@ -94,6 +104,16 @@ jobs:
           key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: |
             ${{ runner.os }}-pnpm-store-
+
+      - name: Setup Rust (haex-bundle and its WebAssembly build)
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+
+      - name: Install wasm-bindgen (the version crates/haex-bundle pins)
+        uses: taiki-e/install-action@v2
+        with:
+          tool: wasm-bindgen@0.2.129
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile

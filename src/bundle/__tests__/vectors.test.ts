@@ -8,7 +8,7 @@ const VECTOR_DIR = path.resolve(__dirname, "../../../test-vectors/bundles");
 type Expected = { valid: true } | { valid: false; kind: string; path?: string };
 const expected = JSON.parse(readFileSync(path.join(VECTOR_DIR, "expected.json"), "utf8")) as Record<string, Expected>;
 
-describe("shared bundle test vectors", () => {
+describe("shared bundle test vectors through the WebAssembly build", () => {
   it("lists every .xt file of the vector directory", () => {
     const files = readdirSync(VECTOR_DIR).filter((f) => f.endsWith(".xt")).sort();
     expect(Object.keys(expected).sort()).toEqual(files);

@@ -1428,6 +1428,11 @@ checks the bundle exactly like the host does and names the first failing rule (f
 rejected with `legacy_signature_format`: re-sign them with `haex sign`. Shared test vectors for hosts are in
 `test-vectors/bundles/`.
 
+The format has exactly one implementation: the Rust crate `crates/haex-bundle`. Hosts such as holzi use it
+natively, and `haex sign` / `haex verify` call its WebAssembly build, so the tool and the hosts cannot apply
+different rules. From Node.js the same functions are available as `verifyBundle` and `buildBundle` from
+`@haex-space/vault-sdk/node`.
+
 ### 6. Key Management Best Practices
 
 - **Backup your private key** - Store it securely (password manager, encrypted backup)
@@ -1506,6 +1511,11 @@ try {
 ```
 
 ## Development
+
+Building and testing need, besides Node.js and pnpm, a Rust toolchain with the `wasm32-unknown-unknown`
+target and `wasm-bindgen` in the version `crates/haex-bundle/Cargo.toml` pins
+(`cargo install wasm-bindgen-cli --version <pin>`). `pnpm build`, `pnpm test` and `pnpm typecheck` build the
+WebAssembly module first (`pnpm build:wasm`).
 
 ```bash
 # Install dependencies
