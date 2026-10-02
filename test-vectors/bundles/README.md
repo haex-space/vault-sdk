@@ -60,5 +60,6 @@ The expected kind assumes this order; the first failing check wins.
 - `bad-ratio.xt` — `entry_ratio` — listed zeros.bin: 1 MiB of zeros deflated (ratio > 200:1)
 - `bad-too-many-entries.xt` — `archive_too_large` — 2001 entries, all listed (limit 2000)
 - `bad-truncated.xt` — `archive_invalid` — good-minimal without its end-of-central-directory record
+- `bad-local-header.xt` — `archive_invalid` — index.html stored, but its local header claims Deflate (central directory says Stored)
 - `bad-forbidden-private-key.xt` — `entry_path_invalid` — listed haextension/private.key (placeholder content, no key)
 - `legacy-format.xt` — `legacy_signature_format` — pre-v2 layout: signature in manifest, no signature.json, config, public.key and a directory entry

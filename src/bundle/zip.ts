@@ -18,6 +18,7 @@ const CENTRAL_HEADER = 0x02014b50;
 const END_OF_CENTRAL_DIRECTORY = 0x06054b50;
 const FLAG_UTF8 = 0x0800;
 const FLAG_ENCRYPTED = 0x0001;
+const FLAG_DATA_DESCRIPTOR = 0x0008;
 const FLAG_STRONG_ENCRYPTION = 0x0040;
 const METHOD_STORED = 0;
 const METHOD_DEFLATE = 8;
@@ -171,6 +172,21 @@ function readEntryData(archive: Buffer, record: CentralRecord, centralOffset: nu
   const start = at + 30 + nameLength + archive.readUInt16LE(at + 28);
   if (!archive.subarray(at + 30, at + 30 + nameLength).equals(record.nameBytes)) {
     invalid("local header name differs from the central directory", path);
+  }
+  // A reader that trusts the local header must see the same entry as this one.
+  const localFlags = archive.readUInt16LE(at + 6);
+  const encryption = FLAG_ENCRYPTED | FLAG_STRONG_ENCRYPTION;
+  if (archive.readUInt16LE(at + 8) !== record.method || (localFlags & encryption) !== (record.flags & encryption)) {
+    invalid("local header method or encryption differs from the central directory", path);
+  }
+  const sizesInLocalHeader = (localFlags & FLAG_DATA_DESCRIPTOR) === 0;
+  if (
+    sizesInLocalHeader &&
+    (archive.readUInt32LE(at + 14) !== record.crc ||
+      archive.readUInt32LE(at + 18) !== record.compressedSize ||
+      archive.readUInt32LE(at + 22) !== record.size)
+  ) {
+    invalid("local header CRC-32 or sizes differ from the central directory", path);
   }
   if (start + record.compressedSize > centralOffset) invalid("entry data exceeds the archive", path);
   const raw = archive.subarray(start, start + record.compressedSize);

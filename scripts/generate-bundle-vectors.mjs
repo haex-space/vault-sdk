@@ -75,7 +75,7 @@ function chooseMethod(data) {
 }
 
 /**
- * entries: { name: string, data: Buffer, method?: 0|8, mode?: number, declaredSize?: number }
+ * entries: { name: string, data: Buffer, method?: 0|8, mode?: number, declaredSize?: number, localMethod?: number }
  */
 function writeZip(entries) {
   const locals = [];
@@ -93,7 +93,7 @@ function writeZip(entries) {
     local.writeUInt32LE(0x04034b50, 0);
     local.writeUInt16LE(20, 4);
     local.writeUInt16LE(0x0800, 6);
-    local.writeUInt16LE(method, 8);
+    local.writeUInt16LE(entry.localMethod ?? method, 8);
     local.writeUInt16LE(0, 10);
     local.writeUInt16LE(DOS_DATE_1980_01_01, 12);
     local.writeUInt32LE(crc, 14);
@@ -380,6 +380,10 @@ const VECTORS = [
     buildBundle({ files: [...minimalFiles(), ...many], manifest: minimalManifest() })],
   ["bad-truncated", { kind: "archive_invalid" }, "good-minimal without its end-of-central-directory record", () =>
     buildBundle({ files: minimalFiles(), manifest: minimalManifest() }).subarray(0, -22)],
+  ["bad-local-header", { kind: "archive_invalid" },
+    "index.html stored, but its local header claims Deflate (central directory says Stored)", () =>
+      buildBundle({ files: minimalFiles(), manifest: minimalManifest(),
+        tamper: (e) => e.map((x) => (x.name === "index.html" ? { ...x, method: 0, localMethod: 8 } : x)) })],
   ["bad-forbidden-private-key", { kind: "entry_path_invalid" },
     "listed haextension/private.key (placeholder content, no key)", () =>
       buildBundle({ files: [...minimalFiles(), file("haextension/private.key", "placeholder, not a key\n")],

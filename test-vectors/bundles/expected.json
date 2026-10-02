@@ -98,6 +98,10 @@
     "valid": false,
     "kind": "archive_invalid"
   },
+  "bad-local-header.xt": {
+    "valid": false,
+    "kind": "archive_invalid"
+  },
   "bad-forbidden-private-key.xt": {
     "valid": false,
     "kind": "entry_path_invalid"
