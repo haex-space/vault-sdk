@@ -79,7 +79,6 @@
     "@eslint/js": "^10.0.1",
     "@nuxt/kit": "^4.3.1",
     "@nuxt/schema": "^4.3.1",
-    "@types/archiver": "^7.0.0",
     "@types/node": "^26.1.1",
     "@types/react": "^19.2.13",
     "eslint": "^10.0.0",
@@ -119,9 +118,7 @@
     }
   },
   "dependencies": {
-    "archiver": "^7.0.1",
     "commander": "^15.0.0",
-    "drizzle-orm": "^0.45.1",
-    "jszip": "^3.10.1"
+    "drizzle-orm": "^0.45.1"
   }
 }

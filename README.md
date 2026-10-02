@@ -1221,8 +1221,7 @@ Your extension needs a `manifest.json` file:
   "version": "1.0.0",
   "description": "My awesome extension",
 
-  "publicKey": "-----BEGIN PUBLIC KEY-----\n...",
-  "signature": "...",
+  "publicKey": "<64 hex digits, written by haex sign>",
 
   "namespace": "johndoe",
   "displayName": "My Extension",
@@ -1392,7 +1391,7 @@ Then build and package:
 npm run build:release
 ```
 
-This creates `your-extension-1.0.0.haextension` - a signed ZIP file ready for distribution.
+This creates `your-extension-1.0.0.xt` - a signed ZIP file ready for distribution.
 
 **OR** build your extension and run:
 
@@ -1400,25 +1399,29 @@ This creates `your-extension-1.0.0.haextension` - a signed ZIP file ready for di
 npx haex sign dist -k private.key
 ```
 
-### 4. What Gets Signed?
+### 4. What Gets Signed? (format `haextension-bundle/2`)
 
-The signing process:
+`haex sign`:
 
-1. Computes SHA-256 hash of all files in your extension
-2. Signs the hash with your private key using Ed25519
-3. Adds `public_key` and `signature` to your `manifest.json`
-4. Creates a `.haextension` file (ZIP archive)
+1. Collects the build output, the extra files of `haextension/` and the migrations (`migrationsDir`).
+   Symlinks abort signing; `haextension.config.json`, `public.key` and `private.key` are never packaged.
+2. Writes `haextension/manifest.json` as canonical JSON (RFC 8785) without a `signature` field.
+3. Writes `haextension/signature.json` listing path, size and SHA-256 of every file, signed with
+   Ed25519 over `"haextension-bundle/2\n"` + the canonical JSON of that list and the public key.
+4. Packs everything into a deterministic `.xt` ZIP (fixed timestamps, no directory entries) and verifies it.
+
+Moving content between files, renaming, adding or removing a file all break the signature.
 
 ### 5. Verification
 
-When users install your extension:
+```bash
+npx haex verify your-extension-1.0.0.xt
+```
 
-1. HaexVault extracts the `.haextension` file
-2. Verifies the signature using the `public_key`
-3. Computes the hash and checks it matches
-4. Rejects installation if verification fails
-
-This ensures the extension hasn't been modified since you signed it.
+checks the bundle exactly like the host does and names the first failing rule (for example
+`file_mismatch { path: "index.html" }`). Bundles signed by SDK 3.x (signature inside the manifest) are
+rejected with `legacy_signature_format`: re-sign them with `haex sign`. Shared test vectors for hosts are in
+`test-vectors/bundles/`.
 
 ### 6. Key Management Best Practices
 
