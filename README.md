@@ -1227,13 +1227,18 @@ Your extension needs a `manifest.json` file:
   "displayName": "My Extension",
   "author": "John Doe <john@example.com>",
   "icon": "icon.png",
-  "main": "index.html",
+  "entry": "index.html",
 
-  "permissions": ["http.fetch", "notifications.show"],
+  "permissions": {
+    "database": [],
+    "filesystem": [],
+    "http": [],
+    "shell": []
+  },
 
   "dependencies": [
     {
-      "publicKey": "MCowBQYDK2VwAyEAp1q2r3s4t5u6v7w8x9y0z1a2b3c4d5e6f7g8h9i0j1k",
+      "publicKey": "<64 hex digits: public key of the password-manager extension>",
       "name": "password-manager",
       "minVersion": "1.0.0",
       "reason": "To access stored credentials",
@@ -1286,7 +1291,7 @@ await db.insert(credentialsTable, {
 
   "dependencies": [
     {
-      "publicKey": "MCowBQYDK2VwAyEAp1q2r3s4t5u6v7w8x9y0z1a2b3c4d5e6f7g8h9i0j1k",
+      "publicKey": "<64 hex digits: public key of the password-manager extension>",
       "name": "password-manager",
       "minVersion": "1.0.0",
       "reason": "Access stored credentials for email sync",
