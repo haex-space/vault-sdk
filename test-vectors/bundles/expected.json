@@ -5,6 +5,12 @@
   "good-notes-like.xt": {
     "valid": true
   },
+  "good-semver-prerelease.xt": {
+    "valid": true
+  },
+  "good-migrations-no-journal.xt": {
+    "valid": true
+  },
   "bad-moved-content.xt": {
     "valid": false,
     "kind": "file_mismatch",
@@ -67,6 +73,34 @@
     "kind": "manifest_not_canonical"
   },
   "bad-manifest-invalid.xt": {
+    "valid": false,
+    "kind": "manifest_invalid"
+  },
+  "bad-version-leading-zero.xt": {
+    "valid": false,
+    "kind": "manifest_invalid"
+  },
+  "bad-entry-missing.xt": {
+    "valid": false,
+    "kind": "manifest_invalid"
+  },
+  "bad-migrations-dir.xt": {
+    "valid": false,
+    "kind": "manifest_invalid"
+  },
+  "bad-permissions-array.xt": {
+    "valid": false,
+    "kind": "manifest_invalid"
+  },
+  "bad-weak-key.xt": {
+    "valid": false,
+    "kind": "manifest_invalid"
+  },
+  "bad-journal-missing-sql.xt": {
+    "valid": false,
+    "kind": "manifest_invalid"
+  },
+  "bad-migration-not-utf8.xt": {
     "valid": false,
     "kind": "manifest_invalid"
   },

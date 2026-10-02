@@ -5,7 +5,7 @@
  * Browser-compatible (WebCrypto only).
  */
 
-import { parseCanonicalJson, type JsonValue } from "./jcs";
+import { parseCanonicalJson, parseRestrictedJson, type JsonValue } from "./jcs";
 import {
   MANIFEST_PATH,
   SIGNATURE_PATH,
@@ -37,10 +37,30 @@ const HEX64 = /^[0-9a-f]{64}$/;
 const HEX128 = /^[0-9a-f]{128}$/;
 /** FR-004: lowercase letters, digits and hyphens, starting with a letter, no `__`. */
 const EXTENSION_NAME = /^[a-z][a-z0-9-]*$/;
-const SEMVER = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?$/;
+const SEMVER_PARTS = /^(\d+)\.(\d+)\.(\d+)(?:-([^+]*))?(?:\+(.*))?$/;
+const SEMVER_NUMBER = /^(?:0|[1-9]\d*)$/;
+const SEMVER_IDENTIFIER = /^[0-9A-Za-z-]+$/;
+const U64_MAX = 2n ** 64n - 1n;
+const utf8Decoder = new TextDecoder("utf-8", { fatal: true, ignoreBOM: true });
 
 const isRecord = (value: unknown): value is Record<string, JsonValue> =>
   typeof value === "object" && value !== null && !Array.isArray(value);
+
+/**
+ * SemVer 2.0.0 exactly as the Rust `semver` crate parses it: no leading zeros in
+ * numbers or numeric pre-release identifiers, no empty identifiers, major,
+ * minor and patch fit into a u64. Build metadata may have leading zeros.
+ */
+export function isSemver(version: string): boolean {
+  const match = SEMVER_PARTS.exec(version);
+  if (!match) return false;
+  const [, major, minor, patch, pre, build] = match;
+  const core = [major!, minor!, patch!];
+  if (!core.every((n) => SEMVER_NUMBER.test(n) && BigInt(n) <= U64_MAX)) return false;
+  const preValid = (id: string) => SEMVER_IDENTIFIER.test(id) && (!/^\d+$/.test(id) || SEMVER_NUMBER.test(id));
+  if (pre !== undefined && !pre.split(".").every(preValid)) return false;
+  return build === undefined || build.split(".").every((id) => SEMVER_IDENTIFIER.test(id));
+}
 
 const hasExactKeys = (record: Record<string, unknown>, keys: readonly string[]) => {
   const own = Object.keys(record).sort();
@@ -134,7 +154,7 @@ function assertValidManifest(manifest: Record<string, JsonValue>, files: readonl
   if (typeof name !== "string" || !EXTENSION_NAME.test(name) || name.includes("__")) {
     invalid(`name ${JSON.stringify(name)} must be lowercase letters, digits and hyphens, starting with a letter`);
   }
-  if (typeof version !== "string" || !SEMVER.test(version)) invalid(`version ${JSON.stringify(version)} is not semver`);
+  if (typeof version !== "string" || !isSemver(version)) invalid(`version ${JSON.stringify(version)} is not semver`);
   if (typeof publicKey !== "string" || !isStrictEd25519PublicKey(fromHex(publicKey))) {
     invalid("publicKey is not a valid Ed25519 public key");
   }
@@ -146,6 +166,59 @@ function assertValidManifest(manifest: Record<string, JsonValue>, files: readonl
     invalid("migrationsDir is not a valid bundle path");
   }
   if (permissions != null && !isRecord(permissions)) invalid("permissions is not an object");
+}
+
+/**
+ * The migration files a host reads must be there and be text. With
+ * `<migrationsDir>/meta/_journal.json`: restricted JSON (canonical form not
+ * required) with an `entries` array; each entry has a unique non-negative
+ * integer `idx` and a unique string `tag`, and `<migrationsDir>/<tag>.sql` is a
+ * file of the bundle. Without a journal the migrations are the `*.sql` files
+ * directly in `migrationsDir`. Every migration file is UTF-8.
+ */
+function assertValidMigrations(migrationsDir: string, byPath: ReadonlyMap<string, BundleEntry>): void {
+  const journalPath = `${migrationsDir}/meta/_journal.json`;
+  const invalid = (reason: string, path = journalPath): never => {
+    throw new BundleError("manifest_invalid", `${path}: ${reason}`, path);
+  };
+  const journal = byPath.get(journalPath);
+  const migrations: string[] = [];
+  if (!journal) {
+    const prefix = `${migrationsDir}/`;
+    for (const path of byPath.keys()) {
+      if (path.startsWith(prefix) && path.endsWith(".sql") && !path.slice(prefix.length).includes("/")) {
+        migrations.push(path);
+      }
+    }
+  } else {
+    let value: JsonValue;
+    try {
+      value = parseRestrictedJson(utf8Decoder.decode(journal.data));
+    } catch (error) {
+      return invalid(`not restricted JSON (${error instanceof Error ? error.message : String(error)})`);
+    }
+    if (!isRecord(value) || !Array.isArray(value.entries)) return invalid("entries is not an array");
+    const indices = new Set<number>();
+    const tags = new Set<string>();
+    for (const item of value.entries) {
+      if (!isRecord(item) || typeof item.idx !== "number" || item.idx < 0 || typeof item.tag !== "string") {
+        return invalid("entry without a non-negative integer idx and a string tag");
+      }
+      if (indices.has(item.idx) || tags.has(item.tag)) invalid(`idx ${item.idx} or tag ${JSON.stringify(item.tag)} repeats`);
+      indices.add(item.idx);
+      tags.add(item.tag);
+      const sqlPath = `${migrationsDir}/${item.tag}.sql`;
+      if (pathRuleViolation(sqlPath) !== null || !byPath.has(sqlPath)) invalid(`${sqlPath} is not a file of the bundle`);
+      migrations.push(sqlPath);
+    }
+  }
+  for (const path of migrations) {
+    try {
+      utf8Decoder.decode(byPath.get(path)!.data);
+    } catch {
+      invalid("migration is not UTF-8", path);
+    }
+  }
 }
 
 /**
@@ -173,6 +246,7 @@ export async function verifyBundleEntriesAsync(entries: readonly BundleEntry[]):
     throw new BundleError("public_key_mismatch", "manifest.publicKey differs from signature.json publicKey");
   }
   assertValidManifest(manifest, files);
+  if (typeof manifest.migrationsDir === "string") assertValidMigrations(manifest.migrationsDir, byPath);
 
   const { signature: signatureHex, ...body } = signature;
   const valid = await verifyEd25519StrictAsync(fromHex(body.publicKey), fromHex(signatureHex), signatureMessage(body));
