@@ -11,12 +11,14 @@
  * Coverage focus:
  *   - Happy-path handshake + bidirectional messaging
  *   - Fail-fast on timeout when no port arrives
- *   - Strict filtering: only PORT_INIT (with an attached port) resolves
+ *   - Strict filtering: only PORT_INIT (with an attached port) from
+ *     `window.parent` resolves
  *   - Single-shot: additional PORT_INIT messages after handshake are ignored
  *   - Transport rejects when port is not yet established
  */
 
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { Window } from "happy-dom";
 import {
   sendPostMessage,
 } from "../transport";
@@ -89,10 +91,11 @@ afterEach(() => {
  * real `MessageEvent` on the iframe's `window`. We dispatch via a MessageEvent
  * constructor so `event.ports` is populated correctly in happy-dom.
  */
-const sendPortFromHost = (port: MessagePort) => {
+const sendPortFromHost = (port: MessagePort, source: MessageEventSource | null = window.parent) => {
   const event = new MessageEvent("message", {
     data: { type: HAEXSPACE_MESSAGE_TYPES.PORT_INIT },
     ports: [port],
+    source,
   });
   window.dispatchEvent(event);
 };
@@ -211,6 +214,30 @@ describe("initIframeMode — hostile / malformed window messages", () => {
     expect(port).toBe(channel.port2);
   });
 
+  it("ignores a PORT_INIT from a sibling frame and still accepts the parent's", async () => {
+    makeIframeContext();
+
+    const initPromise = initIframeMode(makeContext(), silentLog, vi.fn());
+
+    // A sibling reaches us via `top.frames[i].postMessage`; its event.source
+    // is the sibling's window, not our parent.
+    const sibling = new Window();
+    const siblingChannel = new MessageChannel();
+    sendPortFromHost(siblingChannel.port2, sibling as unknown as MessageEventSource);
+    // An event without any source (e.g. synthesized) is not the parent either.
+    sendPortFromHost(new MessageChannel().port2, null);
+
+    let settled = false;
+    initPromise.then(() => (settled = true)).catch(() => (settled = true));
+    await new Promise<void>((resolve) => setTimeout(resolve, 50));
+    expect(settled).toBe(false);
+
+    const hostChannel = new MessageChannel();
+    sendPortFromHost(hostChannel.port2);
+    await expect(initPromise).resolves.toBe(hostChannel.port2);
+    sibling.close();
+  });
+
   it("ignores a PORT_INIT message whose ports array is empty", async () => {
     makeIframeContext();
     vi.useFakeTimers();
@@ -228,6 +255,7 @@ describe("initIframeMode — hostile / malformed window messages", () => {
       new MessageEvent("message", {
         data: { type: HAEXSPACE_MESSAGE_TYPES.PORT_INIT },
         ports: [],
+        source: window.parent,
       })
     );
 

@@ -28,7 +28,10 @@ export function readManifest(options: ReadManifestOptions): ExtensionManifest | 
 
   try {
     const manifestContent = readFileSync(resolvedManifestPath, "utf-8");
-    const parsed: Partial<ExtensionManifest> = JSON.parse(manifestContent);
+    // `signature` belonged to the pre-v2 bundle format; signing now writes `haextension/signature.json`.
+    const { signature: _legacySignature, ...parsed } = JSON.parse(manifestContent) as Partial<ExtensionManifest> & {
+      signature?: unknown;
+    };
 
     // Read fallback values from package.json
     let packageJson: { name?: string; version?: string; author?: string; homepage?: string } = {};
@@ -57,13 +60,14 @@ export function readManifest(options: ReadManifestOptions): ExtensionManifest | 
     }
 
     const manifest: ExtensionManifest = {
+      // Keep every field the developer wrote (e.g. displayName); the fallbacks below win.
+      ...parsed,
       name,
       version,
       author,
       entry: parsed.entry ?? null,
       icon: parsed.icon ?? null,
       publicKey: parsed.publicKey ?? "",
-      signature: parsed.signature ?? "",
       permissions: parsed.permissions ?? {
         database: [],
         filesystem: [],

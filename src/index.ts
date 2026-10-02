@@ -50,6 +50,7 @@ export type {
   MailNewMessagesEvent,
 } from "./types/mail";
 export { NotificationsAPI } from "./api/notifications";
+export { TabAPI } from "./api/tab";
 export type {
   DeepLink,
   NotificationAction,
@@ -202,14 +203,16 @@ export {
 // Export config type only (utilities are Node.js-only and exported separately)
 export type { HaextensionConfig } from './config';
 
-// Export browser-compatible signature verification
+// Export browser-compatible bundle format v2 (signature.json, canonical JSON, entry checks)
 export {
-  verifyExtensionSignature,
-  sortObjectKeysRecursively,
-  hexToBytes,
-  type VerifyResult,
-  type ZipFileEntry,
-} from './crypto/verify';
+  BUNDLE_FORMAT,
+  BUNDLE_LIMITS,
+  BundleError,
+  type BundleErrorKind,
+} from './bundle/format';
+export { canonicalizeJson, parseCanonicalJson, RestrictedJsonError, type JsonValue } from './bundle/jcs';
+export { type BundleEntry, type SignatureFile, type SignedFile } from './bundle/sign';
+export { verifyBundleEntriesAsync, type VerifiedBundle } from './bundle/verify';
 
 // Export vault key crypto utilities
 export {

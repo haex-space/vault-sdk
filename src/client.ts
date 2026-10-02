@@ -31,6 +31,7 @@ import { ShellAPI } from "./api/shell";
 import { PasswordsAPI } from "./api/passwords";
 import { MailAPI } from "./api/mail";
 import { NotificationsAPI } from "./api/notifications";
+import { TabAPI } from "./api/tab";
 import { installConsoleForwarding } from "./polyfills/consoleForwarding";
 import type { SqliteRemoteDatabase } from "drizzle-orm/sqlite-proxy";
 
@@ -112,6 +113,7 @@ export class HaexVaultSdk {
   public readonly passwords: PasswordsAPI;
   public readonly mail: MailAPI;
   public readonly notifications: NotificationsAPI;
+  public readonly tab: TabAPI;
 
   /** Unified action system - register handlers that work for both Bridge and AI requests */
   public readonly actions = {
@@ -139,6 +141,7 @@ export class HaexVaultSdk {
     this.passwords = new PasswordsAPI(this);
     this.mail = new MailAPI(this);
     this.notifications = new NotificationsAPI(this);
+    this.tab = new TabAPI(this);
 
     installConsoleForwarding(this.config.debug);
 

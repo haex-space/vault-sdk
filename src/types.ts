@@ -338,7 +338,6 @@ export interface ExtensionManifest {
   entry?: string | null;
   icon?: string | null;
   publicKey: string;
-  signature: string;
   permissions: {
     database?: any[];
     filesystem?: any[];

@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// @haexhub/sdk/src/cli/index.ts
+// `haex`: extension development tools of @haex-space/vault-sdk
 
 import { Command } from "commander";
 import * as fs from "fs/promises";
@@ -10,13 +10,13 @@ import { existsSync } from "fs";
 const program = new Command();
 
 program
-  .name("haexhub")
-  .description("HaexHub Extension Development Tools")
+  .name("haex")
+  .description("haex extension development tools")
   .version("1.0.0");
 
 program
   .command("init")
-  .description("Initialize a new HaexHub extension in your project")
+  .description("Initialize a new haex extension in your project")
   .option("-n, --name <name>", "Extension name")
   .option("-d, --description <desc>", "Extension description")
   .option("--author <author>", "Extension author")
@@ -46,7 +46,7 @@ program
         packageJson = JSON.parse(content) as PackageJson;
       }
 
-      console.log("🚀 Initializing HaexHub Extension...\n");
+      console.log("🚀 Initializing haex extension...\n");
 
       // 1. Create haextension directory
       await fs.mkdir(extDir, { recursive: true });
@@ -61,7 +61,6 @@ program
       // 3. Create manifest.json (only required fields, optional fields come from package.json)
       const manifest: Record<string, unknown> = {
         publicKey: publicKey,
-        signature: "",
         permissions: {
           database: [],
           filesystem: [],
@@ -76,7 +75,7 @@ program
       if (options.description) {
         manifest.description = options.description;
       } else if (!packageJson.description) {
-        manifest.description = "A HaexHub extension";
+        manifest.description = "A haex extension";
       }
 
       await fs.writeFile(
@@ -90,7 +89,7 @@ program
       // Remove leading ./ from dir path for gitignore
       const gitignoreDir = options.dir.replace(/^\.\//, '');
       const gitignoreEntries = [
-        "\n# HaexHub Extension",
+        "\n# haex extension",
         `${gitignoreDir}/private.key`,
         `*${EXTENSION_FILE_EXTENSION}`,
       ];
@@ -132,10 +131,10 @@ program
       if (existsSync(packageJsonPath)) {
         packageJson.scripts = packageJson.scripts || {};
         packageJson.scripts["ext:dev"] =
-          packageJson.scripts["ext:dev"] || "haexhub dev";
+          packageJson.scripts["ext:dev"] || packageJson.scripts.dev || "vite";
         packageJson.scripts["ext:build"] =
           packageJson.scripts["ext:build"] ||
-          `${packageJson.scripts.build || "vite build"} && haexhub sign dist -k ${options.dir}/private.key`;
+          `${packageJson.scripts.build || "vite build"} && haex sign dist -k ${options.dir}/private.key`;
 
         await fs.writeFile(
           packageJsonPath,
@@ -181,7 +180,7 @@ program
   .command("sign <extension-path>")
   .description("Sign and package an extension")
   .option("-k, --key <path>", "Private key file", "./haextension/private.key")
-  .option("-o, --output <path>", "Output path for .haextension file")
+  .option("-o, --output <path>", `Output path for the ${EXTENSION_FILE_EXTENSION} file`)
   .action(async (extensionPath, options) => {
     try {
       const privateKey = await fs.readFile(options.key, "utf-8");
@@ -195,6 +194,21 @@ program
       console.error("Error:", error);
       process.exit(1);
     }
+  });
+
+program
+  .command("verify <file>")
+  .description(`Verify a signed ${EXTENSION_FILE_EXTENSION} bundle exactly like the host does`)
+  .action(async (file: string) => {
+    const result = await ExtensionSigner.verifyPackage(file);
+    if (result.valid) {
+      const { name, version, publicKey } = result.manifest;
+      console.log(`valid: ${String(name)} ${String(version)}, ${result.files.length} files, key ${String(publicKey)}`);
+      return;
+    }
+    const where = result.kind === "file_mismatch" ? ` { path: ${JSON.stringify(result.path)} }` : "";
+    console.error(`invalid: ${result.kind}${where}\n  ${result.error}`);
+    process.exit(1);
   });
 
 program.parse();
