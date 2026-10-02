@@ -69,6 +69,7 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
+    "vectors:bundles": "node scripts/generate-bundle-vectors.mjs",
     "release": "node scripts/release.js"
   },
   "author": "haex",
