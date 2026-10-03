@@ -1,5 +1,31 @@
 # Changelog
 
+## [4.0.0](https://github.com/haex-space/vault-sdk/compare/v3.7.0...v4.0.0) (2026-10-03)
+
+
+### ⚠ BREAKING CHANGES
+
+* **bundle:** the browser entry no longer exports the bundle format (`BUNDLE_FORMAT`, `BUNDLE_LIMITS`, `BundleError`, `canonicalizeJson`, `parseCanonicalJson`, `verifyBundleEntriesAsync`, ...). Use `verifyBundle` / `buildBundle` from `@haex-space/vault-sdk/node`. Building the SDK needs a Rust toolchain with the wasm32-unknown-unknown target and wasm-bindgen.
+* **cli:** bundles signed by 3.x are rejected as legacy_signature_format and must be re-signed with `haex sign`. ExtensionManifest has no signature field. verifyExtensionSignature, sortObjectKeysRecursively and hexToBytes are replaced by verifyBundleEntriesAsync, canonicalizeJson and parseCanonicalJson; ExtensionSigner.hashDirectory and signExtension are removed. The CLI binary was already `haex`; scripts calling `haexhub` must use `haex`.
+
+### Features
+
+* **bundle:** one Rust implementation of the bundle format for the tool and hosts ([979074e](https://github.com/haex-space/vault-sdk/commit/979074e8e644242ad81fb4a567a9fcfcbeb2f259))
+* **bundle:** pin manifest and migration rules with test vectors ([bfad438](https://github.com/haex-space/vault-sdk/commit/bfad4384e5a58006ce34c354c05b8d833a66b3fa))
+* **client:** add client.tab.requestAttention ([5414640](https://github.com/haex-space/vault-sdk/commit/5414640116421e4ece718c617dae221ab1c18bec))
+* **cli:** sign and verify bundles in format haextension-bundle/2 ([9a874d9](https://github.com/haex-space/vault-sdk/commit/9a874d9bfd84b117dc41d95923d1612735143596))
+* **dialog:** confirm dialogs drawn by the host ([e2327bf](https://github.com/haex-space/vault-sdk/commit/e2327bf6933dc284ee69c294f7e72c66253ca187))
+
+
+### Bug Fixes
+
+* **bundle:** inflate entries over 64 KiB and require the writer's zip layout ([4426a78](https://github.com/haex-space/vault-sdk/commit/4426a788c19d6bdc283af9c8f51521e87299eefc))
+* **bundle:** reject a local header that disagrees with the central directory ([ce17f9e](https://github.com/haex-space/vault-sdk/commit/ce17f9ebdb2db9f666471330907c6ef6659e629c))
+* **client:** accept the handshake port only from window.parent ([c1cb3da](https://github.com/haex-space/vault-sdk/commit/c1cb3da85b67dc96ca7c1dc1cf20876e7b8b11f4))
+* **cli:** normalize migrationsDir and keep the error kind of the self-check ([b90a281](https://github.com/haex-space/vault-sdk/commit/b90a28115b407821165b169477fe0a85c5016dfa))
+* **cli:** ship the bundle module once and keep its error kinds typed ([ff011f1](https://github.com/haex-space/vault-sdk/commit/ff011f12a43f3442b76ca7b386bd076a55121577))
+* **dialog:** wait for the user's answer without the request timeout ([47026b6](https://github.com/haex-space/vault-sdk/commit/47026b6aecd988f5ef247b67bca304767079b1fa))
+
 ## [3.7.0](https://github.com/haex-space/vault-sdk/compare/v3.6.0...v3.7.0) (2026-07-21)
 
 
