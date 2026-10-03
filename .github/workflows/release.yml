@@ -45,10 +45,14 @@ jobs:
         with:
           targets: wasm32-unknown-unknown
 
-      - name: Install wasm-bindgen (the version crates/haex-bundle pins)
+      - name: Read the wasm-bindgen version crates/haex-bundle pins
+        id: wasm-bindgen
+        run: echo "version=$(sed -n 's/^wasm-bindgen = { version = "=\([^"]*\)".*/\1/p' crates/haex-bundle/Cargo.toml)" >> "$GITHUB_OUTPUT"
+
+      - name: Install wasm-bindgen
         uses: taiki-e/install-action@v2
         with:
-          tool: wasm-bindgen@0.2.129
+          tool: wasm-bindgen@${{ steps.wasm-bindgen.outputs.version }}
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -110,10 +114,14 @@ jobs:
         with:
           targets: wasm32-unknown-unknown
 
-      - name: Install wasm-bindgen (the version crates/haex-bundle pins)
+      - name: Read the wasm-bindgen version crates/haex-bundle pins
+        id: wasm-bindgen
+        run: echo "version=$(sed -n 's/^wasm-bindgen = { version = "=\([^"]*\)".*/\1/p' crates/haex-bundle/Cargo.toml)" >> "$GITHUB_OUTPUT"
+
+      - name: Install wasm-bindgen
         uses: taiki-e/install-action@v2
         with:
-          tool: wasm-bindgen@0.2.129
+          tool: wasm-bindgen@${{ steps.wasm-bindgen.outputs.version }}
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile

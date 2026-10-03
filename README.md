@@ -1515,7 +1515,7 @@ try {
 Building and testing need, besides Node.js and pnpm, a Rust toolchain with the `wasm32-unknown-unknown`
 target and `wasm-bindgen` in the version `crates/haex-bundle/Cargo.toml` pins
 (`cargo install wasm-bindgen-cli --version <pin>`). `pnpm build`, `pnpm test` and `pnpm typecheck` build the
-WebAssembly module first (`pnpm build:wasm`).
+WebAssembly module first (`pnpm build:wasm`); run that once before `pnpm test:watch`.
 
 ```bash
 # Install dependencies
