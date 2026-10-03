@@ -129,6 +129,7 @@ pub fn write_archive(entries: &[Entry]) -> Vec<u8> {
 
 struct CentralRecord<'a> {
     name: &'a [u8],
+    extra_length: usize,
     made_by: u16,
     flags: u16,
     method: u16,
@@ -169,18 +170,14 @@ impl<'a> Bytes<'a> {
 }
 
 fn read_central_directory<'a>(archive: &Bytes<'a>) -> Result<(Vec<CentralRecord<'a>>, usize)> {
-    let len = archive.0.len();
-    let lowest = len.saturating_sub(22 + 0xffff);
-    let mut eocd = None;
-    for i in (lowest..=len - 22).rev() {
-        if archive.u32(i)? == END_OF_CENTRAL_DIRECTORY
-            && i + 22 + archive.u16(i + 20)? as usize == len
-        {
-            eocd = Some(i);
-            break;
-        }
+    // No archive comment: the end record is the last 22 bytes. A comment could hide a second end
+    // record that other zip readers would pick.
+    let eocd = archive.0.len() - 22;
+    if archive.u32(eocd)? != END_OF_CENTRAL_DIRECTORY || archive.u16(eocd + 20)? != 0 {
+        return Err(invalid(
+            "end of central directory not found at the end of the archive (no archive comment allowed)",
+        ));
     }
-    let eocd = eocd.ok_or_else(|| invalid("end of central directory not found"))?;
 
     let disk_entries = archive.u16(eocd + 8)?;
     let total_entries = archive.u16(eocd + 10)?;
@@ -217,16 +214,14 @@ fn read_central_directory<'a>(archive: &Bytes<'a>) -> Result<(Vec<CentralRecord<
             return Err(invalid("malformed central directory"));
         }
         let name_length = archive.u16(pos + 28)? as usize;
-        let record_end = pos
-            + 46
-            + name_length
-            + archive.u16(pos + 30)? as usize
-            + archive.u16(pos + 32)? as usize;
+        let extra_length = archive.u16(pos + 30)? as usize;
+        let record_end = pos + 46 + name_length + extra_length + archive.u16(pos + 32)? as usize;
         if record_end > central_end {
             return Err(invalid("central directory record exceeds the directory"));
         }
         records.push(CentralRecord {
             name: archive.slice(pos + 46, name_length)?,
+            extra_length,
             made_by: archive.u16(pos + 4)?,
             flags: archive.u16(pos + 8)?,
             method: archive.u16(pos + 10)?,
@@ -251,8 +246,8 @@ enum InflateError {
     Corrupt,
 }
 
-/// Raw inflate that stops as soon as the output exceeds `max` bytes and requires the end of the
-/// deflate stream.
+/// Raw inflate that stops as soon as the output exceeds `max` bytes and requires the deflate stream
+/// to end exactly at the end of the entry data (no trailing bytes).
 fn inflate(raw: &[u8], max: u64) -> std::result::Result<Vec<u8>, InflateError> {
     let limit = usize::try_from(max + 1).map_err(|_| InflateError::TooLarge)?;
     let mut decompress = Decompress::new(false);
@@ -262,14 +257,20 @@ fn inflate(raw: &[u8], max: u64) -> std::result::Result<Vec<u8>, InflateError> {
         out.reserve_exact(room);
         let (before_in, before_out) = (decompress.total_in(), out.len());
         let consumed = usize::try_from(before_in).map_err(|_| InflateError::Corrupt)?;
+        // `Finish` would make miniz_oxide try to inflate in one call and fail for good when the
+        // output does not fit the room; `None` streams across calls.
         let status = decompress
-            .decompress_vec(&raw[consumed..], &mut out, FlushDecompress::Finish)
+            .decompress_vec(&raw[consumed..], &mut out, FlushDecompress::None)
             .map_err(|_| InflateError::Corrupt)?;
         if out.len() as u64 > max {
             return Err(InflateError::TooLarge);
         }
         if status == Status::StreamEnd {
-            return Ok(out);
+            return if decompress.total_in() == raw.len() as u64 {
+                Ok(out)
+            } else {
+                Err(InflateError::Corrupt)
+            };
         }
         if decompress.total_in() == before_in && out.len() == before_out {
             return Err(InflateError::Corrupt);
@@ -357,6 +358,43 @@ fn read_entry_data(
     Ok(data)
 }
 
+/// Layout rules on the central-directory record: the archive must have the layout the writer
+/// produces, so every zip reader sees the same entries as this one. Entries lie back to back from
+/// offset 0 in central-directory order (no gaps, prefixes or overlaps), without data descriptors or
+/// extra fields, and a non-ASCII name carries the UTF-8 flag.
+fn layout_violation(record: &CentralRecord<'_>, expected_offset: usize) -> Option<&'static str> {
+    if record.local_offset != expected_offset {
+        return Some("entry does not start right after the previous one");
+    }
+    if record.flags & FLAG_DATA_DESCRIPTOR != 0 {
+        return Some("entry uses a data descriptor");
+    }
+    if record.extra_length != 0 {
+        return Some("central directory record has extra fields");
+    }
+    if !record.name.is_ascii() && record.flags & FLAG_UTF8 == 0 {
+        return Some("non-ASCII name without the UTF-8 flag");
+    }
+    None
+}
+
+/// The same rules on the local header, once [`read_entry_data`] found it. Returns where the next
+/// entry has to start.
+fn check_local_layout(
+    archive: &Bytes<'_>,
+    record: &CentralRecord<'_>,
+    path: &str,
+) -> Result<usize> {
+    let at = record.local_offset;
+    if archive.u16(at + 6)? & FLAG_DATA_DESCRIPTOR != 0 || archive.u16(at + 28)? != 0 {
+        return Err(invalid_at(
+            format!("{path}: local header has a data descriptor or extra fields"),
+            path,
+        ));
+    }
+    Ok(at + 30 + record.name.len() + record.compressed_size as usize)
+}
+
 fn entry_kind_violation(record: &CentralRecord<'_>, path: &str) -> Option<String> {
     if record.flags & ENCRYPTION != 0 {
         return Some("encrypted entry".into());
@@ -411,6 +449,7 @@ pub fn read_archive(bytes: &[u8]) -> Result<Vec<Entry>> {
     let mut checker = PathChecker::default();
     let mut entries = Vec::with_capacity(records.len());
     let mut total: u64 = 0;
+    let mut next_offset = 0;
     for record in &records {
         let path = std::str::from_utf8(record.name).map_err(|_| {
             BundleError::new(ErrorKind::EntryPathInvalid, "entry name is not valid UTF-8")
@@ -451,11 +490,20 @@ pub fn read_archive(bytes: &[u8]) -> Result<Vec<Entry>> {
                 path,
             ));
         }
+        if let Some(violation) = layout_violation(record, next_offset) {
+            return Err(invalid_at(format!("{path}: {violation}"), path));
+        }
         let data = read_entry_data(&archive, record, central_offset, path)?;
+        next_offset = check_local_layout(&archive, record, path)?;
         entries.push(Entry {
             path: path.to_owned(),
             data,
         });
+    }
+    if next_offset != central_offset {
+        return Err(invalid(
+            "central directory does not start right after the last entry",
+        ));
     }
     Ok(entries)
 }

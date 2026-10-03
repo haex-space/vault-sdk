@@ -71,6 +71,24 @@ pub fn strict_public_key(bytes: &[u8]) -> Option<VerifyingKey> {
     (canonical && !key.is_weak()).then_some(key)
 }
 
+/// The group order L of Ed25519, little-endian.
+const GROUP_ORDER: [u8; 32] = [
+    0xed, 0xd3, 0xf5, 0x5c, 0x1a, 0x63, 0x12, 0x58, 0xd6, 0x9c, 0xf7, 0xa2, 0xde, 0xf9, 0xde, 0x14,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0x10,
+];
+
+/// Strict Ed25519 verification: `verify_strict` (small-order R and A, canonical R) plus an own
+/// check that S < L, which does not depend on the `legacy_compatibility` feature that Cargo could
+/// switch on through another crate of the host.
+pub fn verify_signature_strict(key: &VerifyingKey, message: &[u8], signature: &[u8; 64]) -> bool {
+    let s = &signature[32..];
+    let reduced = s.iter().rev().cmp(GROUP_ORDER.iter().rev()) == std::cmp::Ordering::Less;
+    reduced
+        && key
+            .verify_strict(message, &Signature::from_bytes(signature))
+            .is_ok()
+}
+
 fn is_hex(text: &str, len: usize) -> bool {
     text.len() == len && text.bytes().all(|b| matches!(b, b'0'..=b'9' | b'a'..=b'f'))
 }
@@ -380,10 +398,7 @@ pub fn verify_entries(entries: Vec<Entry>) -> Result<VerifiedBundle> {
     let signature_bytes: [u8; 64] = from_hex(&signature.signature)
         .and_then(|s| s.try_into().ok())
         .expect("signature.json holds 128 hex digits");
-    if key
-        .verify_strict(&message, &Signature::from_bytes(&signature_bytes))
-        .is_err()
-    {
+    if !verify_signature_strict(&key, &message, &signature_bytes) {
         return Err(BundleError::at(
             ErrorKind::SignatureInvalid,
             "Ed25519 signature does not verify",

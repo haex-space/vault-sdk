@@ -8,7 +8,7 @@ use serde::Serialize;
 use sha2::{Digest, Sha256};
 
 use crate::error::{BundleError, ErrorKind, Result};
-use crate::format::{PathChecker, BUNDLE_FORMAT, MANIFEST_PATH, SIGNATURE_PATH};
+use crate::format::{limits, PathChecker, BUNDLE_FORMAT, MANIFEST_PATH, SIGNATURE_PATH};
 use crate::jcs::{self, JsonValue};
 use crate::Entry;
 
@@ -133,7 +133,19 @@ pub fn sign_entries(
         path: MANIFEST_PATH.into(),
         data: manifest_bytes,
     });
+    // The limits a host applies, checked before hashing and writing (`signature.json` counts too).
+    if listed.len() + 1 > limits::ENTRIES {
+        return Err(BundleError::new(
+            ErrorKind::ArchiveTooLarge,
+            format!(
+                "{} entries, at most {} allowed",
+                listed.len() + 1,
+                limits::ENTRIES
+            ),
+        ));
+    }
     let mut checker = PathChecker::default();
+    let mut total: u64 = 0;
     for entry in &listed {
         if entry.path == SIGNATURE_PATH {
             return Err(BundleError::at(
@@ -143,6 +155,25 @@ pub fn sign_entries(
             ));
         }
         checker.check(&entry.path)?;
+        let size = entry.data.len() as u64;
+        if size > limits::ENTRY_BYTES {
+            return Err(BundleError::at(
+                ErrorKind::EntryTooLarge,
+                format!(
+                    "{} is larger than {} bytes",
+                    entry.path,
+                    limits::ENTRY_BYTES
+                ),
+                entry.path.clone(),
+            ));
+        }
+        total += size;
+        if total > limits::TOTAL_BYTES {
+            return Err(BundleError::new(
+                ErrorKind::ArchiveTooLarge,
+                format!("content is larger than {} bytes", limits::TOTAL_BYTES),
+            ));
+        }
     }
 
     let described = describe_files(&listed);

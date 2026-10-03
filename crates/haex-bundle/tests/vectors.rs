@@ -11,7 +11,7 @@ fn every_vector_gives_its_expected_outcome() {
     let expected: serde_json::Value =
         serde_json::from_slice(&std::fs::read(dir.join("expected.json")).unwrap()).unwrap();
     let expected = expected.as_object().unwrap();
-    assert!(expected.len() >= 36, "all vectors are listed");
+    assert!(expected.len() >= 46, "all vectors are listed");
 
     let mut failures = Vec::new();
     for (name, outcome) in expected {

@@ -24,6 +24,23 @@ pub enum ErrorKind {
 }
 
 impl ErrorKind {
+    /// Every kind, for tools that mirror the list (the TypeScript `BundleErrorKind`).
+    pub const ALL: [Self; 13] = [
+        Self::ArchiveTooLarge,
+        Self::ArchiveInvalid,
+        Self::EntryPathInvalid,
+        Self::EntryDuplicate,
+        Self::EntryTooLarge,
+        Self::EntryRatio,
+        Self::EntryKind,
+        Self::ManifestNotCanonical,
+        Self::ManifestInvalid,
+        Self::FileMismatch,
+        Self::PublicKeyMismatch,
+        Self::SignatureInvalid,
+        Self::LegacySignatureFormat,
+    ];
+
     pub const fn as_str(self) -> &'static str {
         match self {
             Self::ArchiveTooLarge => "archive_too_large",
@@ -86,3 +103,31 @@ impl fmt::Display for BundleError {
 impl std::error::Error for BundleError {}
 
 pub type Result<T> = std::result::Result<T, BundleError>;
+
+#[cfg(test)]
+mod tests {
+    use super::ErrorKind;
+
+    #[test]
+    fn all_lists_every_kind_once() {
+        // No wildcard arm: a new kind fails to compile here until it is added to `ALL`.
+        let position = |kind: ErrorKind| match kind {
+            ErrorKind::ArchiveTooLarge => 0,
+            ErrorKind::ArchiveInvalid => 1,
+            ErrorKind::EntryPathInvalid => 2,
+            ErrorKind::EntryDuplicate => 3,
+            ErrorKind::EntryTooLarge => 4,
+            ErrorKind::EntryRatio => 5,
+            ErrorKind::EntryKind => 6,
+            ErrorKind::ManifestNotCanonical => 7,
+            ErrorKind::ManifestInvalid => 8,
+            ErrorKind::FileMismatch => 9,
+            ErrorKind::PublicKeyMismatch => 10,
+            ErrorKind::SignatureInvalid => 11,
+            ErrorKind::LegacySignatureFormat => 12,
+        };
+        for (i, kind) in ErrorKind::ALL.into_iter().enumerate() {
+            assert_eq!(position(kind), i);
+        }
+    }
+}

@@ -36,6 +36,12 @@ pub fn verify_archive(archive: &[u8]) -> String {
     }
 }
 
+/// Every error kind as JSON array, so the SDK can test its `BundleErrorKind` type against it.
+#[wasm_bindgen(js_name = errorKinds)]
+pub fn error_kinds() -> String {
+    serde_json::to_string(&crate::ErrorKind::ALL).expect("error kinds serialize")
+}
+
 /// Largest archive a host accepts, so callers can refuse a bigger file before reading it.
 #[wasm_bindgen(js_name = maxArchiveBytes)]
 pub fn max_archive_bytes() -> f64 {
