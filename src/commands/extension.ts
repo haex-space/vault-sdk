@@ -26,6 +26,8 @@ export const EXTENSION_COMMANDS = {
   emitSyncTables: "extension_emit_sync_tables",
   /** Ask the host to mark (or unmark) this extension's own tab as wanting attention */
   tabAttention: "extension_tab_attention",
+  /** Ask the user to confirm, in a dialog the host draws over this extension's tab */
+  dialogConfirm: "extension_dialog_confirm",
 } as const;
 
 export type ExtensionCommand = (typeof EXTENSION_COMMANDS)[keyof typeof EXTENSION_COMMANDS];

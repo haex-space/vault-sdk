@@ -370,6 +370,16 @@ export interface HaexHubConfig {
   manifest?: ExtensionManifest;
 }
 
+/** Per-call options for `client.request`. */
+export interface RequestOptions {
+  /**
+   * Milliseconds to wait for the host's answer (iframe mode). Defaults to the
+   * client's `timeout`; `null` waits without a deadline, for requests the user
+   * answers (dialogs).
+   */
+  timeout?: number | null;
+}
+
 // Web/Fetch Types
 export interface WebRequestOptions {
   method?: "GET" | "POST" | "PUT" | "DELETE" | "PATCH" | "HEAD" | "OPTIONS" | "PROPFIND" | "REPORT" | "MKCALENDAR" | "MKCOL" | "COPY" | "MOVE" | "LOCK" | "UNLOCK" | (string & {});

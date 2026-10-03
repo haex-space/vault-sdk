@@ -20,7 +20,8 @@ import type { SqliteRemoteDatabase } from "drizzle-orm/sqlite-proxy";
 export interface PendingRequest<T = unknown> {
   resolve: (value: T) => void;
   reject: (error: unknown) => void;
-  timeout: NodeJS.Timeout;
+  /** Absent for requests that wait without a deadline (see `RequestOptions.timeout`). */
+  timeout?: ReturnType<typeof setTimeout>;
 }
 
 /**
