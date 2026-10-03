@@ -51,6 +51,7 @@ export type {
 } from "./types/mail";
 export { NotificationsAPI } from "./api/notifications";
 export { TabAPI } from "./api/tab";
+export { DialogAPI, type ConfirmOptions } from "./api/dialog";
 export type {
   DeepLink,
   NotificationAction,

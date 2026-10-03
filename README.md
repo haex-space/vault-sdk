@@ -1037,6 +1037,20 @@ const depTable = client.getDependencyTableName(
 // → "MCowBQYDK2VwAyEAp1q2r3s4t5u6v7w8x9y0z1a2b3c4d5e6f7g8h9i0j1k__password-manager__credentials"
 ```
 
+### Dialogs
+
+Extensions run in a sandboxed frame without `allow-modals`: `window.confirm()` returns `false` at once.
+Ask through the host instead; it draws the dialog over your own tab:
+
+```ts
+const sure = await client.dialog.confirm({
+  message: "Delete this note?",
+  confirmLabel: "Delete",
+  destructive: true,
+});
+if (sure) await deleteNoteAsync(id);
+```
+
 ### Database Operations
 
 #### Query
