@@ -38,10 +38,10 @@ afterEach(() => {
   sdk = null;
 });
 
-async function connectedAsync() {
+async function connectedAsync(config: { timeout?: number } = {}) {
   Object.defineProperty(window, "top", { configurable: true, get: () => ({}) as Window });
   const host = startHost();
-  sdk = new HaexVaultSdk();
+  sdk = new HaexVaultSdk(config);
   window.dispatchEvent(
     new MessageEvent("message", {
       data: { type: HAEXSPACE_MESSAGE_TYPES.PORT_INIT },
@@ -74,5 +74,15 @@ describe("client.dialog.confirm", () => {
     const request = await nextRequest;
     host.channel.port1.postMessage({ id: request.id, result: null });
     await expect(pending).resolves.toBe(false);
+  });
+
+  it("waits for the user longer than the request timeout", async () => {
+    const host = await connectedAsync({ timeout: 20 });
+    const nextRequest = host.nextRequest();
+    const pending = sdk!.dialog.confirm({ message: "Delete?" });
+    const request = await nextRequest;
+    await new Promise((resolve) => setTimeout(resolve, 80));
+    host.channel.port1.postMessage({ id: request.id, result: true });
+    await expect(pending).resolves.toBe(true);
   });
 });

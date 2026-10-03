@@ -16,6 +16,7 @@ import type {
   SearchResult,
   MigrationResult,
   Migration,
+  RequestOptions,
 } from "./types";
 import type { ExternalResponse, ExternalRequestHandler } from "./types/external";
 import { DEFAULT_TIMEOUT } from "./types";
@@ -354,7 +355,11 @@ export class HaexVaultSdk {
   // Communication
   // ==========================================================================
 
-  public async request<T = unknown, P = Record<string, unknown>>(method: string, params?: P): Promise<T> {
+  public async request<T = unknown, P = Record<string, unknown>>(
+    method: string,
+    params?: P,
+    options?: RequestOptions
+  ): Promise<T> {
     const resolvedParams = (params ?? {}) as Record<string, unknown>;
 
     // Send the command once. On a PromptRequired error, withPermissionRetry
@@ -381,7 +386,8 @@ export class HaexVaultSdk {
         this.config,
         this._extensionInfo,
         this.pendingRequests,
-        this.hostPort
+        this.hostPort,
+        options?.timeout
       );
     };
 

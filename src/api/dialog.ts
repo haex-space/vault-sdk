@@ -26,7 +26,8 @@ export class DialogAPI {
 
   /** Asks the user; resolves `true` for confirm, `false` for cancel or when the dialog is closed. */
   async confirm(options: ConfirmOptions): Promise<boolean> {
-    const answer = await this.client.request<boolean>(EXTENSION_COMMANDS.dialogConfirm, { ...options });
+    // No deadline: the dialog stays open until the user answers or the host closes it.
+    const answer = await this.client.request<boolean>(EXTENSION_COMMANDS.dialogConfirm, { ...options }, { timeout: null });
     return answer === true;
   }
 }

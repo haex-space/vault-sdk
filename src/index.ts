@@ -123,6 +123,7 @@ export type {
   SearchRequestEvent,
   WebRequestOptions,
   WebResponse,
+  RequestOptions,
 } from "./types";
 
 export {

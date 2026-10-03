@@ -33,7 +33,8 @@ export function sendPostMessage<T>(
   config: ClientConfig,
   extensionInfo: ExtensionInfo | null,
   pendingRequests: Map<string, PendingRequest>,
-  port: MessagePort | null
+  port: MessagePort | null,
+  timeoutMs: number | null = config.timeout
 ): Promise<T> {
   if (!port) {
     return Promise.reject(
@@ -51,14 +52,18 @@ export function sendPostMessage<T>(
   };
 
   return new Promise<T>((resolve, reject) => {
-    const timeout = setTimeout(() => {
-      pendingRequests.delete(requestId);
-      reject(
-        new HaexVaultSdkError(ErrorCode.TIMEOUT, "errors.timeout", {
-          timeout: config.timeout,
-        })
-      );
-    }, config.timeout);
+    // `null`: the answer depends on the user (e.g. a dialog), so there is no deadline.
+    const timeout =
+      timeoutMs === null
+        ? undefined
+        : setTimeout(() => {
+            pendingRequests.delete(requestId);
+            reject(
+              new HaexVaultSdkError(ErrorCode.TIMEOUT, "errors.timeout", {
+                timeout: timeoutMs,
+              })
+            );
+          }, timeoutMs);
 
     pendingRequests.set(requestId, { resolve: resolve as (value: unknown) => void, reject, timeout });
 
