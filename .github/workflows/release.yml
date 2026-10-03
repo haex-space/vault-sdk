@@ -40,6 +40,20 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pnpm-store-
 
+      - name: Setup Rust (haex-bundle and its WebAssembly build)
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+
+      - name: Read the wasm-bindgen version crates/haex-bundle pins
+        id: wasm-bindgen
+        run: echo "version=$(sed -n 's/^wasm-bindgen = { version = "=\([^"]*\)".*/\1/p' crates/haex-bundle/Cargo.toml)" >> "$GITHUB_OUTPUT"
+
+      - name: Install wasm-bindgen
+        uses: taiki-e/install-action@v2
+        with:
+          tool: wasm-bindgen@${{ steps.wasm-bindgen.outputs.version }}
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
@@ -94,6 +108,20 @@ jobs:
           key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: |
             ${{ runner.os }}-pnpm-store-
+
+      - name: Setup Rust (haex-bundle and its WebAssembly build)
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+
+      - name: Read the wasm-bindgen version crates/haex-bundle pins
+        id: wasm-bindgen
+        run: echo "version=$(sed -n 's/^wasm-bindgen = { version = "=\([^"]*\)".*/\1/p' crates/haex-bundle/Cargo.toml)" >> "$GITHUB_OUTPUT"
+
+      - name: Install wasm-bindgen
+        uses: taiki-e/install-action@v2
+        with:
+          tool: wasm-bindgen@${{ steps.wasm-bindgen.outputs.version }}
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile

@@ -31,3 +31,7 @@ Thumbs.db
 CLAUDE.md
 .claude/
 .npmrc
+
+# Rust build output and the generated WebAssembly glue (scripts/build-bundle-wasm.mjs)
+crates/*/target/
+src/bundle/wasm/

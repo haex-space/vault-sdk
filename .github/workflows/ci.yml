@@ -64,8 +64,36 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pnpm-store-
 
+      - name: Setup Rust (haex-bundle and its WebAssembly build)
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+          components: clippy, rustfmt
+
+      - name: Read the wasm-bindgen version crates/haex-bundle pins
+        id: wasm-bindgen
+        run: echo "version=$(sed -n 's/^wasm-bindgen = { version = "=\([^"]*\)".*/\1/p' crates/haex-bundle/Cargo.toml)" >> "$GITHUB_OUTPUT"
+
+      - name: Install wasm-bindgen
+        uses: taiki-e/install-action@v2
+        with:
+          tool: wasm-bindgen@${{ steps.wasm-bindgen.outputs.version }}
+
+      - name: Cache Rust build
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: crates/haex-bundle
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      - name: Check haex-bundle (format, clippy, tests)
+        working-directory: crates/haex-bundle
+        run: |
+          cargo fmt --check
+          cargo clippy --all-targets -- -D warnings
+          cargo clippy --target wasm32-unknown-unknown --features wasm --lib -- -D warnings
+          cargo test
 
       - name: Run typecheck
         run: pnpm typecheck
