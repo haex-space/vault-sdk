@@ -14,7 +14,6 @@
 * **bundle:** pin manifest and migration rules with test vectors ([bfad438](https://github.com/haex-space/vault-sdk/commit/bfad4384e5a58006ce34c354c05b8d833a66b3fa))
 * **client:** add client.tab.requestAttention ([5414640](https://github.com/haex-space/vault-sdk/commit/5414640116421e4ece718c617dae221ab1c18bec))
 * **cli:** sign and verify bundles in format haextension-bundle/2 ([9a874d9](https://github.com/haex-space/vault-sdk/commit/9a874d9bfd84b117dc41d95923d1612735143596))
-* **dialog:** confirm dialogs drawn by the host ([1abb483](https://github.com/haex-space/vault-sdk/commit/1abb4835aa201300c2c582d29090c9f5062ad517))
 * **dialog:** confirm dialogs drawn by the host ([e2327bf](https://github.com/haex-space/vault-sdk/commit/e2327bf6933dc284ee69c294f7e72c66253ca187))
 
 
