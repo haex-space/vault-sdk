@@ -75,39 +75,56 @@ function chooseMethod(data) {
 }
 
 /**
- * entries: { name: string, data: Buffer, method?: 0|8, mode?: number, declaredSize?: number, localMethod?: number }
+ * entries: { name: string, data: Buffer, method?: 0|8, mode?: number, declaredSize?: number, localMethod?: number,
+ *            gapBefore?: Buffer, dataDescriptor?: boolean, localExtra?: Buffer, centralExtra?: Buffer,
+ *            utf8Flag?: boolean, payloadSuffix?: Buffer }
+ * options: { comment?: Buffer, gapBeforeCentral?: Buffer }
  */
-function writeZip(entries) {
+function writeZip(entries, { comment = Buffer.alloc(0), gapBeforeCentral = Buffer.alloc(0) } = {}) {
   const locals = [];
   const centrals = [];
   let offset = 0;
   for (const entry of entries) {
     const name = Buffer.from(entry.name, "utf8");
     const method = entry.method ?? chooseMethod(entry.data);
-    const payload = method === 8 ? deflateRawSync(entry.data, { level: 9 }) : entry.data;
+    const deflated = method === 8 ? deflateRawSync(entry.data, { level: 9 }) : entry.data;
+    const payload = entry.payloadSuffix ? Buffer.concat([deflated, entry.payloadSuffix]) : deflated;
     const size = entry.declaredSize ?? entry.data.length;
     const crc = crc32(entry.data);
     const mode = entry.mode ?? UNIX_REGULAR_FILE;
+    const flags = (entry.utf8Flag === false ? 0 : 0x0800) | (entry.dataDescriptor ? 0x0008 : 0);
+    const localExtra = entry.localExtra ?? Buffer.alloc(0);
+    const centralExtra = entry.centralExtra ?? Buffer.alloc(0);
+    const gap = entry.gapBefore ?? Buffer.alloc(0);
+    offset += gap.length;
 
     const local = Buffer.alloc(30);
     local.writeUInt32LE(0x04034b50, 0);
     local.writeUInt16LE(20, 4);
-    local.writeUInt16LE(0x0800, 6);
+    local.writeUInt16LE(flags, 6);
     local.writeUInt16LE(entry.localMethod ?? method, 8);
     local.writeUInt16LE(0, 10);
     local.writeUInt16LE(DOS_DATE_1980_01_01, 12);
-    local.writeUInt32LE(crc, 14);
-    local.writeUInt32LE(payload.length, 18);
-    local.writeUInt32LE(size, 22);
+    // With a data descriptor, CRC-32 and sizes follow the data instead.
+    local.writeUInt32LE(entry.dataDescriptor ? 0 : crc, 14);
+    local.writeUInt32LE(entry.dataDescriptor ? 0 : payload.length, 18);
+    local.writeUInt32LE(entry.dataDescriptor ? 0 : size, 22);
     local.writeUInt16LE(name.length, 26);
-    local.writeUInt16LE(0, 28);
-    locals.push(local, name, payload);
+    local.writeUInt16LE(localExtra.length, 28);
+    const descriptor = Buffer.alloc(entry.dataDescriptor ? 16 : 0);
+    if (entry.dataDescriptor) {
+      descriptor.writeUInt32LE(0x08074b50, 0);
+      descriptor.writeUInt32LE(crc, 4);
+      descriptor.writeUInt32LE(payload.length, 8);
+      descriptor.writeUInt32LE(size, 12);
+    }
+    locals.push(gap, local, name, localExtra, payload, descriptor);
 
     const central = Buffer.alloc(46);
     central.writeUInt32LE(0x02014b50, 0);
     central.writeUInt16LE((3 << 8) | 20, 4);
     central.writeUInt16LE(20, 6);
-    central.writeUInt16LE(0x0800, 8);
+    central.writeUInt16LE(flags, 8);
     central.writeUInt16LE(method, 10);
     central.writeUInt16LE(0, 12);
     central.writeUInt16LE(DOS_DATE_1980_01_01, 14);
@@ -115,16 +132,17 @@ function writeZip(entries) {
     central.writeUInt32LE(payload.length, 20);
     central.writeUInt32LE(size, 24);
     central.writeUInt16LE(name.length, 28);
-    central.writeUInt16LE(0, 30);
+    central.writeUInt16LE(centralExtra.length, 30);
     central.writeUInt16LE(0, 32);
     central.writeUInt16LE(0, 34);
     central.writeUInt16LE(0, 36);
     central.writeUInt32LE(((mode << 16) | (entry.name.endsWith("/") ? 0x10 : 0)) >>> 0, 38);
     central.writeUInt32LE(offset, 42);
-    centrals.push(central, name);
+    centrals.push(central, name, centralExtra);
 
-    offset += local.length + name.length + payload.length;
+    offset += local.length + name.length + localExtra.length + payload.length + descriptor.length;
   }
+  offset += gapBeforeCentral.length;
   const centralDir = Buffer.concat(centrals);
   const end = Buffer.alloc(22);
   end.writeUInt32LE(0x06054b50, 0);
@@ -132,7 +150,8 @@ function writeZip(entries) {
   end.writeUInt16LE(entries.length, 10);
   end.writeUInt32LE(centralDir.length, 12);
   end.writeUInt32LE(offset, 16);
-  return Buffer.concat([...locals, centralDir, end]);
+  end.writeUInt16LE(comment.length, 20);
+  return Buffer.concat([...locals, gapBeforeCentral, centralDir, end, comment]);
 }
 
 // ---------------------------------------------------------------------------
@@ -151,7 +170,7 @@ const file = (path, data) => ({ path, data: Buffer.isBuffer(data) ? data : Buffe
  * key:          signing key; its public key goes into signature.json
  * tamper:       (entries) => entries, applied to the zip entries after signing
  */
-function buildBundle({ files, manifest, key = KEY_A, tamper = (entries) => entries }) {
+function buildBundle({ files, manifest, key = KEY_A, tamper = (entries) => entries, zipOptions }) {
   const manifestBytes = Buffer.isBuffer(manifest) ? manifest : Buffer.from(jcs(manifest), "utf8");
   const listed = [...files, file(MANIFEST, manifestBytes)].sort(byPathBytes);
   const body = {
@@ -163,7 +182,7 @@ function buildBundle({ files, manifest, key = KEY_A, tamper = (entries) => entri
   const signature = sign(null, message, key.privateKey).toString("hex");
   const signatureFile = file(SIGNATURE, jcs({ ...body, signature }));
   const entries = [...listed, signatureFile].sort(byPathBytes).map((f) => ({ name: f.path, data: f.data }));
-  return writeZip(tamper(entries));
+  return writeZip(tamper(entries), zipOptions);
 }
 
 const replaceEntry = (name, data) => (entries) =>
@@ -312,6 +331,24 @@ function legacyBundle() {
 // ---------------------------------------------------------------------------
 
 const MiB = 1024 * 1024;
+const L = 2n ** 252n + 27742317777372353535851937790883648493n;
+
+/** Pseudo-random text over a small alphabet: deflates to about a third, far below 200:1. */
+function compressible(length) {
+  let state = 0x2545f491;
+  const out = Buffer.alloc(length);
+  for (let i = 0; i < length; i++) {
+    state = (Math.imul(state, 1103515245) + 12345) >>> 0;
+    out[i] = "abcdefgh".charCodeAt((state >>> 16) % 8);
+  }
+  return out;
+}
+
+/** Changes one entry of the zip entries (by name) after signing. */
+const tamperEntry = (name, change) => (entries) => entries.map((e) => (e.name === name ? { ...e, ...change } : e));
+
+/** Info-ZIP Unix extra field (UID/GID 1000), as common zip tools write it. */
+const UNIX_EXTRA = Buffer.from("75780b000104e803000004e8030000", "hex");
 const zeros = (n) => Buffer.alloc(n);
 const many = Array.from({ length: 1998 }, (_, i) => file(`f/${String(i).padStart(4, "0")}.txt`, `${i}\n`));
 
@@ -320,6 +357,9 @@ const VECTORS = [
     buildBundle({ files: minimalFiles(), manifest: minimalManifest() })],
   ["good-notes-like", null, "Nuxt-like build: inline scripts, nested and non-ASCII paths, Drizzle migrations", notesLike],
 
+  ["good-large-deflated", null, "assets/big.js: 300 KiB deflated, so it inflates in several steps", () =>
+    buildBundle({ files: [...minimalFiles(), file("assets/big.js", compressible(300 * 1024))],
+      manifest: minimalManifest() })],
   ["good-semver-prerelease", null, "version 2.0.0-rc.1+build.007 (leading zero allowed in build metadata)", () =>
     buildBundle({ files: minimalFiles(), manifest: minimalManifest({ version: "2.0.0-rc.1+build.007" }) })],
   ["good-migrations-no-journal", null, "migrationsDir db with two .sql files and no meta/_journal.json", () =>
@@ -393,6 +433,20 @@ const VECTORS = [
   ["bad-key-mismatch", { kind: "public_key_mismatch" },
     "manifest.publicKey is test key B, signature.json is key A (validly signed by A)", () =>
       buildBundle({ files: minimalFiles(), manifest: minimalManifest({ publicKey: KEY_B.publicKey }) })],
+  ["bad-signature-unreduced-s", { kind: "signature_invalid" },
+    "S of the signature replaced by S + L (verifies under a check that does not require S < L)", () =>
+      buildBundle({ files: minimalFiles(), manifest: minimalManifest(),
+        tamper: (e) => e.map((x) => {
+          if (x.name !== SIGNATURE) return x;
+          const text = x.data.toString("utf8");
+          const changed = text.replace(/"signature":"([0-9a-f]{128})"/, (_, hex) => {
+            const bytes = Buffer.from(hex, "hex");
+            const s = BigInt(`0x${Buffer.from(bytes.subarray(32)).reverse().toString("hex")}`) + L;
+            const sBytes = Buffer.from(s.toString(16).padStart(64, "0"), "hex").reverse();
+            return `"signature":"${Buffer.concat([bytes.subarray(0, 32), sBytes]).toString("hex")}"`;
+          });
+          return { ...x, data: Buffer.from(changed, "utf8") };
+        }) })],
   ["bad-signature", { kind: "signature_invalid" }, "last byte of the signature flipped", () =>
     buildBundle({ files: minimalFiles(), manifest: minimalManifest(),
       tamper: (e) => e.map((x) => {
@@ -420,6 +474,36 @@ const VECTORS = [
     "index.html stored, but its local header claims Deflate (central directory says Stored)", () =>
       buildBundle({ files: minimalFiles(), manifest: minimalManifest(),
         tamper: (e) => e.map((x) => (x.name === "index.html" ? { ...x, method: 0, localMethod: 8 } : x)) })],
+  ["bad-archive-comment", { kind: "archive_invalid" }, "good-minimal with an archive comment after the end record", () =>
+    buildBundle({ files: minimalFiles(), manifest: minimalManifest(), zipOptions: { comment: Buffer.from("comment") } })],
+  ["bad-entry-gap", { kind: "archive_invalid", path: "index.html" },
+    "16 unreferenced bytes between haextension/signature.json and index.html", () =>
+      buildBundle({ files: minimalFiles(), manifest: minimalManifest(),
+        tamper: tamperEntry("index.html", { gapBefore: Buffer.alloc(16, 0x41) }) })],
+  ["bad-gap-before-central-directory", { kind: "archive_invalid" },
+    "16 unreferenced bytes between the last entry and the central directory", () =>
+      buildBundle({ files: minimalFiles(), manifest: minimalManifest(),
+        zipOptions: { gapBeforeCentral: Buffer.alloc(16, 0x41) } })],
+  ["bad-data-descriptor", { kind: "archive_invalid", path: "index.html" },
+    "index.html with a data descriptor (sizes and CRC-32 after the data)", () =>
+      buildBundle({ files: minimalFiles(), manifest: minimalManifest(),
+        tamper: tamperEntry("index.html", { dataDescriptor: true }) })],
+  ["bad-central-extra-field", { kind: "archive_invalid", path: "index.html" },
+    "index.html with an Info-ZIP Unix extra field in its central-directory record", () =>
+      buildBundle({ files: minimalFiles(), manifest: minimalManifest(),
+        tamper: tamperEntry("index.html", { centralExtra: UNIX_EXTRA }) })],
+  ["bad-local-extra-field", { kind: "archive_invalid", path: "index.html" },
+    "index.html with an Info-ZIP Unix extra field in its local header", () =>
+      buildBundle({ files: minimalFiles(), manifest: minimalManifest(),
+        tamper: tamperEntry("index.html", { localExtra: UNIX_EXTRA }) })],
+  ["bad-utf8-flag-missing", { kind: "archive_invalid", path: "locales/übersicht.json" },
+    "listed locales/übersicht.json without the UTF-8 flag", () =>
+      buildBundle({ files: [...minimalFiles(), file("locales/übersicht.json", '{"title":"Übersicht"}\n')],
+        manifest: minimalManifest(), tamper: tamperEntry("locales/übersicht.json", { utf8Flag: false }) })],
+  ["bad-deflate-trailing-data", { kind: "archive_invalid", path: "index.html" },
+    "index.html deflated, with unsigned bytes after the end of its deflate stream", () =>
+      buildBundle({ files: minimalFiles(), manifest: minimalManifest(),
+        tamper: tamperEntry("index.html", { method: 8, payloadSuffix: Buffer.from("HIDDEN-PAYLOAD") }) })],
   ["bad-forbidden-private-key", { kind: "entry_path_invalid" },
     "listed haextension/private.key (placeholder content, no key)", () =>
       buildBundle({ files: [...minimalFiles(), file("haextension/private.key", "placeholder, not a key\n")],
@@ -465,16 +549,20 @@ never trust them and never sign anything else with them.
 
 The expected kind assumes this order; the first failing check wins.
 
-1. Archive: file ≤ 64 MiB (\`archive_too_large\`); end record and central directory readable, no ZIP64,
-   counts consistent (\`archive_invalid\`); ≤ 2000 entries (\`archive_too_large\`).
+1. Archive: file ≤ 64 MiB (\`archive_too_large\`); end record in the last 22 bytes (no archive comment),
+   central directory readable, no ZIP64, counts consistent (\`archive_invalid\`); ≤ 2000 entries
+   (\`archive_too_large\`).
 2. Legacy: no \`haextension/signature.json\` and \`haextension/manifest.json\` is JSON with a \`signature\`
    field → \`legacy_signature_format\`.
 3. Per entry, in central-directory order: name is UTF-8 (\`entry_path_invalid\`); regular file only,
    no directory/symlink/encryption, method Stored or Deflate (\`entry_kind\`); path rules and forbidden
    files (\`entry_path_invalid\`); exact or NFC+lowercase duplicate (\`entry_duplicate\`); declared size
    ≤ 25 MiB (\`entry_too_large\`); declared total ≤ 64 MiB (\`archive_too_large\`); ratio ≤ 200:1
-   (\`entry_ratio\`); data yields more bytes than declared (\`entry_too_large\`), fewer bytes, bad CRC or
-   inconsistent local header (\`archive_invalid\`).
+   (\`entry_ratio\`); layout (\`archive_invalid\`): the entry starts right after the previous one (the first
+   at offset 0), no data descriptor, no extra fields, a non-ASCII name carries the UTF-8 flag; data yields
+   more bytes than declared (\`entry_too_large\`), fewer bytes, bad CRC, bytes after the end of the deflate
+   stream or inconsistent local header (\`archive_invalid\`). After the last entry: the central directory
+   starts right after it (\`archive_invalid\`). The layout rules make every zip reader see the same entries.
 4. Control files: manifest present (\`manifest_invalid\`), canonical restricted JSON
    (\`manifest_not_canonical\`); \`signature.json\` present, canonical, well-formed (\`signature_invalid\`).
 5. Files: entries (without \`signature.json\`) equal \`files\` by path, size and SHA-256; the first differing

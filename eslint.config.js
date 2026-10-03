@@ -12,6 +12,7 @@ export default tseslint.config(
       "*.mjs",
       "scripts/**",
       "examples/**",
+      "src/bundle/wasm/**",
     ],
   },
   {
