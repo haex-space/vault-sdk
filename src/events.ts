@@ -74,7 +74,7 @@ export const SHELL_EVENTS = {
 export type ShellEvent = typeof SHELL_EVENTS[keyof typeof SHELL_EVENTS];
 
 /**
- * Events for background mail-poll watches (`mail.startWatchingAsync`).
+ * Events for background mail watches (`mail.startWatchingAsync`).
  */
 export const MAIL_EVENTS = {
   /** A watched mailbox's UID high-water mark advanced — new mail arrived. */

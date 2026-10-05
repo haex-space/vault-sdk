@@ -32,7 +32,7 @@ export interface MailAccount {
   smtp?: SmtpConfig;
 }
 
-/** Payload of `MAIL_EVENTS.NEW_MESSAGES`, emitted by a background poll watch. */
+/** Payload of `MAIL_EVENTS.NEW_MESSAGES`, emitted by a background mail watch. */
 export interface MailNewMessagesEvent {
   accountId: string;
   mailboxName: string;

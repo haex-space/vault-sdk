@@ -181,7 +181,8 @@ export class MailAPI {
   /**
    * Start (or replace) a background watch for `accountId`/`mailboxName`.
    * Requires `mail` permission with action `poll` on the account's IMAP
-   * host (prompted on first call, same as `fetch`/`send`).
+   * host (`imap.host` when passed; prompted on first call, same as
+   * `fetch`/`send`).
    *
    * Pass the account's `imap` config, as for every other mail call: the host
    * keeps the credentials in memory for as long as the watch runs and never
@@ -206,7 +207,7 @@ export class MailAPI {
     });
   }
 
-  /** Stop a background poll watch previously started with `startWatchingAsync`. */
+  /** Stop a background watch previously started with `startWatchingAsync`. */
   async stopWatchingAsync(accountId: string, mailboxName: string): Promise<void> {
     return this.client.request<void>(MAIL_COMMANDS.stopWatch, {
       accountId,
