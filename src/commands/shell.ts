@@ -12,6 +12,8 @@ export const SHELL_COMMANDS = {
   create: "extension_shell_create",
   /** Write data to a shell session's stdin */
   write: "extension_shell_write",
+  /** Acknowledge `shell:output` events handed on (backpressure; sent by the SDK itself) */
+  ack: "extension_shell_ack",
   /** Resize a shell session's terminal */
   resize: "extension_shell_resize",
   /** Close a shell session */
