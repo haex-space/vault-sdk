@@ -1,6 +1,10 @@
 import type { HaexVaultSdk } from "../client";
-import type { EventCallback } from "../types";
+import type { EventCallback, HaexHubEvent } from "../types";
 import { SHELL_COMMANDS } from "../commands/shell";
+import { SHELL_EVENTS } from "../events";
+
+/** The host's answer to a method it does not offer. */
+const NOT_SUPPORTED = 8000;
 
 export interface ShellCreateOptions {
   /** Shell executable (e.g., "/bin/bash"). If omitted, uses $SHELL or /bin/sh. */
@@ -36,7 +40,44 @@ export interface ShellInfo {
 }
 
 export class ShellAPI {
-  constructor(private readonly sdk: HaexVaultSdk) {}
+  /** `shell:output` events per session handed on but not yet acknowledged. */
+  private readonly unacknowledged = new Map<string, number>();
+  private flushScheduled = false;
+  /** The host does not know `extension_shell_ack` (it reads output without backpressure). */
+  private ackUnsupported = false;
+
+  constructor(private readonly sdk: HaexVaultSdk) {
+    // Registered first, so the acknowledgement is scheduled before the extension's own
+    // listeners run and sent after they returned.
+    this.sdk.on(SHELL_EVENTS.OUTPUT, (event) => this.acknowledge(event));
+  }
+
+  /**
+   * Backpressure: the host reads a shell's output on only while this frame has few events
+   * open, so a shell that writes fast waits instead of flooding the page. The SDK
+   * acknowledges every event once the listeners have had it, in one request per session and
+   * task.
+   */
+  private acknowledge(event: HaexHubEvent): void {
+    const sessionId = (event.data as Partial<ShellOutputEvent> | undefined)?.sessionId;
+    if (this.ackUnsupported || typeof sessionId !== "string") return;
+    this.unacknowledged.set(sessionId, (this.unacknowledged.get(sessionId) ?? 0) + 1);
+    if (this.flushScheduled) return;
+    this.flushScheduled = true;
+    queueMicrotask(() => this.flushAcknowledgements());
+  }
+
+  private flushAcknowledgements(): void {
+    this.flushScheduled = false;
+    const counts = [...this.unacknowledged];
+    this.unacknowledged.clear();
+    for (const [sessionId, count] of counts) {
+      this.sdk.request(SHELL_COMMANDS.ack, { sessionId, count }).catch((error: unknown) => {
+        // An older host reads without backpressure; a closed session needs nothing.
+        if ((error as { code?: number } | null)?.code === NOT_SUPPORTED) this.ackUnsupported = true;
+      });
+    }
+  }
 
   /**
    * List available shell environments on the host system.
