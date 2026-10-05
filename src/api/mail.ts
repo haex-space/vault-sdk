@@ -179,27 +179,35 @@ export class MailAPI {
   }
 
   /**
-   * Start (or replace) a background poll watch for `accountId`/`mailboxName`.
-   * The host resolves credentials itself from `accountId` — no `ImapConfig`
-   * is passed in. Requires `mail` permission with action `poll` on the
-   * account's IMAP host (prompted on first call, same as `fetch`/`send`).
+   * Start (or replace) a background watch for `accountId`/`mailboxName`.
+   * Requires `mail` permission with action `poll` on the account's IMAP
+   * host (`imap.host` when passed; prompted on first call, same as
+   * `fetch`/`send`).
    *
-   * `intervalSeconds` is clamped host-side to [30, 3600]. Listen for
-   * results via `onNewMessages`.
+   * Pass the account's `imap` config, as for every other mail call: the host
+   * keeps the credentials in memory for as long as the watch runs and never
+   * stores them. Hosts that wait with IMAP IDLE are told about new mail by the
+   * server; `intervalSeconds` (clamped host-side to [30, 3600]) is the polling
+   * interval for servers without IDLE. Listen for results via `onNewMessages`.
+   *
+   * `imap` is optional for hosts that resolve the credentials themselves from
+   * `accountId`; holzi requires it.
    */
   async startWatchingAsync(
     accountId: string,
     mailboxName: string,
     intervalSeconds: number,
+    imap?: ImapConfig,
   ): Promise<void> {
     return this.client.request<void>(MAIL_COMMANDS.startWatch, {
       accountId,
       mailboxName,
       intervalSeconds,
+      imap,
     });
   }
 
-  /** Stop a background poll watch previously started with `startWatchingAsync`. */
+  /** Stop a background watch previously started with `startWatchingAsync`. */
   async stopWatchingAsync(accountId: string, mailboxName: string): Promise<void> {
     return this.client.request<void>(MAIL_COMMANDS.stopWatch, {
       accountId,

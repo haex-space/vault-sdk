@@ -30,9 +30,9 @@ export const MAIL_COMMANDS = {
   sendMessage: "extension_mail_send_message",
   /** Build RFC822 bytes without sending (for Drafts via APPEND) */
   buildRfc822: "extension_mail_build_rfc822",
-  /** Start (or replace) a background poll watch for an account/mailbox */
+  /** Start (or replace) a background new-mail watch for an account/mailbox */
   startWatch: "extension_mail_start_watch",
-  /** Stop a background poll watch */
+  /** Stop a background new-mail watch */
   stopWatch: "extension_mail_stop_watch",
 } as const;
 
