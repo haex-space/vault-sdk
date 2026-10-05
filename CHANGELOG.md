@@ -1,5 +1,20 @@
 # Changelog
 
+## [4.1.0](https://github.com/haex-space/vault-sdk/compare/v4.0.0...v4.1.0) (2026-10-05)
+
+
+### Features
+
+* **mail:** pass the IMAP config to startWatchingAsync ([f1588cf](https://github.com/haex-space/vault-sdk/commit/f1588cf5458c619c2b43b73ed3e73541669ce31b))
+* **mail:** pass the IMAP config to startWatchingAsync ([d616104](https://github.com/haex-space/vault-sdk/commit/d6161043a235b608b85802510b636e8f07863604))
+* **shell:** acknowledge shell output so the host can apply backpressure ([599dbca](https://github.com/haex-space/vault-sdk/commit/599dbca9dabcbe80b8d90e986fbd1df8ce5e4e5a))
+* **shell:** acknowledge shell output so the host can apply backpressure ([b4e32d2](https://github.com/haex-space/vault-sdk/commit/b4e32d2f763b8ec2d8e1c9b60d59017c6ab60ae4))
+
+
+### Bug Fixes
+
+* **shell:** stop acknowledging when a native window's host lacks the command ([93e3f6f](https://github.com/haex-space/vault-sdk/commit/93e3f6f537044e5ffcff5491b2708a912a05b332))
+
 ## [4.0.0](https://github.com/haex-space/vault-sdk/compare/v3.7.0...v4.0.0) (2026-10-03)
 
 
