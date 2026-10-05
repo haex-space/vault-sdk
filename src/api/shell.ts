@@ -6,6 +6,16 @@ import { SHELL_EVENTS } from "../events";
 /** The host's answer to a method it does not offer. */
 const NOT_SUPPORTED = 8000;
 
+/**
+ * Whether the host does not offer the method: a MessagePort host answers 8000, Tauri rejects
+ * an invoke of a command it does not register with `Command <name> not found` (or, behind
+ * its access control, `<name> not allowed. Command not found`).
+ */
+function isUnsupported(error: unknown): boolean {
+  if ((error as { code?: number } | null)?.code === NOT_SUPPORTED) return true;
+  return typeof error === "string" && /\bcommand (\S+ )?not found\b/i.test(error);
+}
+
 export interface ShellCreateOptions {
   /** Shell executable (e.g., "/bin/bash"). If omitted, uses $SHELL or /bin/sh. */
   shell?: string;
@@ -53,8 +63,8 @@ export class ShellAPI {
   }
 
   /**
-   * Backpressure: the host reads a shell's output on only while this frame has few events
-   * open, so a shell that writes fast waits instead of flooding the page. The SDK
+   * Backpressure: the host keeps reading a shell's output only while this frame has few
+   * events open, so a shell that writes fast waits instead of flooding the page. The SDK
    * acknowledges every event once the listeners have had it, in one request per session and
    * task.
    */
@@ -74,7 +84,7 @@ export class ShellAPI {
     for (const [sessionId, count] of counts) {
       this.sdk.request(SHELL_COMMANDS.ack, { sessionId, count }).catch((error: unknown) => {
         // An older host reads without backpressure; a closed session needs nothing.
-        if ((error as { code?: number } | null)?.code === NOT_SUPPORTED) this.ackUnsupported = true;
+        if (isUnsupported(error)) this.ackUnsupported = true;
       });
     }
   }

@@ -8,8 +8,10 @@
 
 import { afterEach, describe, expect, it } from "vitest";
 import { HaexVaultSdk } from "../../client";
+import { SHELL_EVENTS } from "../../events";
 import { HAEXSPACE_MESSAGE_TYPES } from "../../messages";
-import type { HaexHubEvent } from "../../types";
+import type { EventCallback, HaexHubEvent } from "../../types";
+import { ShellAPI } from "../shell";
 
 type Request = { id: string; method: string; params: Record<string, unknown> };
 
@@ -87,5 +89,32 @@ describe("client.shell output acknowledgement", () => {
     host.output("a", "two");
     await settle();
     expect(host.requests.filter((r) => r.method === "extension_shell_ack")).toHaveLength(1);
+  });
+
+  it.each([
+    "Command extension_shell_ack not found",
+    "extension_shell_ack not allowed. Command not found",
+  ])("stops acknowledging when Tauri rejects the command: %s", async (rejection) => {
+    // Native window mode: the request is a Tauri invoke, which rejects with a plain string.
+    const listeners: EventCallback[] = [];
+    const acks: unknown[] = [];
+    const fakeSdk = {
+      on: (_type: string, callback: EventCallback) => listeners.push(callback),
+      request: (method: string, params: unknown) => {
+        acks.push({ method, params });
+        return Promise.reject(rejection);
+      },
+    } as unknown as HaexVaultSdk;
+    new ShellAPI(fakeSdk);
+    const output = (data: string) =>
+      listeners.forEach((listener) =>
+        listener({ type: SHELL_EVENTS.OUTPUT, data: { sessionId: "a", data }, timestamp: 0 }),
+      );
+
+    output("one");
+    await settle();
+    output("two");
+    await settle();
+    expect(acks).toHaveLength(1);
   });
 });
