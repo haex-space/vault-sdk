@@ -79,6 +79,7 @@ export type {
   StorageBackendInfo as RemoteStorageBackendInfo,
   S3Config as RemoteS3Config,
   S3PublicConfig as RemoteS3PublicConfig,
+  S3Proposal as RemoteS3Proposal,
   AddBackendRequest as RemoteAddBackendRequest,
   UpdateBackendRequest as RemoteUpdateBackendRequest,
   StorageObjectInfo as RemoteStorageObjectInfo,

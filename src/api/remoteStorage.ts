@@ -19,21 +19,50 @@ export interface S3PublicConfig {
 }
 
 /**
- * Storage backend info (public, without credentials)
+ * A storage the extension may use, as the host lists it: names only, never
+ * credentials, endpoint or region.
  */
 export interface StorageBackendInfo {
   id: string;
   /** Backend type (e.g., "s3") */
   type: string;
+  /** Name of the storage */
   name: string;
-  enabled: boolean;
-  createdAt: string;
-  /** Public config without secrets (endpoint, bucket, region) */
+  /** Name of the provider the user gave the connection (e.g., "Hetzner") */
+  providerName?: string;
+  /** Bucket of the storage */
+  bucket?: string;
+  /** @deprecated Not sent by hosts that keep credentials to themselves (holzi). */
+  enabled?: boolean;
+  /** @deprecated Not sent by hosts that keep credentials to themselves (holzi). */
+  createdAt?: string;
+  /** @deprecated Not sent by hosts that keep credentials to themselves (holzi). */
   config?: S3PublicConfig;
 }
 
 /**
- * S3-compatible backend configuration
+ * What an extension proposes for a new S3 storage. The host shows it to the
+ * user and asks for credentials in its own window; an extension never sends
+ * or sees them.
+ */
+export interface S3Proposal {
+  /** Custom endpoint URL (for non-AWS S3-compatible services); the host may ask for a permission for its host */
+  endpoint?: string;
+  /** Region; required unless `sameProviderAs` is given */
+  region?: string;
+  /** Bucket name */
+  bucket: string;
+  /** Use path-style URLs instead of virtual-hosted-style */
+  pathStyle?: boolean;
+}
+
+/**
+ * S3-compatible backend configuration with credentials.
+ *
+ * @deprecated Credentials are entered in the host, never passed by an
+ * extension: holzi refuses a request that carries `accessKeyId`,
+ * `secretAccessKey` or `sessionToken`. Use {@link S3Proposal}. Removed in the
+ * next major version.
  */
 export interface S3Config {
   /** Custom endpoint URL (for non-AWS S3-compatible services) */
@@ -42,39 +71,45 @@ export interface S3Config {
   region: string;
   /** Bucket name */
   bucket: string;
-  /** Access key ID */
-  accessKeyId: string;
-  /** Secret access key */
-  secretAccessKey: string;
-  /** Session token for temporary credentials (e.g., Supabase S3 with user JWT for RLS) */
+  /** @deprecated Entered in the host. */
+  accessKeyId?: string;
+  /** @deprecated Entered in the host. */
+  secretAccessKey?: string;
+  /** @deprecated Entered in the host. */
   sessionToken?: string;
   /** Use path-style URLs instead of virtual-hosted-style */
   pathStyle?: boolean;
 }
 
 /**
- * Request to add a new storage backend
+ * Request to add a new storage. The host asks the user to confirm it and, for
+ * a new connection, for the credentials in its own window.
  */
 export interface AddBackendRequest {
-  /** Display name for the backend */
+  /** Display name for the storage */
   name: string;
   /** Backend type (currently only "s3") */
   type: "s3";
-  /** Configuration (structure depends on type) */
-  config: S3Config | Record<string, unknown>;
+  /**
+   * The proposal. With `sameProviderAs` only `bucket`: endpoint, region and
+   * addressing come from that storage's connection.
+   */
+  config: S3Proposal | S3Config | Record<string, unknown>;
+  /** A storage the extension may read; the new bucket goes on its connection without new credentials */
+  sameProviderAs?: string;
 }
 
 /**
- * Request to update a storage backend
- * Only provided fields are updated. Credentials are preserved if not provided.
+ * Request to change a storage. The host asks the user to confirm it; new
+ * credentials only in its own window.
  */
 export interface UpdateBackendRequest {
   /** Backend ID to update */
   backendId: string;
   /** New display name (optional) */
   name?: string;
-  /** New configuration (optional) - only non-empty fields are updated */
-  config?: Partial<S3Config> | Record<string, unknown>;
+  /** A new bucket (optional) */
+  config?: { bucket?: string } | Partial<S3Config> | Record<string, unknown>;
 }
 
 /**
@@ -187,27 +222,33 @@ class BackendManagement {
   }
 
   /**
-   * Add a new storage backend
-   * @param request - Backend configuration
+   * Propose a new storage. The host asks the user; credentials are entered
+   * only there. Resolves with the new storage, which the extension may then
+   * read and write.
+   * @param request - The proposal, without credentials
    * @returns Created backend info
    */
   async add(request: AddBackendRequest): Promise<StorageBackendInfo> {
     return this.client.request<StorageBackendInfo>(
       REMOTE_STORAGE_COMMANDS.addBackend,
-      { request }
+      { request },
+      // No deadline: the host waits for the user's answer in its dialog.
+      { timeout: null },
     );
   }
 
   /**
-   * Update a storage backend
-   * Only provided fields are updated. Credentials are preserved if not provided.
+   * Change a storage after the user confirms it in the host.
+   * Only provided fields are updated; new credentials are entered in the host.
    * @param request - Update request with backendId and fields to update
    * @returns Updated backend info
    */
   async update(request: UpdateBackendRequest): Promise<StorageBackendInfo> {
     return this.client.request<StorageBackendInfo>(
       REMOTE_STORAGE_COMMANDS.updateBackend,
-      { request }
+      { request },
+      // No deadline: the host waits for the user's answer in its dialog.
+      { timeout: null },
     );
   }
 
@@ -216,9 +257,12 @@ class BackendManagement {
    * @param backendId - Backend ID to remove
    */
   async remove(backendId: string): Promise<void> {
-    await this.client.request(REMOTE_STORAGE_COMMANDS.removeBackend, {
-      backendId,
-    });
+    // No deadline: the host waits for the user's answer in its dialog.
+    await this.client.request(
+      REMOTE_STORAGE_COMMANDS.removeBackend,
+      { backendId },
+      { timeout: null },
+    );
   }
 
   /**
@@ -226,8 +270,11 @@ class BackendManagement {
    * @param backendId - Backend ID to test
    */
   async test(backendId: string): Promise<void> {
-    await this.client.request(REMOTE_STORAGE_COMMANDS.testBackend, {
-      backendId,
-    });
+    // No deadline: the host waits for the user's answer in its dialog.
+    await this.client.request(
+      REMOTE_STORAGE_COMMANDS.testBackend,
+      { backendId },
+      { timeout: null },
+    );
   }
 }
