@@ -29,9 +29,9 @@ export interface StorageBackendInfo {
   /** Name of the storage */
   name: string;
   /** Name of the provider the user gave the connection (e.g., "Hetzner") */
-  providerName?: string;
+  providerName: string;
   /** Bucket of the storage */
-  bucket?: string;
+  bucket: string;
   /** @deprecated Not sent by hosts that keep credentials to themselves (holzi). */
   enabled?: boolean;
   /** @deprecated Not sent by hosts that keep credentials to themselves (holzi). */

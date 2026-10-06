@@ -78,16 +78,20 @@ describe("client.remoteStorage.backends", () => {
   });
 
   it.each([
-    ["update", (s: HaexVaultSdk) => s.remoteStorage.backends.update({ backendId: "storage-1", name: "Neu" })],
-    ["remove", (s: HaexVaultSdk) => s.remoteStorage.backends.remove("storage-1")],
-    ["test", (s: HaexVaultSdk) => s.remoteStorage.backends.test("storage-1")],
-  ])("%s waits for the user's answer in the host", async (_name, run) => {
+    ["update", (s: HaexVaultSdk) => s.remoteStorage.backends.update({ backendId: "storage-1", name: "Neu" }), { id: "storage-1", type: "s3", name: "Neu" }],
+    ["remove", (s: HaexVaultSdk) => s.remoteStorage.backends.remove("storage-1"), null],
+    ["test", (s: HaexVaultSdk) => s.remoteStorage.backends.test("storage-1"), null],
+  ])("%s waits for the user's answer in the host", async (_name, run, expectedResult) => {
     const host = await connectedAsync({ timeout: 20 });
     const nextRequest = host.nextRequest();
     const pending = run(sdk!);
     const request = await nextRequest;
     await new Promise((resolve) => setTimeout(resolve, 80));
-    host.channel.port1.postMessage({ id: request.id, result: null });
-    await expect(pending).resolves.not.toThrow();
+    host.channel.port1.postMessage({ id: request.id, result: expectedResult });
+    if (expectedResult === null) {
+      await expect(pending).resolves.toBeUndefined();
+    } else {
+      await expect(pending).resolves.toMatchObject(expectedResult);
+    }
   });
 });
