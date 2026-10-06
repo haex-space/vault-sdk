@@ -81,35 +81,49 @@ export interface S3Config {
   pathStyle?: boolean;
 }
 
-/**
- * Request to add a new storage. The host asks the user to confirm it and, for
- * a new connection, for the credentials in its own window.
- */
-export interface AddBackendRequest {
+interface AddBackendRequestBase {
   /** Display name for the storage */
   name: string;
   /** Backend type (currently only "s3") */
   type: "s3";
-  /**
-   * The proposal. With `sameProviderAs` only `bucket`: endpoint, region and
-   * addressing come from that storage's connection.
-   */
-  config: S3Proposal | S3Config | Record<string, unknown>;
-  /** A storage the extension may read; the new bucket goes on its connection without new credentials */
-  sameProviderAs?: string;
 }
 
 /**
+ * Request to add a new storage on a new connection. The host asks the user to
+ * confirm it and enters credentials in its own window.
+ */
+export type AddBackendRequest =
+  | (AddBackendRequestBase & {
+      /** A credential-free proposal for a new connection; region is required. */
+      config: S3Proposal & { region: string };
+      /** A new connection cannot reuse an existing provider. */
+      sameProviderAs?: never;
+    })
+  /**
+   * Request to add a bucket on an existing connection. Endpoint, region and
+   * addressing are taken from the referenced storage.
+   */
+  | (AddBackendRequestBase & {
+      /** With an existing provider, only the bucket may be proposed. */
+      config: { bucket: string; endpoint?: never; region?: never; pathStyle?: never };
+      /** A storage the extension may read. */
+      sameProviderAs: string;
+    });
+
+/**
  * Request to change a storage. The host asks the user to confirm it; new
- * credentials only in its own window.
+ * credentials are entered only in the host's own window.
  */
 export interface UpdateBackendRequest {
   /** Backend ID to update */
   backendId: string;
   /** New display name (optional) */
   name?: string;
-  /** A new bucket (optional) */
-  config?: { bucket?: string } | Partial<S3Config> | Record<string, unknown>;
+  /**
+   * Only the bucket can be changed through the extension request. Credentials
+   * and connection details never cross the bridge.
+   */
+  config?: { bucket?: string };
 }
 
 /**
