@@ -1,5 +1,20 @@
 # Changelog
 
+## [4.2.0](https://github.com/haex-space/vault-sdk/compare/v4.1.0...v4.2.0) (2026-10-06)
+
+
+### Features
+
+* **remoteStorage:** propose storages without credentials ([99d95bb](https://github.com/haex-space/vault-sdk/commit/99d95bb5bf3ea846b423be82f15ff7e97230c6ae))
+* **remoteStorage:** propose storages without credentials ([395b910](https://github.com/haex-space/vault-sdk/commit/395b910ecba52f52198f0d0cc0f904d7f14fe11f))
+
+
+### Bug Fixes
+
+* **remoteStorage:** align review tests and response types ([54093a7](https://github.com/haex-space/vault-sdk/commit/54093a7604e1ad988144275291f84cfc02bf6ebe))
+* **remoteStorage:** reject credential-bearing configs ([66aaa0c](https://github.com/haex-space/vault-sdk/commit/66aaa0c5ea05fff4ad20cf39823a6235fc44d4d3))
+* **remoteStorage:** restrict credential-free request types ([e388dad](https://github.com/haex-space/vault-sdk/commit/e388dada9c05325b1d5d78183a44215eb9d82c0a))
+
 ## [4.1.0](https://github.com/haex-space/vault-sdk/compare/v4.0.0...v4.1.0) (2026-10-05)
 
 
