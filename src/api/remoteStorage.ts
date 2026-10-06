@@ -54,6 +54,12 @@ export interface S3Proposal {
   bucket: string;
   /** Use path-style URLs instead of virtual-hosted-style */
   pathStyle?: boolean;
+  /** Credentials are entered by the host and are never accepted in a proposal. */
+  accessKeyId?: never;
+  /** Credentials are entered by the host and are never accepted in a proposal. */
+  secretAccessKey?: never;
+  /** Credentials are entered by the host and are never accepted in a proposal. */
+  sessionToken?: never;
 }
 
 /**
@@ -105,7 +111,15 @@ export type AddBackendRequest =
    */
   | (AddBackendRequestBase & {
       /** With an existing provider, only the bucket may be proposed. */
-      config: { bucket: string; endpoint?: never; region?: never; pathStyle?: never };
+      config: {
+        bucket: string;
+        endpoint?: never;
+        region?: never;
+        pathStyle?: never;
+        accessKeyId?: never;
+        secretAccessKey?: never;
+        sessionToken?: never;
+      };
       /** A storage the extension may read. */
       sameProviderAs: string;
     });
@@ -123,7 +137,15 @@ export interface UpdateBackendRequest {
    * Only the bucket can be changed through the extension request. Credentials
    * and connection details never cross the bridge.
    */
-  config?: { bucket?: string };
+  config?: {
+    bucket?: string;
+    endpoint?: never;
+    region?: never;
+    pathStyle?: never;
+    accessKeyId?: never;
+    secretAccessKey?: never;
+    sessionToken?: never;
+  };
 }
 
 /**
