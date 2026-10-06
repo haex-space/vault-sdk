@@ -78,7 +78,7 @@ describe("client.remoteStorage.backends", () => {
   });
 
   it.each([
-    ["update", (s: HaexVaultSdk) => s.remoteStorage.backends.update({ backendId: "storage-1", name: "Neu" }), { id: "storage-1", type: "s3", name: "Neu" }],
+    ["update", (s: HaexVaultSdk) => s.remoteStorage.backends.update({ backendId: "storage-1", name: "Neu" }), { id: "storage-1", type: "s3", name: "Neu", providerName: "RustFS", bucket: "photos" }],
     ["remove", (s: HaexVaultSdk) => s.remoteStorage.backends.remove("storage-1"), null],
     ["test", (s: HaexVaultSdk) => s.remoteStorage.backends.test("storage-1"), null],
   ])("%s waits for the user's answer in the host", async (_name, run, expectedResult) => {
