@@ -1,5 +1,13 @@
 # Changelog
 
+## [4.3.0](https://github.com/haex-space/vault-sdk/compare/v4.2.0...v4.3.0) (2026-10-12)
+
+
+### Features
+
+* **encryptedFolders:** read and write encrypted folders through the host ([#65](https://github.com/haex-space/vault-sdk/issues/65)) ([fd7cfd0](https://github.com/haex-space/vault-sdk/commit/fd7cfd03030c48aee4b6c9ce36f47c8a831bfc9a))
+* **tools:** serve extension tools to the host over MCP ([#64](https://github.com/haex-space/vault-sdk/issues/64)) ([280cebf](https://github.com/haex-space/vault-sdk/commit/280cebf63eba72422d1ddd62e1edeb5ad7e7d3cc))
+
 ## [4.2.0](https://github.com/haex-space/vault-sdk/compare/v4.1.0...v4.2.0) (2026-10-06)
 
 
