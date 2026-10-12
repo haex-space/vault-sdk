@@ -32,7 +32,7 @@ export function isSchemaInSubset(schema: JsonSchema): boolean {
   }
   if (schema.required) {
     const declared = schema.properties ?? {};
-    if (!schema.required.every((key) => key in declared)) return false;
+    if (!schema.required.every((key) => Object.hasOwn(declared, key))) return false;
   }
   if (schema.items && (schema.type !== "array" || !isSchemaInSubset(schema.items))) return false;
   return true;
@@ -79,7 +79,7 @@ function validateAt(schema: JsonSchema, value: unknown, field: string): Validati
     const prefix = field === "" ? "" : `${field}.`;
     if (schema.properties) {
       for (const key of Object.keys(record)) {
-        if (!(key in properties)) return fail(`${prefix}${key}`, "unknown property");
+        if (!Object.hasOwn(properties, key)) return fail(`${prefix}${key}`, "unknown property");
       }
     }
     for (const key of schema.required ?? []) {

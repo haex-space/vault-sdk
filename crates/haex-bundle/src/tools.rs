@@ -24,6 +24,14 @@ const TOOL_KEYS: [&str; 6] = [
     "name",
     "title",
 ];
+const SCHEMA_KEYS: [&str; 6] = [
+    "type",
+    "description",
+    "properties",
+    "required",
+    "items",
+    "enum",
+];
 
 /// Checks the `tools` value of a manifest; the error names the first rule it breaks.
 pub fn check_tools(tools: &JsonValue) -> Result<(), String> {
@@ -128,10 +136,29 @@ fn check_schema(schema: Option<&JsonValue>) -> Result<(), String> {
     if schema.get("type").and_then(JsonValue::as_str) != Some("object") {
         return Err("inputSchema must have type object".into());
     }
+    check_schema_keys(schema)?;
     if depth(&JsonValue::Object(schema.clone())) > MAX_SCHEMA_DEPTH {
         return Err(format!(
             "inputSchema is nested deeper than {MAX_SCHEMA_DEPTH}"
         ));
+    }
+    Ok(())
+}
+
+fn check_schema_keys(schema: &BTreeMap<String, JsonValue>) -> Result<(), String> {
+    if let Some(key) = schema
+        .keys()
+        .find(|key| !SCHEMA_KEYS.contains(&key.as_str()))
+    {
+        return Err(format!("inputSchema has unknown key {key}"));
+    }
+    if let Some(properties) = schema.get("properties").and_then(JsonValue::as_object) {
+        for property in properties.values().filter_map(JsonValue::as_object) {
+            check_schema_keys(property)?;
+        }
+    }
+    if let Some(items) = schema.get("items").and_then(JsonValue::as_object) {
+        check_schema_keys(items)?;
     }
     Ok(())
 }
@@ -141,5 +168,33 @@ fn depth(value: &JsonValue) -> usize {
         JsonValue::Array(items) => 1 + items.iter().map(depth).max().unwrap_or(0),
         JsonValue::Object(map) => 1 + map.values().map(depth).max().unwrap_or(0),
         _ => 0,
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::check_tools;
+    use crate::jcs::parse_restricted;
+
+    #[test]
+    fn rejects_unsupported_keywords_in_nested_property_schemas() {
+        let manifest = parse_restricted(
+            r#"[{"name":"count_unread","title":{"de":"Ungelesene zählen","en":"Count unread"},"description":"Counts unread items.","inputSchema":{"type":"object","properties":{"count":{"type":"integer","minimum":0}}},"effect":"read","examples":{"de":["Wie viele ungelesene habe ich?"],"en":["How many unread do I have?"]}}]"#,
+        )
+        .unwrap();
+
+        let error = check_tools(&manifest).unwrap_err();
+        assert!(error.contains("unknown key minimum"), "{error}");
+    }
+
+    #[test]
+    fn rejects_unsupported_keywords_in_array_item_schemas() {
+        let manifest = parse_restricted(
+            r#"[{"name":"count_unread","title":{"de":"Ungelesene zählen","en":"Count unread"},"description":"Counts unread items.","inputSchema":{"type":"object","properties":{"tags":{"type":"array","items":{"type":"string","pattern":".*"}}}},"effect":"read","examples":{"de":["Wie viele ungelesene habe ich?"],"en":["How many unread do I have?"]}}]"#,
+        )
+        .unwrap();
+
+        let error = check_tools(&manifest).unwrap_err();
+        assert!(error.contains("unknown key pattern"), "{error}");
     }
 }
