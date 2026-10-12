@@ -205,6 +205,18 @@ const minimalManifest = (overrides = {}) => ({
 
 const minimalFiles = () => [file("index.html", MINIMAL_HTML)];
 
+/** A tool of the manifest's `tools` block (holzi spec 018, contracts/manifest-tools.md). */
+const tool = (overrides = {}) => ({
+  name: "count_unread",
+  title: { de: "Ungelesene zählen", en: "Count unread" },
+  description: "Counts unread items.",
+  inputSchema: { type: "object", properties: { role: { type: "string", enum: ["inbox", "all"] } } },
+  effect: "read",
+  examples: { de: ["Wie viele ungelesene habe ich?"], en: ["How many unread do I have?"] },
+  ...overrides,
+});
+const toolsManifest = (tools) => minimalManifest({ tools });
+
 /** Same as minimal, plus two scripts used by the tamper vectors. */
 const scriptFiles = () => [
   ...minimalFiles(),
@@ -422,6 +434,29 @@ const VECTORS = [
     buildBundle({ files: minimalFiles(), manifest: minimalManifest({ migrationsDir: "../migrations" }) })],
   ["bad-permissions-array", { kind: "manifest_invalid" }, "permissions is an array, not an object", () =>
     buildBundle({ files: minimalFiles(), manifest: minimalManifest({ permissions: ["http.fetch"] }) })],
+  ["good-tools", null, "tools block with a read and a change tool", () =>
+    buildBundle({ files: minimalFiles(),
+      manifest: toolsManifest([tool(), tool({ name: "add_entry", effect: "change" })]) })],
+  ["bad-tools-not-array", { kind: "manifest_invalid" }, "tools is an object, not an array", () =>
+    buildBundle({ files: minimalFiles(), manifest: toolsManifest({ count_unread: tool() }) })],
+  ["bad-tools-name", { kind: "manifest_invalid" }, "tool name Count-Unread breaks ^[a-z][a-z0-9_]{0,31}$", () =>
+    buildBundle({ files: minimalFiles(), manifest: toolsManifest([tool({ name: "Count-Unread" })]) })],
+  ["bad-tools-duplicate", { kind: "manifest_invalid" }, "two tools named count_unread", () =>
+    buildBundle({ files: minimalFiles(), manifest: toolsManifest([tool(), tool()]) })],
+  ["bad-tools-effect", { kind: "manifest_invalid" }, "tool effect write is not read, change or destructive", () =>
+    buildBundle({ files: minimalFiles(), manifest: toolsManifest([tool({ effect: "write" })]) })],
+  ["bad-tools-title", { kind: "manifest_invalid" }, "tool title without en", () =>
+    buildBundle({ files: minimalFiles(), manifest: toolsManifest([tool({ title: { de: "Zählen" } })]) })],
+  ["bad-tools-examples", { kind: "manifest_invalid" }, "tool examples.de is empty", () =>
+    buildBundle({ files: minimalFiles(),
+      manifest: toolsManifest([tool({ examples: { de: [], en: ["How many?"] } })]) })],
+  ["bad-tools-schema", { kind: "manifest_invalid" }, "tool inputSchema has type string, not object", () =>
+    buildBundle({ files: minimalFiles(), manifest: toolsManifest([tool({ inputSchema: { type: "string" } })]) })],
+  ["bad-tools-unknown-key", { kind: "manifest_invalid" }, "tool has the unknown key risk", () =>
+    buildBundle({ files: minimalFiles(), manifest: toolsManifest([tool({ risk: "low" })]) })],
+  ["bad-tools-too-many", { kind: "manifest_invalid" }, "33 tools, more than 32", () =>
+    buildBundle({ files: minimalFiles(),
+      manifest: toolsManifest(Array.from({ length: 33 }, (_, i) => tool({ name: `tool_${i}` }))) })],
   ["bad-weak-key", { kind: "manifest_invalid" },
     "manifest and signature.json both name the small-order identity point as publicKey", () =>
       buildBundle({ files: minimalFiles(), manifest: minimalManifest({ publicKey: WEAK_PUBLIC_KEY }),

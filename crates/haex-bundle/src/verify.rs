@@ -266,6 +266,9 @@ fn assert_valid_manifest(
     if field("permissions").is_some_and(|p| p.as_object().is_none()) {
         return Err(invalid("permissions is not an object".into()));
     }
+    if let Some(tools) = field("tools") {
+        crate::tools::check_tools(tools).map_err(invalid)?;
+    }
     Ok(())
 }
 
