@@ -117,6 +117,8 @@ export type {
   ExtensionInfo,
   ExtensionManifest,
   ManifestI18nEntry,
+  ManifestTool,
+  ManifestToolEffect,
   ApplicationContext,
   SearchQuery,
   SearchResult,

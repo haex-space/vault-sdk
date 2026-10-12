@@ -80,6 +80,7 @@ export function readManifest(options: ReadManifestOptions): ExtensionManifest | 
       displayMode: parsed.displayMode ?? null,
       migrationsDir: parsed.migrationsDir ?? null,
       i18n: parsed.i18n ?? null,
+      tools: parsed.tools ?? null,
     };
 
     console.log(`✓ [@haex-space/vault-sdk] Loaded ${resolvedManifestPath}`);

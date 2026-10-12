@@ -329,6 +329,30 @@ export interface ManifestI18nEntry {
 }
 
 // Manifest Types
+/** How a tool affects the user's data; the host's approval follows it (holzi spec 018). */
+export type ManifestToolEffect = "read" | "change" | "destructive";
+
+/**
+ * A tool an extension offers to the agent of its host, declared in the signed manifest and served
+ * by `sdk.tools` (holzi spec 018, `contracts/manifest-tools.md`). The bundle check enforces the
+ * limits: a name of `[a-z][a-z0-9_]{0,31}`, titles of 1–80 characters, a description of 1–1024,
+ * 1–10 examples per language of 1–200 characters each, at most 32 tools. The manifest is canonical
+ * JSON without fractions, so the schema holds integers only.
+ */
+export interface ManifestTool {
+  /** Unique within the extension. */
+  name: string;
+  /** Shown to the user, for example in the install dialog and the approval prompt. */
+  title: { de: string; en: string };
+  /** For the model: what the tool does and when to use it, in English. */
+  description: string;
+  /** JSON schema of the input; `type` is always `"object"`. */
+  inputSchema: { type: "object" } & Record<string, unknown>;
+  effect: ManifestToolEffect;
+  /** Sentences a user would ask the tool with; the host matches messages against them. */
+  examples: { de: string[]; en: string[] };
+}
+
 export interface ExtensionManifest {
   name: string;
   /** Human-readable display name. Falls back to `name` when absent. */
@@ -360,6 +384,8 @@ export interface ExtensionManifest {
    * Key is locale code (e.g. "de", "en"), value contains localized fields.
    */
   i18n?: Record<string, ManifestI18nEntry> | null;
+  /** Tools the extension offers to the agent of its host (holzi spec 018). */
+  tools?: ManifestTool[] | null;
 }
 
 // Config Types
