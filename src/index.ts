@@ -60,6 +60,7 @@ export type {
 export { NotificationsAPI } from "./api/notifications";
 export { TabAPI } from "./api/tab";
 export { DialogAPI, type ConfirmOptions } from "./api/dialog";
+export { ToolsAPI, type ToolContext, type ToolHandler } from "./api/tools";
 export type {
   DeepLink,
   NotificationAction,
@@ -125,6 +126,8 @@ export type {
   ExtensionInfo,
   ExtensionManifest,
   ManifestI18nEntry,
+  ManifestTool,
+  ManifestToolEffect,
   ApplicationContext,
   SearchQuery,
   SearchResult,

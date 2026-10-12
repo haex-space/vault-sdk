@@ -35,6 +35,8 @@ import { MailAPI } from "./api/mail";
 import { NotificationsAPI } from "./api/notifications";
 import { TabAPI } from "./api/tab";
 import { DialogAPI } from "./api/dialog";
+import { ToolsAPI } from "./api/tools";
+import { HAEXSPACE_MESSAGE_TYPES } from "./messages";
 import { installConsoleForwarding } from "./polyfills/consoleForwarding";
 import type { SqliteRemoteDatabase } from "drizzle-orm/sqlite-proxy";
 
@@ -119,6 +121,8 @@ export class HaexVaultSdk {
   public readonly notifications: NotificationsAPI;
   public readonly tab: TabAPI;
   public readonly dialog: DialogAPI;
+  /** Tools the extension offers to the agent of its host (holzi spec 018). */
+  public readonly tools: ToolsAPI;
 
   /** Unified action system - register handlers that work for both Bridge and AI requests */
   public readonly actions = {
@@ -149,6 +153,10 @@ export class HaexVaultSdk {
     this.notifications = new NotificationsAPI(this);
     this.tab = new TabAPI(this);
     this.dialog = new DialogAPI(this);
+    this.tools = new ToolsAPI({
+      manifest: () => this.config.manifest,
+      send: (message) => this.sendMcpMessage(message),
+    });
 
     installConsoleForwarding(this.config.debug);
 
@@ -543,8 +551,18 @@ export class HaexVaultSdk {
         this.notifySubscribersInternal();
       },
       (extEvent) => this.handleExternalRequestInternal(extEvent.data),
-      (actionEvent) => this.handleActionRequestInternal(actionEvent.data)
+      (actionEvent) => this.handleActionRequestInternal(actionEvent.data),
+      (message) => void this.tools.receive(message)
     );
+  }
+
+  /** Sends one MCP message of the tool connection to the host on the port. */
+  private sendMcpMessage(message: Record<string, unknown>): void {
+    if (!this.hostPort) {
+      this.log("Dropped an MCP message: no host port yet");
+      return;
+    }
+    this.hostPort.postMessage({ type: HAEXSPACE_MESSAGE_TYPES.MCP, message });
   }
 
   private async handleExternalRequestInternal(request: import("./types/external").ExternalRequest): Promise<void> {

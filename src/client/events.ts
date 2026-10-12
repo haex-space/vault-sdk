@@ -6,6 +6,7 @@
  */
 
 import { HAEXTENSION_EVENTS, EXTERNAL_EVENTS } from "../events";
+import { HAEXSPACE_MESSAGE_TYPES } from "../messages";
 import type {
   HaexHubResponse,
   HaexHubEvent,
@@ -104,8 +105,15 @@ export function processEvent(
   eventListeners: Map<string, Set<EventCallback>>,
   onContextChanged: (context: ApplicationContext) => void,
   onExternalRequest: (event: ExternalRequestEvent) => void,
-  onActionRequest?: (event: ExternalRequestEvent) => void
+  onActionRequest?: (event: ExternalRequestEvent) => void,
+  onMcpMessage?: (message: unknown) => void
 ): void {
+  // MCP messages of the tool connection (`sdk.tools`) go to the tools server only
+  if (event.type === HAEXSPACE_MESSAGE_TYPES.MCP) {
+    onMcpMessage?.((event as unknown as { message?: unknown }).message);
+    return;
+  }
+
   // Handle context changes
   if (event.type === HAEXTENSION_EVENTS.CONTEXT_CHANGED) {
     const contextEvent = event as ContextChangedEvent;

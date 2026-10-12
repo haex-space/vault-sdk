@@ -11,6 +11,7 @@ pub mod error;
 pub mod format;
 pub mod jcs;
 pub mod sign;
+pub mod tools;
 pub mod verify;
 #[cfg(feature = "wasm")]
 mod wasm;
