@@ -1051,6 +1051,54 @@ const sure = await client.dialog.confirm({
 if (sure) await deleteNoteAsync(id);
 ```
 
+### Tools for the Host's Agent
+
+An extension can offer tools to the agent of its host, for example "count unread mails". Declare each
+tool in `haextension/manifest.json`; the bundle check (`haex sign`, `haex verify`, every host) rejects a
+`tools` block that breaks its rules:
+
+```json
+{
+  "tools": [
+    {
+      "name": "count_unread",
+      "title": { "de": "Ungelesene Mails zählen", "en": "Count unread mails" },
+      "description": "Counts unread messages, optionally in one mailbox role such as inbox.",
+      "inputSchema": {
+        "type": "object",
+        "properties": { "role": { "type": "string", "enum": ["inbox", "all"] } }
+      },
+      "effect": "read",
+      "examples": {
+        "de": ["Wie viele ungelesene Mails habe ich?"],
+        "en": ["How many unread mails do I have?"]
+      }
+    }
+  ]
+}
+```
+
+- `name`: `[a-z][a-z0-9_]{0,31}`, unique; at most 32 tools.
+- `effect`: `read`, `change` or `destructive`. The user confirms the tools at install, and the host asks
+  before a call according to the effect.
+- `inputSchema`: `type`, `description`, `properties`, `required`, `items`, `enum`; integers only, since the
+  manifest is canonical JSON without fractions.
+- `examples`: 1–10 sentences per language. The host matches the user's message against them, so write
+  them the way people ask.
+
+Then register the function that runs each tool:
+
+```ts
+client.tools.register("count_unread", async (input, { signal }) => {
+  const count = await countUnreadAsync(input.role as string | undefined, signal);
+  return { unread: count };
+});
+```
+
+The SDK checks the input against the schema before your function runs; a string result is returned as
+text, anything else as JSON. `signal` aborts when the host cancels the call. The host speaks MCP with the
+SDK over the extension's port (message type `haexspace:mcp`); the SDK sends no requests to the host on it.
+
 ### Database Operations
 
 #### Query
