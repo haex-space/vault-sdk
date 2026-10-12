@@ -52,6 +52,7 @@ export type {
 export { NotificationsAPI } from "./api/notifications";
 export { TabAPI } from "./api/tab";
 export { DialogAPI, type ConfirmOptions } from "./api/dialog";
+export { ToolsAPI, type ToolContext, type ToolHandler } from "./api/tools";
 export type {
   DeepLink,
   NotificationAction,
