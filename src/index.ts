@@ -16,6 +16,14 @@ export type {
 export { WebAPI } from "./api/web";
 export { PermissionsAPI } from "./api/permissions";
 export { RemoteStorageAPI } from "./api/remoteStorage";
+export { EncryptedFoldersAPI } from "./api/encryptedFolders";
+export type {
+  EncryptedFolderAccess,
+  EncryptedFolderChoice,
+  EncryptedFolderEntry,
+  EncryptedFolderProviderErrorKind,
+} from "./api/encryptedFolders";
+export { ENCRYPTED_FOLDER_COMMANDS, type EncryptedFolderCommand } from "./commands/encryptedFolders";
 export { LocalSendAPI, LOCALSEND_EVENTS } from "./api/localsend";
 export { SpacesAPI, type SpaceAssignment } from "./api/spaces";
 export { ShellAPI } from "./api/shell";
@@ -130,6 +138,7 @@ export type {
 export {
   PermissionStatus,
   PermissionErrorCode,
+  HostErrorCode,
   ErrorCode,
   DEFAULT_TIMEOUT,
   TABLE_SEPARATOR,

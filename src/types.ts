@@ -127,6 +127,40 @@ export enum PermissionErrorCode {
 }
 
 /**
+ * Numeric `code` of an error the host answers a request with
+ * (`{ code, message, details? }`), as holzi sends it. The permission codes are
+ * the same as in {@link PermissionErrorCode}.
+ */
+export enum HostErrorCode {
+  /** A request that cannot be attributed, a blocked path, an unknown frame */
+  SECURITY_VIOLATION = 1000,
+  NOT_FOUND = 1001,
+  /** {@link PermissionErrorCode.DENIED} */
+  PERMISSION_DENIED = 1002,
+  /** {@link PermissionErrorCode.PROMPT_REQUIRED}: the SDK waits for the answer and retries */
+  PERMISSION_PROMPT_REQUIRED = 1004,
+  DATABASE = 2000,
+  FILESYSTEM = 2001,
+  /** Network or provider error; `details.kind` names the kind (e.g. `accessDenied`, `network`, `bucketMissing`) */
+  HTTP = 2002,
+  SHELL = 2003,
+  WEB = 2005,
+  MANIFEST = 3000,
+  /** Invalid parameters (e.g. a path, an unknown identifier) */
+  VALIDATION = 3001,
+  /** An entry of an encrypted folder failed its integrity checks and cannot be read */
+  ENCRYPTED_DATA_DAMAGED = 3010,
+  /** Size, run time, rows or concurrent requests over the host's limit */
+  LIMIT_EXCEEDED = 7000,
+  /** The method is unknown or deliberately not offered */
+  NOT_SUPPORTED = 8000,
+  /** The function does not exist on this device or in this build */
+  NOT_AVAILABLE = 8001,
+  /** The extension is disabled */
+  DISABLED = 8002,
+}
+
+/**
  * Base interface for permission errors from haex-vault
  */
 export interface PermissionErrorBase {
@@ -134,6 +168,10 @@ export interface PermissionErrorBase {
   message: string;
   extensionId: string;
   extensionName: string;
+  /**
+   * Permission kind, e.g. `web`, `remoteStorage` or `encryptedFolder` (target
+   * `<storageId>/<folderId>`, actions `read` / `readWrite`).
+   */
   resourceType: string;
   target: string;
   action: string;
@@ -338,6 +376,11 @@ export interface ExtensionManifest {
   entry?: string | null;
   icon?: string | null;
   publicKey: string;
+  /**
+   * Permissions the extension declares. Runtime-only kinds such as
+   * `encryptedFolder` are granted by the user while the extension runs and
+   * can never be declared here: the host refuses such a manifest.
+   */
   permissions: {
     database?: any[];
     filesystem?: any[];
