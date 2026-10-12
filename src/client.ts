@@ -26,6 +26,7 @@ import { FilesystemAPI } from "./api/filesystem";
 import { WebAPI } from "./api/web";
 import { PermissionsAPI } from "./api/permissions";
 import { RemoteStorageAPI } from "./api/remoteStorage";
+import { EncryptedFoldersAPI } from "./api/encryptedFolders";
 import { LocalSendAPI } from "./api/localsend";
 import { SpacesAPI } from "./api/spaces";
 import { ShellAPI } from "./api/shell";
@@ -109,6 +110,7 @@ export class HaexVaultSdk {
   public readonly web: WebAPI;
   public readonly permissions: PermissionsAPI;
   public readonly remoteStorage: RemoteStorageAPI;
+  public readonly encryptedFolders: EncryptedFoldersAPI;
   public readonly localsend: LocalSendAPI;
   public readonly spaces: SpacesAPI;
   public readonly shell: ShellAPI;
@@ -138,6 +140,7 @@ export class HaexVaultSdk {
     this.web = new WebAPI(this);
     this.permissions = new PermissionsAPI(this);
     this.remoteStorage = new RemoteStorageAPI(this);
+    this.encryptedFolders = new EncryptedFoldersAPI(this);
     this.localsend = new LocalSendAPI(this);
     this.spaces = new SpacesAPI(this);
     this.shell = new ShellAPI(this);

@@ -26,6 +26,7 @@ export * from "./filesystem";
 export * from "./externalBridge";
 export * from "./extension";
 export * from "./remoteStorage";
+export * from "./encryptedFolders";
 export * from "./localsend";
 export * from "./spaces";
 export * from "./shell";
@@ -42,6 +43,7 @@ import { FILESYSTEM_COMMANDS } from "./filesystem";
 import { EXTERNAL_BRIDGE_COMMANDS } from "./externalBridge";
 import { EXTENSION_COMMANDS } from "./extension";
 import { REMOTE_STORAGE_COMMANDS } from "./remoteStorage";
+import { ENCRYPTED_FOLDER_COMMANDS } from "./encryptedFolders";
 import { LOCALSEND_COMMANDS } from "./localsend";
 import { SPACE_COMMANDS } from "./spaces";
 import { SHELL_COMMANDS } from "./shell";
@@ -58,6 +60,7 @@ export const TAURI_COMMANDS = {
   externalBridge: EXTERNAL_BRIDGE_COMMANDS,
   extension: EXTENSION_COMMANDS,
   remoteStorage: REMOTE_STORAGE_COMMANDS,
+  encryptedFolders: ENCRYPTED_FOLDER_COMMANDS,
   localsend: LOCALSEND_COMMANDS,
   spaces: SPACE_COMMANDS,
   shell: SHELL_COMMANDS,
@@ -76,6 +79,7 @@ export type TauriCommand =
   | (typeof EXTERNAL_BRIDGE_COMMANDS)[keyof typeof EXTERNAL_BRIDGE_COMMANDS]
   | (typeof EXTENSION_COMMANDS)[keyof typeof EXTENSION_COMMANDS]
   | (typeof REMOTE_STORAGE_COMMANDS)[keyof typeof REMOTE_STORAGE_COMMANDS]
+  | (typeof ENCRYPTED_FOLDER_COMMANDS)[keyof typeof ENCRYPTED_FOLDER_COMMANDS]
   | (typeof LOCALSEND_COMMANDS)[keyof typeof LOCALSEND_COMMANDS]
   | (typeof SPACE_COMMANDS)[keyof typeof SPACE_COMMANDS]
   | (typeof SHELL_COMMANDS)[keyof typeof SHELL_COMMANDS]

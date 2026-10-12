@@ -1051,6 +1051,27 @@ const sure = await client.dialog.confirm({
 if (sure) await deleteNoteAsync(id);
 ```
 
+### Encrypted Folders
+
+Encrypted folders in a remote storage are read and written through the host, which encrypts and
+decrypts: your extension sees names and decrypted bytes only, never object keys, keys or the bytes
+stored at the provider. The user picks a folder and grants access in the host's own window; that
+needs your `remoteStorage` permission for the storage.
+
+```ts
+const folder = await client.encryptedFolders.choose(storageId, "readWrite"); // null when closed
+if (folder) {
+  await client.encryptedFolders.upload(storageId, folder.folderId, "notes/a.txt", bytes);
+  const entries = await client.encryptedFolders.list(storageId, folder.folderId, "notes");
+  const data = await client.encryptedFolders.download(storageId, folder.folderId, "notes/a.txt");
+  await client.encryptedFolders.delete(storageId, folder.folderId, "notes/a.txt");
+}
+```
+
+The permission kind `encryptedFolder` (target `<storageId>/<folderId>`, `read` or `readWrite`) is
+granted only at runtime and can never be declared in `manifest.json`: the host refuses such a
+bundle. A damaged entry fails with `HostErrorCode.ENCRYPTED_DATA_DAMAGED` (3010).
+
 ### Database Operations
 
 #### Query
