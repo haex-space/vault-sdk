@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.4.0](https://github.com/haex-space/vault-sdk/compare/v4.3.0...v4.4.0) (2026-10-13)
+
+
+### Features
+
+* **remoteStorage:** WebDAV and SFTP storages in the list and in proposals ([#67](https://github.com/haex-space/vault-sdk/issues/67)) ([6342179](https://github.com/haex-space/vault-sdk/commit/634217933842124ba1404ad3c39acdb62e1a8513))
+
 ## [4.3.0](https://github.com/haex-space/vault-sdk/compare/v4.2.0...v4.3.0) (2026-10-12)
 
 
