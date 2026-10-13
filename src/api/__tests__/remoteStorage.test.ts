@@ -77,6 +77,40 @@ describe("client.remoteStorage.backends", () => {
     await expect(pending).resolves.toEqual(created);
   });
 
+  it("proposes a WebDAV storage by address and folder, and lists it by folder", async () => {
+    const host = await connectedAsync({ timeout: 20 });
+    const nextRequest = host.nextRequest();
+    const pending = sdk!.remoteStorage.backends.add({
+      name: "Ablage",
+      type: "webdav",
+      config: { url: "https://dav.example.com/remote.php/dav/files/anna/", folder: "Ablage" },
+    });
+    const request = await nextRequest;
+    expect(request.params).toEqual({
+      request: {
+        name: "Ablage",
+        type: "webdav",
+        config: { url: "https://dav.example.com/remote.php/dav/files/anna/", folder: "Ablage" },
+      },
+    });
+    const created = { id: "storage-3", type: "webdav", name: "Ablage", providerName: "Nextcloud", folder: "Ablage" };
+    host.channel.port1.postMessage({ id: request.id, result: created });
+    const backend = await pending;
+    expect(backend.type === "s3" ? backend.bucket : backend.folder).toBe("Ablage");
+  });
+
+  it("refuses a login in a proposal at the type level", () => {
+    const proposals = [
+      // @ts-expect-error the host enters the login in its own window
+      { name: "a", type: "webdav", config: { url: "https://x/", folder: "", password: "p" } },
+      // @ts-expect-error the user confirms the host key in the host
+      { name: "b", type: "sftp", config: { host: "x", folder: "", hostKey: "ssh-ed25519 AAAA" } },
+      // @ts-expect-error a folder on the same provider carries no bucket
+      { name: "c", type: "webdav", config: { bucket: "b" }, sameProviderAs: "storage-1" },
+    ] satisfies Parameters<HaexVaultSdk["remoteStorage"]["backends"]["add"]>[0][];
+    expect(proposals).toHaveLength(3);
+  });
+
   it.each([
     ["update", (s: HaexVaultSdk) => s.remoteStorage.backends.update({ backendId: "storage-1", name: "Neu" }), { id: "storage-1", type: "s3", name: "Neu", providerName: "RustFS", bucket: "photos" }],
     ["remove", (s: HaexVaultSdk) => s.remoteStorage.backends.remove("storage-1"), null],
