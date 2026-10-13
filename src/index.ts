@@ -86,6 +86,11 @@ export type {
 } from "./api/localsend";
 export type {
   StorageBackendInfo as RemoteStorageBackendInfo,
+  StorageBackendType as RemoteStorageBackendType,
+  S3BackendInfo as RemoteS3BackendInfo,
+  FolderBackendInfo as RemoteFolderBackendInfo,
+  WebDavProposal as RemoteWebDavProposal,
+  SftpProposal as RemoteSftpProposal,
   S3Config as RemoteS3Config,
   S3PublicConfig as RemoteS3PublicConfig,
   S3Proposal as RemoteS3Proposal,

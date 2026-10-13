@@ -18,18 +18,28 @@ export interface S3PublicConfig {
   bucket: string;
 }
 
-/**
- * A storage the extension may use, as the host lists it: names only, never
- * credentials, endpoint or region.
- */
-export interface StorageBackendInfo {
+/** The protocol of a storage. */
+export type StorageBackendType = "s3" | "webdav" | "sftp";
+
+interface StorageBackendInfoBase {
   id: string;
-  /** Backend type (e.g., "s3") */
-  type: string;
   /** Name of the storage */
   name: string;
   /** Name of the provider the user gave the connection (e.g., "Hetzner") */
   providerName: string;
+}
+
+/**
+ * A storage the extension may use, as the host lists it: names only, never
+ * credentials, endpoint, host, port, host key or region. An S3 storage names
+ * its bucket; a WebDAV or SFTP storage names its folder on the server (empty
+ * for the root). Check `type` before reading `bucket` or `folder`.
+ */
+export type StorageBackendInfo = S3BackendInfo | FolderBackendInfo;
+
+/** An S3 storage, as the host lists it. */
+export interface S3BackendInfo extends StorageBackendInfoBase {
+  type: "s3";
   /** Bucket of the storage */
   bucket: string;
   /** @deprecated Not sent by hosts that keep credentials to themselves (holzi). */
@@ -38,6 +48,55 @@ export interface StorageBackendInfo {
   createdAt?: string;
   /** @deprecated Not sent by hosts that keep credentials to themselves (holzi). */
   config?: S3PublicConfig;
+}
+
+/** A WebDAV or SFTP storage, as the host lists it. */
+export interface FolderBackendInfo extends StorageBackendInfoBase {
+  type: "webdav" | "sftp";
+  /** Folder of the storage on the server, without `/` at the start or end; empty for the root */
+  folder: string;
+}
+
+/** Fields that would carry a login; the host enters it in its own window and refuses them. */
+interface NoLogin {
+  /** Entered by the host and never accepted in a proposal. */
+  username?: never;
+  /** Entered by the host and never accepted in a proposal. */
+  password?: never;
+  /** Entered by the host and never accepted in a proposal. */
+  privateKey?: never;
+  /** Entered by the host and never accepted in a proposal. */
+  passphrase?: never;
+  /** Confirmed by the user in the host and never accepted in a proposal. */
+  hostKey?: never;
+  /** Confirmed by the user in the host and never accepted in a proposal. */
+  fingerprint?: never;
+}
+
+/**
+ * What an extension proposes for a new WebDAV storage. The host asks for a
+ * permission for host and port of `url` (the port of the scheme when absent),
+ * shows the proposal to the user and asks for the login in its own window.
+ */
+export interface WebDavProposal extends NoLogin {
+  /** Address of the WebDAV server: `https`, or `http` only in the local network */
+  url: string;
+  /** Folder of the storage on the server; empty for the root */
+  folder: string;
+}
+
+/**
+ * What an extension proposes for a new SFTP storage. The host asks for a
+ * permission for `host:port`, shows the server's host key to the user to
+ * confirm, and asks for the login in its own window.
+ */
+export interface SftpProposal extends NoLogin {
+  /** Name or IP address of the server, without a scheme */
+  host: string;
+  /** Port of the server (1–65535); 22 when absent */
+  port?: number;
+  /** Folder of the storage on the server; empty for the root */
+  folder: string;
 }
 
 /**
@@ -90,8 +149,13 @@ export interface S3Config {
 interface AddBackendRequestBase {
   /** Display name for the storage */
   name: string;
-  /** Backend type (currently only "s3") */
+  /** Backend type */
   type: "s3";
+}
+
+interface AddFolderBackendRequestBase {
+  /** Display name for the storage */
+  name: string;
 }
 
 /**
@@ -122,6 +186,29 @@ export type AddBackendRequest =
       };
       /** A storage the extension may read. */
       sameProviderAs: string;
+    })
+  /** Request to add a WebDAV storage on a new connection. */
+  | (AddFolderBackendRequestBase & {
+      type: "webdav";
+      config: WebDavProposal;
+      sameProviderAs?: never;
+    })
+  /** Request to add an SFTP storage on a new connection. */
+  | (AddFolderBackendRequestBase & {
+      type: "sftp";
+      config: SftpProposal;
+      sameProviderAs?: never;
+    })
+  /**
+   * Request to add a folder on the connection of an existing WebDAV or SFTP
+   * storage of the same type.
+   */
+  | (AddFolderBackendRequestBase & {
+      type: "webdav" | "sftp";
+      /** With an existing provider, only the folder may be proposed. */
+      config: { folder: string } & NoLogin;
+      /** A storage of the same type the extension may read. */
+      sameProviderAs: string;
     });
 
 /**
@@ -134,11 +221,13 @@ export interface UpdateBackendRequest {
   /** New display name (optional) */
   name?: string;
   /**
-   * Only the bucket can be changed through the extension request. Credentials
-   * and connection details never cross the bridge.
+   * Only the bucket (S3) or the folder (WebDAV, SFTP) can be changed through
+   * the extension request. Credentials and connection details never cross the
+   * bridge.
    */
   config?: {
     bucket?: string;
+    folder?: string;
     endpoint?: never;
     region?: never;
     pathStyle?: never;
@@ -165,7 +254,8 @@ export interface StorageObjectInfo {
 // ============================================================================
 
 /**
- * Remote Storage API for S3-compatible (and future WebDAV, FTP) backends.
+ * Remote Storage API for S3-compatible, WebDAV and SFTP backends. Object calls
+ * work alike on every type.
  *
  * This API provides access to external storage backends configured centrally
  * in haex-vault. Extensions can upload/download files without CORS issues.
