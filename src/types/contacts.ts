@@ -24,6 +24,7 @@ export interface ContactSummary {
  * set of kinds is open; a kind the extension does not know is passed through.
  */
 export interface ContactValue {
+  id: string;
   kind: string;
   label: string;
   value: string;
