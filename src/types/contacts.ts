@@ -10,13 +10,13 @@
 export interface ContactSummary {
   id: string;
   displayName: string;
-  organization: string | null;
+  organization?: string;
   phones: string[];
   emails: string[];
   /** Group names. */
   groups: string[];
   /** Hash of the photo; its bytes come from `photoAsync`. */
-  photo: string | null;
+  photo?: string;
 }
 
 /**
@@ -36,7 +36,7 @@ export interface ContactHolziDevice {
   devicePubkey: string;
   /** The iroh endpoint id, hex. */
   endpointId: string;
-  irohRelay: string | null;
+  irohRelay?: string;
 }
 
 /** The confirmed holzi addresses of a contact, from its Visitenkarte. */
@@ -53,20 +53,20 @@ export interface ContactHolziAddresses {
 export interface ContactDetail {
   id: string;
   displayName: string;
-  givenName: string | null;
-  familyName: string | null;
-  middleName: string | null;
-  namePrefix: string | null;
-  nameSuffix: string | null;
-  nickname: string | null;
-  organization: string | null;
-  jobTitle: string | null;
-  note: string | null;
+  givenName?: string;
+  familyName?: string;
+  middleName?: string;
+  namePrefix?: string;
+  nameSuffix?: string;
+  nickname?: string;
+  organization?: string;
+  jobTitle?: string;
+  note?: string;
   values: ContactValue[];
   /** Group names. */
   groups: string[];
-  photo: string | null;
-  holziAddresses: ContactHolziAddresses | null;
+  photo?: string;
+  holziAddresses?: ContactHolziAddresses;
   updatedAt: string;
 }
 
