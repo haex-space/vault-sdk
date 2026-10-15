@@ -31,6 +31,7 @@ export * from "./localsend";
 export * from "./spaces";
 export * from "./shell";
 export * from "./passwords";
+export * from "./contacts";
 export * from "./mail";
 export * from "./notifications";
 
@@ -48,6 +49,7 @@ import { LOCALSEND_COMMANDS } from "./localsend";
 import { SPACE_COMMANDS } from "./spaces";
 import { SHELL_COMMANDS } from "./shell";
 import { PASSWORD_COMMANDS } from "./passwords";
+import { CONTACT_COMMANDS } from "./contacts";
 import { MAIL_COMMANDS } from "./mail";
 import { NOTIFICATION_COMMANDS } from "./notifications";
 
@@ -65,6 +67,7 @@ export const TAURI_COMMANDS = {
   spaces: SPACE_COMMANDS,
   shell: SHELL_COMMANDS,
   passwords: PASSWORD_COMMANDS,
+  contacts: CONTACT_COMMANDS,
   mail: MAIL_COMMANDS,
   notifications: NOTIFICATION_COMMANDS,
 } as const;
@@ -84,5 +87,6 @@ export type TauriCommand =
   | (typeof SPACE_COMMANDS)[keyof typeof SPACE_COMMANDS]
   | (typeof SHELL_COMMANDS)[keyof typeof SHELL_COMMANDS]
   | (typeof PASSWORD_COMMANDS)[keyof typeof PASSWORD_COMMANDS]
+  | (typeof CONTACT_COMMANDS)[keyof typeof CONTACT_COMMANDS]
   | (typeof MAIL_COMMANDS)[keyof typeof MAIL_COMMANDS]
   | (typeof NOTIFICATION_COMMANDS)[keyof typeof NOTIFICATION_COMMANDS];
