@@ -410,6 +410,8 @@ export interface ExtensionManifest {
     filesystem?: any[];
     http?: any[];
     shell?: any[];
+    /** Reading the host's address book: `{ target: "*" | "<group name>", action?: "read" }`. */
+    contacts?: { target: string; action?: "read" }[];
   };
   homepage?: string | null;
   description?: string | null;

@@ -41,6 +41,16 @@ export type {
   PasswordKeyValueInput,
   PasswordInput,
 } from "./types/passwords";
+export { ContactsAPI } from "./api/contacts";
+export type {
+  ContactDetail,
+  ContactHolziAddresses,
+  ContactHolziDevice,
+  ContactList,
+  ContactListOptions,
+  ContactSummary,
+  ContactValue,
+} from "./types/contacts";
 export { MailAPI } from "./api/mail";
 export type {
   ConnectionSecurity,
@@ -68,6 +78,7 @@ export type {
   NotificationClickEvent,
 } from "./api/notifications";
 export { PASSWORD_COMMANDS, type PasswordCommand } from "./commands/passwords";
+export { CONTACT_COMMANDS, type ContactCommand } from "./commands/contacts";
 export { MAIL_COMMANDS, type MailCommand } from "./commands/mail";
 export { NOTIFICATION_COMMANDS, type NotificationCommand } from "./commands/notifications";
 export type {
