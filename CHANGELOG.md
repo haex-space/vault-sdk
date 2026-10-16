@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.5.0](https://github.com/haex-space/vault-sdk/compare/v4.4.0...v4.5.0) (2026-10-16)
+
+
+### Features
+
+* **contacts:** read the host's address book ([#71](https://github.com/haex-space/vault-sdk/issues/71)) ([04a9cd6](https://github.com/haex-space/vault-sdk/commit/04a9cd614d68a13a94d0b28247208afeddfe5cca))
+
 ## [4.4.0](https://github.com/haex-space/vault-sdk/compare/v4.3.0...v4.4.0) (2026-10-13)
 
 
