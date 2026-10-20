@@ -95,7 +95,8 @@ export type FetchRange =
 
 /**
  * Criteria of `MailAPI.searchMessagesAsync`. All given criteria must hold. Texts are matched
- * ignoring case, are at most 200 characters long and contain no control characters; at least one
+ * ignoring case, are at most 200 characters long, not blank and contain no control characters;
+ * leave a criterion out instead of passing `""`. Dates must name real days. At least one
  * criterion is required. This is not an IMAP expression: the host builds the command itself.
  */
 export interface MailSearchCriteria {

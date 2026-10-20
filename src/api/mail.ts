@@ -101,8 +101,8 @@ export class MailAPI {
   }
 
   /**
-   * Search a whole mailbox on the server. Answers the UIDs of the newest `limit` hits (all that fit
-   * one answer when omitted, at most 1000), newest first, and the number of all hits. Fetch their
+   * Search a whole mailbox on the server. Answers the UIDs of the newest `limit` hits (1 to 1000;
+   * all that fit one answer when omitted), newest first, and the number of all hits. Fetch their
    * envelopes with `fetchEnvelopesAsync` and a `uidList` range.
    */
   async searchMessagesAsync(
@@ -134,8 +134,10 @@ export class MailAPI {
   /**
    * Delete messages for good: flags exactly these UIDs `\Deleted` and expunges exactly them, so
    * other messages marked `\Deleted` stay. Refused with an error on a server without UIDPLUS,
-   * before anything is marked. At most 1000 UIDs per call. For a message that can still be
-   * recovered, use `moveMessagesAsync` into the trash instead.
+   * before anything is marked. If the expunge fails after marking, the messages stay in the
+   * mailbox flagged `\Deleted` and the call rejects; do not show them as deleted. At most 1000 UIDs
+   * per call. For a message that can still be recovered, use `moveMessagesAsync` into the trash
+   * instead.
    */
   async deleteMessagesAsync(
     imap: ImapConfig,
