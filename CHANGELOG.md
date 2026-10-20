@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.6.0](https://github.com/haex-space/vault-sdk/compare/v4.5.0...v4.6.0) (2026-10-20)
+
+
+### Features
+
+* **models:** run jobs on host models ([42daebd](https://github.com/haex-space/vault-sdk/commit/42daebd9d28a8a4a8effa1e8a94cfe3ba925f7e1))
+
 ## [4.5.0](https://github.com/haex-space/vault-sdk/compare/v4.4.0...v4.5.0) (2026-10-16)
 
 
