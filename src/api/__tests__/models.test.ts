@@ -97,7 +97,8 @@ describe("ModelsAPI", () => {
   it("resolves a run with the end of its own job and ignores other jobs", async () => {
     const { api, emit, listeners } = fake(() => ({ jobId: "j2", status: "running" }));
     const run = api.runAsync(job);
-    await new Promise((r) => setTimeout(r, 0));
+    await Promise.resolve();
+    await Promise.resolve();
     emit(done("j1"));
     emit(done("j2"));
     await expect(run).resolves.toEqual(done("j2"));

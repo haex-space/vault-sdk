@@ -25,7 +25,6 @@ function promptError(
 }
 
 const noop = () => {}
-const tick = (ms = 20) => new Promise((r) => setTimeout(r, ms))
 
 describe('PermissionWaiterRegistry', () => {
   it('resolves all waiters for the same key with one decision', async () => {
@@ -64,7 +63,8 @@ describe('withPermissionRetry', () => {
       .mockResolvedValueOnce('ok')
 
     const result = withPermissionRetry(send, reg, noop)
-    await tick()
+    await Promise.resolve()
+    await Promise.resolve()
     reg.resolve(permissionKey('web', 'get', '*'), 'granted')
 
     await expect(result).resolves.toBe('ok')
@@ -76,7 +76,8 @@ describe('withPermissionRetry', () => {
     const send = vi.fn().mockRejectedValue(promptError())
 
     const result = withPermissionRetry(send, reg, noop)
-    await tick()
+    await Promise.resolve()
+    await Promise.resolve()
     reg.resolve(permissionKey('web', 'get', '*'), 'denied')
 
     await expect(result).rejects.toMatchObject({ code: PermissionErrorCode.DENIED })
@@ -109,7 +110,8 @@ describe('withPermissionRetry', () => {
 
     const result = withPermissionRetry(send, reg, noop, 1000)
     for (const error of prompts) {
-      await tick()
+      await Promise.resolve()
+      await Promise.resolve()
       reg.resolve(permissionKey(error.resourceType, error.action, error.target), 'granted')
     }
 
@@ -125,7 +127,8 @@ describe('withPermissionRetry', () => {
 
     const result = withPermissionRetry(send, reg, noop, 1000)
     for (let n = 0; n < MAX_PERMISSION_RETRIES; n++) {
-      await tick()
+      await Promise.resolve()
+      await Promise.resolve()
       reg.resolve(key, 'granted')
     }
 
