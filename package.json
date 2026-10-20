@@ -86,7 +86,7 @@
     "@types/node": "^26.1.1",
     "@types/react": "^19.2.13",
     "eslint": "^10.0.0",
-    "happy-dom": "^20.9.0",
+    "happy-dom": "^21.0.3",
     "nuxt": "^4.3.1",
     "react": "^19.2.4",
     "svelte": "^5.50.0",
