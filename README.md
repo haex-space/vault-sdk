@@ -1120,6 +1120,46 @@ The permission kind `encryptedFolder` (target `<storageId>/<folderId>`, `read` o
 granted only at runtime and can never be declared in `manifest.json`: the host refuses such a
 bundle. A damaged entry fails with `HostErrorCode.ENCRYPTED_DATA_DAMAGED` (3010).
 
+### Models
+
+Jobs on the host's language and vision models, instead of bringing your own access and keys. You
+describe each step with its instruction, its input (text, images, or a part of an earlier step's
+result) and the format of its answer as a JSON Schema; the host picks a model the user allowed for
+your extension, caps the effort and returns only a result that fits the format. Broken output (empty,
+a loop, a script switch, invalid JSON) is dropped, and the host tries the next allowed model.
+
+```ts
+const end = await client.models.runAsync({
+  steps: [
+    {
+      id: "fix",
+      needs: ["text"],
+      instruction: "Correct the spelling only.",
+      input: { text: "Ths is a tset." },
+      format: {
+        name: "text-fix",
+        version: 1,
+        schema: {
+          type: "object",
+          required: ["text"],
+          properties: { text: { type: "string" } },
+        },
+      },
+      effort: "low",
+    },
+  ],
+});
+if (end.status === "completed") console.log(end.result?.final, end.provenance);
+else console.warn(end.error?.code, end.error?.message);
+```
+
+The user decides at run time which model your extension may use and up to which effort, and gives
+consent before anything goes to a destination outside the device; the SDK waits for these answers
+and starts the job again. `models.listAsync()` names the allowed models with their place and
+capabilities, never an address or a key; `models.startAsync`, `models.onCompleted` and
+`models.cancelAsync` give you the job's id and its end separately. A job has no tools and sees only
+the input you send.
+
 ### Database Operations
 
 #### Query

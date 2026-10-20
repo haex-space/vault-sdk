@@ -51,6 +51,20 @@ export type {
   ContactSummary,
   ContactValue,
 } from "./types/contacts";
+export { ModelsAPI } from "./api/models";
+export type {
+  ExtensionModel,
+  ModelEffort,
+  ModelJob,
+  ModelJobAttempt,
+  ModelJobCompletion,
+  ModelJobErrorCode,
+  ModelJobFormat,
+  ModelJobImage,
+  ModelJobProvenance,
+  ModelJobStep,
+  ModelPlace,
+} from "./types/models";
 export { MailAPI } from "./api/mail";
 export type {
   ConnectionSecurity,
@@ -79,6 +93,7 @@ export type {
 } from "./api/notifications";
 export { PASSWORD_COMMANDS, type PasswordCommand } from "./commands/passwords";
 export { CONTACT_COMMANDS, type ContactCommand } from "./commands/contacts";
+export { MODEL_COMMANDS, type ModelCommand } from "./commands/models";
 export { MAIL_COMMANDS, type MailCommand } from "./commands/mail";
 export { NOTIFICATION_COMMANDS, type NotificationCommand } from "./commands/notifications";
 export type {
@@ -210,7 +225,7 @@ export {
 } from "./types/spaces";
 
 // Export event constants
-export { HAEXTENSION_EVENTS, type HaextensionEvent, EXTERNAL_EVENTS, type ExternalEvent, SHELL_EVENTS, type ShellEvent, NOTIFICATION_EVENTS, type NotificationEvent, MAIL_EVENTS, type MailEvent } from './events';
+export { HAEXTENSION_EVENTS, type HaextensionEvent, EXTERNAL_EVENTS, type ExternalEvent, SHELL_EVENTS, type ShellEvent, NOTIFICATION_EVENTS, type NotificationEvent, MAIL_EVENTS, type MailEvent, MODEL_JOB_EVENTS, type ModelJobEvent } from './events';
 
 // Export message type constants
 export { HAEXSPACE_MESSAGE_TYPES, type HaexspaceMessageType } from './messages';

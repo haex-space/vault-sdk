@@ -45,6 +45,16 @@ export const NOTIFICATION_EVENTS = {
 export type NotificationEvent = typeof NOTIFICATION_EVENTS[keyof typeof NOTIFICATION_EVENTS];
 
 /**
+ * Events of model jobs (`models.runAsync`, holzi spec 055).
+ */
+export const MODEL_JOB_EVENTS = {
+  /** A job of this frame ended: completed, failed or cancelled. */
+  COMPLETED: 'haextension:model-job:completed',
+} as const;
+
+export type ModelJobEvent = typeof MODEL_JOB_EVENTS[keyof typeof MODEL_JOB_EVENTS];
+
+/**
  * Events for external client communication (browser extensions, CLI tools, servers, etc.)
  */
 export const EXTERNAL_EVENTS = {

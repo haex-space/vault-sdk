@@ -1,5 +1,7 @@
 import { describe, it, expect, vi } from 'vitest'
 import {
+  MAX_PERMISSION_PROMPTS,
+  MAX_PERMISSION_RETRIES,
   PermissionWaiterRegistry,
   withPermissionRetry,
   permissionKey,
@@ -23,7 +25,6 @@ function promptError(
 }
 
 const noop = () => {}
-const tick = (ms = 20) => new Promise((r) => setTimeout(r, ms))
 
 describe('PermissionWaiterRegistry', () => {
   it('resolves all waiters for the same key with one decision', async () => {
@@ -62,7 +63,8 @@ describe('withPermissionRetry', () => {
       .mockResolvedValueOnce('ok')
 
     const result = withPermissionRetry(send, reg, noop)
-    await tick()
+    await Promise.resolve()
+    await Promise.resolve()
     reg.resolve(permissionKey('web', 'get', '*'), 'granted')
 
     await expect(result).resolves.toBe('ok')
@@ -74,7 +76,8 @@ describe('withPermissionRetry', () => {
     const send = vi.fn().mockRejectedValue(promptError())
 
     const result = withPermissionRetry(send, reg, noop)
-    await tick()
+    await Promise.resolve()
+    await Promise.resolve()
     reg.resolve(permissionKey('web', 'get', '*'), 'denied')
 
     await expect(result).rejects.toMatchObject({ code: PermissionErrorCode.DENIED })
@@ -94,5 +97,42 @@ describe('withPermissionRetry', () => {
     const send = vi.fn().mockRejectedValue(new Error('boom'))
     await expect(withPermissionRetry(send, reg, noop)).rejects.toThrow('boom')
     expect(send).toHaveBeenCalledTimes(1)
+  })
+
+  it('asks for each permission of a model job in turn, a model and a destination per step', async () => {
+    const reg = new PermissionWaiterRegistry()
+    const prompts = Array.from({ length: MAX_PERMISSION_PROMPTS }, (_, n) =>
+      promptError(n % 2 ? 'modelDestination' : 'model', n % 2 ? 'send' : 'low', `t${n}`)
+    )
+    const send = vi.fn()
+    for (const error of prompts) send.mockRejectedValueOnce(error)
+    send.mockResolvedValueOnce({ jobId: 'j1' })
+
+    const result = withPermissionRetry(send, reg, noop, 1000)
+    for (const error of prompts) {
+      await Promise.resolve()
+      await Promise.resolve()
+      reg.resolve(permissionKey(error.resourceType, error.action, error.target), 'granted')
+    }
+
+    await expect(result).resolves.toEqual({ jobId: 'j1' })
+    expect(send).toHaveBeenCalledTimes(MAX_PERMISSION_PROMPTS + 1)
+  })
+
+  it('gives up when the same permission is asked for again and again', async () => {
+    const reg = new PermissionWaiterRegistry()
+    const error = promptError('model', 'low', 'm1')
+    const send = vi.fn().mockRejectedValue(error)
+    const key = permissionKey('model', 'low', 'm1')
+
+    const result = withPermissionRetry(send, reg, noop, 1000)
+    for (let n = 0; n < MAX_PERMISSION_RETRIES; n++) {
+      await Promise.resolve()
+      await Promise.resolve()
+      reg.resolve(key, 'granted')
+    }
+
+    await expect(result).rejects.toEqual(error)
+    expect(send).toHaveBeenCalledTimes(MAX_PERMISSION_RETRIES + 1)
   })
 })

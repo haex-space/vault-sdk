@@ -32,6 +32,7 @@ export * from "./spaces";
 export * from "./shell";
 export * from "./passwords";
 export * from "./contacts";
+export * from "./models";
 export * from "./mail";
 export * from "./notifications";
 
@@ -50,6 +51,7 @@ import { SPACE_COMMANDS } from "./spaces";
 import { SHELL_COMMANDS } from "./shell";
 import { PASSWORD_COMMANDS } from "./passwords";
 import { CONTACT_COMMANDS } from "./contacts";
+import { MODEL_COMMANDS } from "./models";
 import { MAIL_COMMANDS } from "./mail";
 import { NOTIFICATION_COMMANDS } from "./notifications";
 
@@ -68,6 +70,7 @@ export const TAURI_COMMANDS = {
   shell: SHELL_COMMANDS,
   passwords: PASSWORD_COMMANDS,
   contacts: CONTACT_COMMANDS,
+  models: MODEL_COMMANDS,
   mail: MAIL_COMMANDS,
   notifications: NOTIFICATION_COMMANDS,
 } as const;
@@ -88,5 +91,6 @@ export type TauriCommand =
   | (typeof SHELL_COMMANDS)[keyof typeof SHELL_COMMANDS]
   | (typeof PASSWORD_COMMANDS)[keyof typeof PASSWORD_COMMANDS]
   | (typeof CONTACT_COMMANDS)[keyof typeof CONTACT_COMMANDS]
+  | (typeof MODEL_COMMANDS)[keyof typeof MODEL_COMMANDS]
   | (typeof MAIL_COMMANDS)[keyof typeof MAIL_COMMANDS]
   | (typeof NOTIFICATION_COMMANDS)[keyof typeof NOTIFICATION_COMMANDS];
