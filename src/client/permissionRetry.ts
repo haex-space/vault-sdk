@@ -22,8 +22,15 @@ export type WaitOutcome = "granted" | "denied" | "timeout";
 /** Default time to wait for the user to answer a prompt before giving up. */
 export const PERMISSION_DECISION_TIMEOUT_MS = 5 * 60 * 1000;
 
-/** Max number of prompt→retry cycles for a single request (guards against loops). */
+/** Max number of prompt→retry cycles for the same permission in one request (guards against loops). */
 export const MAX_PERMISSION_RETRIES = 3;
+
+/**
+ * Max number of prompt→retry cycles in one request over all permissions. A model job asks for a
+ * model and a destination per step, up to four steps, so one request can need eight different
+ * permissions in turn.
+ */
+export const MAX_PERMISSION_PROMPTS = 8;
 
 /** Stable key identifying a permission, shared by the error and the event. */
 export function permissionKey(resourceType: string, action: string, target: string): string {
@@ -92,14 +99,18 @@ export async function withPermissionRetry<T>(
   log: (...args: unknown[]) => void,
   timeoutMs: number = PERMISSION_DECISION_TIMEOUT_MS
 ): Promise<T> {
+  const asked = new Map<string, number>();
   for (let attempt = 0; ; attempt++) {
     try {
       return await send();
     } catch (error) {
-      if (!isPermissionPromptError(error) || attempt >= MAX_PERMISSION_RETRIES) {
+      if (!isPermissionPromptError(error) || attempt >= MAX_PERMISSION_PROMPTS) {
         throw error;
       }
       const key = permissionKey(error.resourceType, error.action, error.target);
+      const times = asked.get(key) ?? 0;
+      if (times >= MAX_PERMISSION_RETRIES) throw error;
+      asked.set(key, times + 1);
       log(`Permission prompt required for ${key} — waiting for user decision`);
       const outcome = await registry.wait(key, timeoutMs);
       if (outcome === "granted") {
