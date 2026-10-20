@@ -4,6 +4,8 @@ import type {
   ImapConfig,
   MailMessage,
   MailboxInfo,
+  MailSearchCriteria,
+  MailSearchResult,
   MessageEnvelope,
   OutgoingMessage,
   SmtpConfig,
@@ -95,6 +97,55 @@ export class MailAPI {
       mailbox,
       uid,
       partIndex,
+    });
+  }
+
+  /**
+   * Search a whole mailbox on the server. Answers the UIDs of the newest `limit` hits (all that fit
+   * one answer when omitted, at most 1000), newest first, and the number of all hits. Fetch their
+   * envelopes with `fetchEnvelopesAsync` and a `uidList` range.
+   */
+  async searchMessagesAsync(
+    imap: ImapConfig,
+    mailbox: string,
+    criteria: MailSearchCriteria,
+    limit?: number,
+  ): Promise<MailSearchResult> {
+    return this.client.request<MailSearchResult>(MAIL_COMMANDS.search, {
+      imap,
+      mailbox,
+      criteria,
+      limit,
+    });
+  }
+
+  /**
+   * Create a mailbox. Resolves to `false`, not an error, when it already existed. The name may
+   * contain the server's hierarchy delimiter; `*` and `%` are not allowed.
+   */
+  async createMailboxAsync(imap: ImapConfig, mailbox: string): Promise<boolean> {
+    const { created } = await this.client.request<{ created: boolean }>(
+      MAIL_COMMANDS.createMailbox,
+      { imap, mailbox },
+    );
+    return created;
+  }
+
+  /**
+   * Delete messages for good: flags exactly these UIDs `\Deleted` and expunges exactly them, so
+   * other messages marked `\Deleted` stay. Refused with an error on a server without UIDPLUS,
+   * before anything is marked. At most 1000 UIDs per call. For a message that can still be
+   * recovered, use `moveMessagesAsync` into the trash instead.
+   */
+  async deleteMessagesAsync(
+    imap: ImapConfig,
+    mailbox: string,
+    uids: number[],
+  ): Promise<void> {
+    return this.client.request<void>(MAIL_COMMANDS.deleteMessages, {
+      imap,
+      mailbox,
+      uids,
     });
   }
 
