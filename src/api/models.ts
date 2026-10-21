@@ -56,23 +56,30 @@ export class ModelsAPI {
    * Starts a job and resolves with its end: `completed` with the result, or `failed` or
    * `cancelled` with the error. Errors of the start itself (an invalid job, a refused model or
    * consent, no fitting model) reject. The end can arrive before the start answers; it is kept
-   * until then.
+   * until then. Aborting `signal` asks to cancel the job, which then ends as `cancelled`; a job that
+   * had already ended keeps its actual end.
    */
-  async runAsync(job: ModelJob): Promise<ModelJobCompletion> {
+  async runAsync(job: ModelJob, options: { signal?: AbortSignal } = {}): Promise<ModelJobCompletion> {
+    const { signal } = options;
     const ended = new Map<string, ModelJobCompletion>();
     let waiting: { jobId: string; resolve: (c: ModelJobCompletion) => void } | null = null;
     const unsubscribe = this.onCompleted((completion) => {
       if (waiting && completion.jobId === waiting.jobId) waiting.resolve(completion);
       else ended.set(completion.jobId, completion);
     });
+    let cancel: (() => void) | null = null;
     try {
       const { jobId } = await this.startAsync(job);
+      cancel = () => void this.cancelAsync(jobId).catch(() => undefined);
+      if (signal?.aborted) cancel();
+      else signal?.addEventListener("abort", cancel, { once: true });
       return await new Promise<ModelJobCompletion>((resolve) => {
         const early = ended.get(jobId);
         if (early) resolve(early);
         else waiting = { jobId, resolve };
       });
     } finally {
+      if (cancel) signal?.removeEventListener("abort", cancel);
       unsubscribe();
     }
   }
