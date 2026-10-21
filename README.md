@@ -1156,8 +1156,10 @@ else console.warn(end.error?.code, end.error?.message);
 The user decides at run time which model your extension may use and up to which effort, and gives
 consent before anything goes to a destination outside the device; the SDK waits for these answers
 and starts the job again. `models.listAsync()` names the allowed models with their place and
-capabilities, never an address or a key; `models.startAsync`, `models.onCompleted` and
-`models.cancelAsync` give you the job's id and its end separately. A job has no tools and sees only
+capabilities, never an address or a key. To let the user stop a job, pass a signal:
+`runAsync(job, { signal })` cancels the job when the signal aborts, and the job ends as `cancelled`.
+`models.startAsync`, `models.onCompleted` and `models.cancelAsync` give you the job's id and its end
+separately. A job has no tools and sees only
 the input you send.
 
 ### Database Operations
