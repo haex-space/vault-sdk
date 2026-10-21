@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.7.0](https://github.com/haex-space/vault-sdk/compare/v4.6.0...v4.7.0) (2026-10-21)
+
+
+### Features
+
+* **mail:** search, create mailbox and delete messages for good ([#78](https://github.com/haex-space/vault-sdk/issues/78)) ([3dde451](https://github.com/haex-space/vault-sdk/commit/3dde451472376ee7bcd834b690431e712b01743d))
+
 ## [4.6.0](https://github.com/haex-space/vault-sdk/compare/v4.5.0...v4.6.0) (2026-10-20)
 
 
