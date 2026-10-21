@@ -156,7 +156,8 @@ export class FilesystemAPI {
   constructor(private client: HaexVaultSdk) {}
 
   /**
-   * Opens a save file dialog and saves the provided data to the selected location
+   * Opens a save file dialog and saves the provided data to the selected location.
+   * Waits for the user without the request timeout.
    * @param data The file data as Uint8Array
    * @param options Options for the save dialog
    * @returns The path where the file was saved, or null if cancelled
@@ -172,7 +173,8 @@ export class FilesystemAPI {
         defaultPath: options.defaultPath,
         title: options.title,
         filters: options.filters,
-      }
+      },
+      { timeout: null },
     );
 
     return result;
@@ -310,26 +312,28 @@ export class FilesystemAPI {
   }
 
   /**
-   * Open a folder selection dialog
+   * Open a folder selection dialog; waits for the user without the request timeout
    * @param options Dialog options
    * @returns Selected folder path, or null if cancelled
    */
   async selectFolder(options: SelectFolderOptions = {}): Promise<string | null> {
     return this.client.request<string | null, SelectFolderOptions>(
       FILESYSTEM_COMMANDS.selectFolder,
-      options
+      options,
+      { timeout: null },
     );
   }
 
   /**
-   * Open a file selection dialog
+   * Open a file selection dialog; waits for the user without the request timeout
    * @param options Dialog options
    * @returns Selected file paths, or null if cancelled
    */
   async selectFile(options: SelectFileOptions = {}): Promise<string[] | null> {
     return this.client.request<string[] | null, SelectFileOptions>(
       FILESYSTEM_COMMANDS.selectFile,
-      options
+      options,
+      { timeout: null },
     );
   }
 
