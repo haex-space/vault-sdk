@@ -1,5 +1,13 @@
 # Changelog
 
+## [4.8.1](https://github.com/haex-space/vault-sdk/compare/v4.8.0...v4.8.1) (2026-10-21)
+
+
+### Bug Fixes
+
+* **filesystem:** let file dialogs wait for the user ([5f58cc9](https://github.com/haex-space/vault-sdk/commit/5f58cc94d2419821381e6d1f46871dc1dab15739))
+* **filesystem:** let file dialogs wait for the user ([2ce0845](https://github.com/haex-space/vault-sdk/commit/2ce0845a3b3dfa9cb91e2190184bc50a667f3183))
+
 ## [4.8.0](https://github.com/haex-space/vault-sdk/compare/v4.7.1...v4.8.0) (2026-10-21)
 
 
