@@ -56,30 +56,37 @@ export class ModelsAPI {
    * Starts a job and resolves with its end: `completed` with the result, or `failed` or
    * `cancelled` with the error. Errors of the start itself (an invalid job, a refused model or
    * consent, no fitting model) reject. The end can arrive before the start answers; it is kept
-   * until then. Aborting `signal` asks to cancel the job, which then ends as `cancelled`; a job that
-   * had already ended keeps its actual end.
+   * until then.
+   *
+   * Aborting `signal` asks to cancel the job, which then ends as `cancelled`; a job that had
+   * already ended keeps its actual end. A signal that is already aborted rejects with its reason
+   * and starts no job. If the cancel request itself fails, the run rejects with that error and
+   * the job keeps running on the host.
    */
   async runAsync(job: ModelJob, options: { signal?: AbortSignal } = {}): Promise<ModelJobCompletion> {
     const { signal } = options;
+    if (signal?.aborted) throw signal.reason;
     const ended = new Map<string, ModelJobCompletion>();
     let waiting: { jobId: string; resolve: (c: ModelJobCompletion) => void } | null = null;
     const unsubscribe = this.onCompleted((completion) => {
       if (waiting && completion.jobId === waiting.jobId) waiting.resolve(completion);
       else ended.set(completion.jobId, completion);
     });
-    let cancel: (() => void) | null = null;
+    let detach = () => {};
     try {
       const { jobId } = await this.startAsync(job);
-      cancel = () => void this.cancelAsync(jobId).catch(() => undefined);
-      if (signal?.aborted) cancel();
-      else signal?.addEventListener("abort", cancel, { once: true });
-      return await new Promise<ModelJobCompletion>((resolve) => {
+      return await new Promise<ModelJobCompletion>((resolve, reject) => {
         const early = ended.get(jobId);
-        if (early) resolve(early);
-        else waiting = { jobId, resolve };
+        if (early) return resolve(early);
+        waiting = { jobId, resolve };
+        if (!signal) return;
+        const cancel = () => void this.cancelAsync(jobId).catch(reject);
+        if (signal.aborted) return cancel();
+        signal.addEventListener("abort", cancel, { once: true });
+        detach = () => signal.removeEventListener("abort", cancel);
       });
     } finally {
-      if (cancel) signal?.removeEventListener("abort", cancel);
+      detach();
       unsubscribe();
     }
   }
