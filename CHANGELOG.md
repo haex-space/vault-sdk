@@ -1,5 +1,18 @@
 # Changelog
 
+## [4.8.0](https://github.com/haex-space/vault-sdk/compare/v4.7.1...v4.8.0) (2026-10-21)
+
+
+### Features
+
+* **models:** cancel a run through an abort signal ([35ab818](https://github.com/haex-space/vault-sdk/commit/35ab81800f826140ac15e9f6cf497f72e5ffeb88))
+
+
+### Bug Fixes
+
+* **models:** reject a failed cancel and start no job for an aborted signal ([9fdc8e4](https://github.com/haex-space/vault-sdk/commit/9fdc8e4819a873cda89ca7ba4d8ecc5bc3ca49fb))
+* **models:** reject an unknown cancelled job ([5b5404d](https://github.com/haex-space/vault-sdk/commit/5b5404d70f312a71ff20787010531ac3d9671760))
+
 ## [4.7.1](https://github.com/haex-space/vault-sdk/compare/v4.7.0...v4.7.1) (2026-10-21)
 
 
