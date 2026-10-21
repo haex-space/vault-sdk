@@ -83,6 +83,17 @@ export class PermissionWaiterRegistry {
   }
 }
 
+/**
+ * The permission a prompt error names. holzi sends it in `details` (`{ code, message, details }`,
+ * spec 017 `contracts/bridge.md`); the error's own fields are read when `details` lacks it.
+ */
+function promptedKey(error: PermissionPromptError): string {
+  const details = (error.details ?? {}) as Partial<Record<"resourceType" | "action" | "target", unknown>>;
+  const field = (name: "resourceType" | "action" | "target") =>
+    typeof details[name] === "string" ? (details[name] as string) : error[name];
+  return permissionKey(field("resourceType"), field("action"), field("target"));
+}
+
 /** Build a PermissionDeniedError (code 1002) from the prompt error. */
 function toDeniedError(error: PermissionPromptError): PermissionDeniedError {
   return { ...error, code: PermissionErrorCode.DENIED };
@@ -107,7 +118,7 @@ export async function withPermissionRetry<T>(
       if (!isPermissionPromptError(error) || attempt >= MAX_PERMISSION_PROMPTS) {
         throw error;
       }
-      const key = permissionKey(error.resourceType, error.action, error.target);
+      const key = promptedKey(error);
       const times = asked.get(key) ?? 0;
       if (times >= MAX_PERMISSION_RETRIES) throw error;
       asked.set(key, times + 1);
