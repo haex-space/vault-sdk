@@ -77,6 +77,8 @@ export type {
   Attachment as MailAttachment,
   MailMessage,
   FetchRange as MailFetchRange,
+  MailSearchCriteria,
+  MailSearchResult,
   OutgoingAttachment,
   OutgoingMessage,
   MailNewMessagesEvent,

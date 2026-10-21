@@ -93,6 +93,36 @@ export type FetchRange =
   | { type: "uidRange"; start: number; end: number }
   | { type: "uidList"; uids: number[] };
 
+/**
+ * Criteria of `MailAPI.searchMessagesAsync`. All given criteria must hold. Texts are matched
+ * ignoring case, are at most 200 characters long, not blank and contain no control characters;
+ * leave a criterion out instead of passing `""`. Dates must name real days. At least one
+ * criterion is required. This is not an IMAP expression: the host builds the command itself.
+ */
+export interface MailSearchCriteria {
+  /** Header and body text. */
+  text?: string;
+  from?: string;
+  to?: string;
+  subject?: string;
+  /** `YYYY-MM-DD`, inclusive. */
+  since?: string;
+  /** `YYYY-MM-DD`, exclusive. */
+  before?: string;
+  /** `true` for unread, `false` for read messages. */
+  unseen?: boolean;
+  /** `true` for flagged, `false` for not flagged messages. */
+  flagged?: boolean;
+}
+
+/** The newest hits of a search and the number of all hits. */
+export interface MailSearchResult {
+  /** UIDs of the newest hits, newest (highest UID) first. */
+  uids: number[];
+  /** How many messages matched in all. */
+  total: number;
+}
+
 export interface OutgoingAttachment {
   filename: string;
   contentType: string;
