@@ -158,6 +158,18 @@ describe("ModelsAPI", () => {
     expect(requests.filter((r) => r.method === "extension_model_job_cancel")).toHaveLength(2);
   });
 
+  it("keeps the actual end of a job that ended before the abort could cancel it", async () => {
+    const { api } = fake((request, emit) => {
+      if (request.method === "extension_model_job_cancel") return { cancelled: false };
+      emit(done("j6"));
+      return { jobId: "j6", status: "running" };
+    });
+    const controller = new AbortController();
+    const run = api.runAsync(job, { signal: controller.signal });
+    controller.abort();
+    await expect(run).resolves.toEqual(done("j6"));
+  });
+
   it("unsubscribes a completion listener", () => {
     const { api, emit } = fake(() => ({}));
     const seen: string[] = [];

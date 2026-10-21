@@ -56,7 +56,8 @@ export class ModelsAPI {
    * Starts a job and resolves with its end: `completed` with the result, or `failed` or
    * `cancelled` with the error. Errors of the start itself (an invalid job, a refused model or
    * consent, no fitting model) reject. The end can arrive before the start answers; it is kept
-   * until then. Aborting `signal` cancels the job, which then ends as `cancelled`.
+   * until then. Aborting `signal` asks to cancel the job, which then ends as `cancelled`; a job that
+   * had already ended keeps its actual end.
    */
   async runAsync(job: ModelJob, options: { signal?: AbortSignal } = {}): Promise<ModelJobCompletion> {
     const { signal } = options;
