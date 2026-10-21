@@ -71,6 +71,24 @@ describe('withPermissionRetry', () => {
     expect(send).toHaveBeenCalledTimes(2)
   })
 
+  it('waits for the permission holzi names in details', async () => {
+    const reg = new PermissionWaiterRegistry()
+    const asked = {
+      code: PermissionErrorCode.PROMPT_REQUIRED,
+      message: 'permission prompt required',
+      details: { resourceType: 'model', action: 'medium', target: 'p1:vision' },
+    } as unknown as PermissionPromptError
+    const send = vi.fn().mockRejectedValueOnce(asked).mockResolvedValueOnce({ jobId: 'j1' })
+
+    const result = withPermissionRetry(send, reg, noop, 1000)
+    await Promise.resolve()
+    await Promise.resolve()
+    reg.resolve(permissionKey('model', 'medium', 'p1:vision'), 'granted')
+
+    await expect(result).resolves.toEqual({ jobId: 'j1' })
+    expect(send).toHaveBeenCalledTimes(2)
+  })
+
   it('throws a PermissionDenied (1002) error when denied', async () => {
     const reg = new PermissionWaiterRegistry()
     const send = vi.fn().mockRejectedValue(promptError())

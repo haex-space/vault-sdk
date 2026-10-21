@@ -175,6 +175,8 @@ export interface PermissionErrorBase {
   resourceType: string;
   target: string;
   action: string;
+  /** holzi names the permission here: `resourceType`, `action` and `target`. */
+  details?: Record<string, unknown>;
 }
 
 /**
