@@ -1,5 +1,13 @@
 # Changelog
 
+## [4.7.1](https://github.com/haex-space/vault-sdk/compare/v4.7.0...v4.7.1) (2026-10-21)
+
+
+### Bug Fixes
+
+* **permissions:** wait for the permission holzi names in details ([b152473](https://github.com/haex-space/vault-sdk/commit/b1524738858e2416859f08677d25a0ae5fc3539a))
+* **permissions:** wait for the permission holzi names in details ([b625124](https://github.com/haex-space/vault-sdk/commit/b62512414cbf4f48eec7e4dd98cc64f5b6ec3eed))
+
 ## [4.7.0](https://github.com/haex-space/vault-sdk/compare/v4.6.0...v4.7.0) (2026-10-21)
 
 
