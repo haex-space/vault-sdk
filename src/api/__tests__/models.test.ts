@@ -136,26 +136,27 @@ describe("ModelsAPI", () => {
 
   it("cancels the job when the signal aborts, also while the start is still answering", async () => {
     const cancelled = (jobId: string): ModelJobCompletion => ({ jobId, status: "cancelled", provenance: [] });
+    let resolveStart: ((answer: unknown) => void) | undefined;
     const { api, requests, listeners } = fake((request, emitNow) => {
+      if (request.method === "extension_model_job_start") {
+        return new Promise((resolve) => {
+          resolveStart = resolve;
+        });
+      }
       if (request.method === "extension_model_job_cancel") {
         const jobId = (request.params as { jobId: string }).jobId;
         setTimeout(() => emitNow(cancelled(jobId)), 0);
         return { cancelled: true };
       }
-      return { jobId: "j5", status: "running" };
+      throw new Error(`unexpected request: ${request.method}`);
     });
     const controller = new AbortController();
     const run = api.runAsync(job, { signal: controller.signal });
-    await new Promise((r) => setTimeout(r, 0));
     controller.abort();
+    expect(resolveStart).toBeDefined();
+    resolveStart?.({ jobId: "j5", status: "running" });
     await expect(run).resolves.toEqual(cancelled("j5"));
     expect(requests.map((r) => r.method)).toEqual(["extension_model_job_start", "extension_model_job_cancel"]);
-
-    const early = new AbortController();
-    const pending = api.runAsync(job, { signal: early.signal });
-    early.abort();
-    await expect(pending).resolves.toEqual(cancelled("j5"));
-    expect(requests.filter((r) => r.method === "extension_model_job_cancel")).toHaveLength(2);
     expect(listeners.size).toBe(0);
   });
 
@@ -179,6 +180,44 @@ describe("ModelsAPI", () => {
     await new Promise((r) => setTimeout(r, 0));
     controller.abort();
     await expect(run).rejects.toEqual(failure);
+    expect(listeners.size).toBe(0);
+  });
+
+  it("rejects the run when the host reports that the job is unknown", async () => {
+    let resolveCancel: ((answer: unknown) => void) | undefined;
+    const { api, emit, listeners } = fake((request) => {
+      if (request.method === "extension_model_job_cancel") {
+        return new Promise((resolve) => {
+          resolveCancel = resolve;
+        });
+      }
+      return { jobId: "j9", status: "running" };
+    });
+    const controller = new AbortController();
+    const run = api.runAsync(job, { signal: controller.signal });
+    await Promise.resolve();
+    await Promise.resolve();
+    controller.abort();
+    expect(resolveCancel).toBeDefined();
+    resolveCancel?.({ cancelled: false });
+    let outcome: unknown;
+    void run.then(
+      (completion) => {
+        outcome = completion;
+      },
+      (error) => {
+        outcome = error;
+      },
+    );
+    await Promise.resolve();
+    await Promise.resolve();
+    await Promise.resolve();
+    if (outcome === undefined) {
+      emit(done("j9"));
+      await run.catch(() => undefined);
+    }
+    expect(outcome).toBeInstanceOf(Error);
+    expect((outcome as Error).message).toBe("The model job could not be cancelled");
     expect(listeners.size).toBe(0);
   });
 

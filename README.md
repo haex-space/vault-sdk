@@ -1159,7 +1159,8 @@ and starts the job again. `models.listAsync()` names the allowed models with the
 capabilities, never an address or a key. To let the user stop a job, pass a signal:
 `runAsync(job, { signal })` asks to cancel the job when the signal aborts; the job ends as `cancelled`,
 unless it had already ended, then you get its actual result. A signal that is already aborted rejects
-with its reason and starts no job; a cancel request that fails rejects the run with that error.
+with its reason and starts no job; a failed cancel request rejects the run with that error, while an
+unknown job rejects it with an error.
 `models.startAsync`, `models.onCompleted` and `models.cancelAsync` give you the job's id and its end
 separately. A job has no tools and sees only the input you send.
 

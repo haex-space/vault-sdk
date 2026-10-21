@@ -60,8 +60,8 @@ export class ModelsAPI {
    *
    * Aborting `signal` asks to cancel the job, which then ends as `cancelled`; a job that had
    * already ended keeps its actual end. A signal that is already aborted rejects with its reason
-   * and starts no job. If the cancel request itself fails, the run rejects with that error and
-   * the job keeps running on the host.
+   * and starts no job. If the cancel request fails, the run rejects with that error and the job
+   * keeps running on the host; if it reports an unknown job, the run rejects with an error.
    */
   async runAsync(job: ModelJob, options: { signal?: AbortSignal } = {}): Promise<ModelJobCompletion> {
     const { signal } = options;
@@ -80,7 +80,15 @@ export class ModelsAPI {
         if (early) return resolve(early);
         waiting = { jobId, resolve };
         if (!signal) return;
-        const cancel = () => void this.cancelAsync(jobId).catch(reject);
+        const cancel = async () => {
+          try {
+            if (!(await this.cancelAsync(jobId))) {
+              reject(new Error("The model job could not be cancelled"));
+            }
+          } catch (error) {
+            reject(error);
+          }
+        };
         if (signal.aborted) return cancel();
         signal.addEventListener("abort", cancel, { once: true });
         detach = () => signal.removeEventListener("abort", cancel);
