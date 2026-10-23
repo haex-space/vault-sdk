@@ -90,9 +90,16 @@ function decodeEvent<T extends PeerEventType>(type: T, data: unknown): PeerEvent
   if (type !== "message") return data as PeerEventMap[T];
   const message = data as { channelId?: unknown; data?: unknown; reliable?: unknown };
   if (typeof message.channelId !== "string" || typeof message.data !== "string") return undefined;
+  let decoded: Uint8Array<ArrayBuffer>;
+  try {
+    decoded = base64ToArrayBuffer(message.data);
+  } catch {
+    return undefined;
+  }
+  if (arrayBufferToBase64(decoded) !== message.data) return undefined;
   return {
     channelId: message.channelId,
-    data: base64ToArrayBuffer(message.data),
+    data: decoded,
     reliable: message.reliable === true,
   } as PeerEventMap[T];
 }

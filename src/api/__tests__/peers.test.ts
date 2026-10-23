@@ -172,6 +172,7 @@ describe("PeersAPI events", () => {
     api.on("message", (message) => got.push(message));
     emit(PEERS_EVENTS.MESSAGE, { channelId: "ch1", data: 42, reliable: false });
     emit(PEERS_EVENTS.MESSAGE, null);
+    emit(PEERS_EVENTS.MESSAGE, { channelId: "ch1", data: "!", reliable: false });
     expect(got).toEqual([]);
   });
 
