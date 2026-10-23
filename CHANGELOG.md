@@ -1,5 +1,18 @@
 # Changelog
 
+## [4.9.0](https://github.com/haex-space/vault-sdk/compare/v4.8.1...v4.9.0) (2026-10-23)
+
+
+### Features
+
+* **peers:** channels to frames of the extension in other vaults ([5b3021a](https://github.com/haex-space/vault-sdk/commit/5b3021a7c3da459c6760b3c6f9c07a6c455c56ab))
+* **peers:** open channels to frames of the extension in other vaults ([bae45eb](https://github.com/haex-space/vault-sdk/commit/bae45eb1a8c8af6f5c1c8997962ae7329f7e6db3))
+
+
+### Bug Fixes
+
+* **peers:** reject malformed message data ([2edf9e9](https://github.com/haex-space/vault-sdk/commit/2edf9e97bcc6eddbb0a6deb6ab568c469ceb7f1c))
+
 ## [4.8.1](https://github.com/haex-space/vault-sdk/compare/v4.8.0...v4.8.1) (2026-10-21)
 
 
