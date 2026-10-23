@@ -33,6 +33,7 @@ import { ShellAPI } from "./api/shell";
 import { PasswordsAPI } from "./api/passwords";
 import { ContactsAPI } from "./api/contacts";
 import { ModelsAPI } from "./api/models";
+import { PeersAPI } from "./api/peers";
 import { MailAPI } from "./api/mail";
 import { NotificationsAPI } from "./api/notifications";
 import { TabAPI } from "./api/tab";
@@ -121,6 +122,7 @@ export class HaexVaultSdk {
   public readonly passwords: PasswordsAPI;
   public readonly contacts: ContactsAPI;
   public readonly models: ModelsAPI;
+  public readonly peers: PeersAPI;
   public readonly mail: MailAPI;
   public readonly notifications: NotificationsAPI;
   public readonly tab: TabAPI;
@@ -155,6 +157,7 @@ export class HaexVaultSdk {
     this.passwords = new PasswordsAPI(this);
     this.contacts = new ContactsAPI(this);
     this.models = new ModelsAPI(this);
+    this.peers = new PeersAPI(this);
     this.mail = new MailAPI(this);
     this.notifications = new NotificationsAPI(this);
     this.tab = new TabAPI(this);
