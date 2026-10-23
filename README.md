@@ -1164,6 +1164,59 @@ unknown job rejects it with an error.
 `models.startAsync`, `models.onCompleted` and `models.cancelAsync` give you the job's id and its end
 separately. A job has no tools and sees only the input you send.
 
+### Peers
+
+Channels between frames of your extension on devices of different vaults, for example a multiplayer
+game. Declare the permission in `manifest.json`; inviting a contact also needs read access to that
+contact:
+
+```json
+"permissions": {
+  "peers": [{ "target": "*", "action": "connect" }],
+  "contacts": [{ "target": "*", "action": "read" }]
+}
+```
+
+A channel starts in one of two ways:
+
+- **Invitation.** `peers.inviteAsync(contactId, payload)` reaches all devices of the contact. The
+  invited user accepts or declines only in the vault's own prompt; the SDK has no accept or decline,
+  and your extension learns of the invitation only after it was accepted, as `channel-opened`
+  (the vault opens your extension first if needed). The inviting side gets `invite-status` exactly
+  once: `accepted` (with `channelId`), `declined`, `not-installed`, `unreachable` (with
+  `hint: "share_current_card"`: ask the contact to share a current card) or `expired`.
+  `cancelInviteAsync(inviteId)` withdraws an open invitation.
+- **Lobby.** `peers.openLobbyAsync(lobbyId, "contacts" | "public")` returns a join code that starts
+  with `haex-vault:join:`; treat it as opaque text and hand it on. Another device joins with
+  `peers.joinAsync(joinCode, displayName, payload)` and gets `{ channelId, lobbyId }`; the host gets
+  `joined`. A contacts-only lobby admits only the host's contacts. `closeLobbyAsync` stops the code,
+  open channels stay; `removeAsync(channelId)` closes a channel of your lobby and keeps that device
+  out.
+
+```ts
+const peers = client.peers;
+peers.on("channel-opened", ({ channelId, from, payload }) => startGame(channelId, from.name, payload));
+peers.on("message", ({ channelId, data, reliable }) => receive(channelId, data, reliable));
+peers.on("channel-closed", ({ channelId, reason }) => dropPlayer(channelId, reason)); // closed, lost, timeout
+
+const { joinCode } = await peers.openLobbyAsync("doom-1", "public");
+peers.on("joined", ({ channelId, displayName, verified }) => addPlayer(channelId, displayName, verified));
+
+await peers.sendAsync(channelId, packet);                              // fast, may be lost
+await peers.sendAsync(channelId, state, { reliable: true });           // in order
+await peers.closeAsync(channelId);                                     // both sides get channel-closed
+```
+
+Limits: a fast message holds at most `peers.MAX_FAST_BYTES` (1,024) bytes, a reliable one
+`peers.MAX_RELIABLE_BYTES` (65,536); at most 16 reliable messages may wait per channel. The `payload`
+of an invitation or a join is JSON of at most `peers.MAX_PAYLOAD_BYTES` (4,096) bytes. Host errors
+with a reason reject as `PeerError` with the host's `code`, its `reason` (`contact_unknown`,
+`invite_not_open`, `channel_unknown`, `channel_closed`, `lobby_closed`, `not_admitted`, `too_large`,
+`limit`, `network_unavailable`, `invalid_input`), a `kind` such as `PEER_LOBBY_CLOSED`, and `limit`
+for `too_large` and `limit`. `not_admitted` shares code 1002 with a refused permission; tell them
+apart by `reason`. When your extension's last frame on a device closes, the vault closes its
+channels and lobbies and withdraws its open invitations.
+
 ### Database Operations
 
 #### Query

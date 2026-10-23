@@ -65,6 +65,18 @@ export type {
   ModelJobStep,
   ModelPlace,
 } from "./types/models";
+export { PeersAPI, PeerError, PEER_ERROR_KINDS, type PeerErrorKind } from "./api/peers";
+export type {
+  PeerChannelClosed,
+  PeerChannelOpened,
+  PeerErrorReason,
+  PeerEventMap,
+  PeerEventType,
+  PeerInviteStatus,
+  PeerJoined,
+  PeerMessage,
+  PeerVisibility,
+} from "./types/peers";
 export { MailAPI } from "./api/mail";
 export type {
   ConnectionSecurity,
@@ -96,6 +108,7 @@ export type {
 export { PASSWORD_COMMANDS, type PasswordCommand } from "./commands/passwords";
 export { CONTACT_COMMANDS, type ContactCommand } from "./commands/contacts";
 export { MODEL_COMMANDS, type ModelCommand } from "./commands/models";
+export { PEER_COMMANDS, type PeerCommand } from "./commands/peers";
 export { MAIL_COMMANDS, type MailCommand } from "./commands/mail";
 export { NOTIFICATION_COMMANDS, type NotificationCommand } from "./commands/notifications";
 export type {
@@ -227,7 +240,7 @@ export {
 } from "./types/spaces";
 
 // Export event constants
-export { HAEXTENSION_EVENTS, type HaextensionEvent, EXTERNAL_EVENTS, type ExternalEvent, SHELL_EVENTS, type ShellEvent, NOTIFICATION_EVENTS, type NotificationEvent, MAIL_EVENTS, type MailEvent, MODEL_JOB_EVENTS, type ModelJobEvent } from './events';
+export { HAEXTENSION_EVENTS, type HaextensionEvent, EXTERNAL_EVENTS, type ExternalEvent, SHELL_EVENTS, type ShellEvent, NOTIFICATION_EVENTS, type NotificationEvent, MAIL_EVENTS, type MailEvent, MODEL_JOB_EVENTS, type ModelJobEvent, PEERS_EVENTS, type PeersEvent } from './events';
 
 // Export message type constants
 export { HAEXSPACE_MESSAGE_TYPES, type HaexspaceMessageType } from './messages';

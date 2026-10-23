@@ -414,6 +414,8 @@ export interface ExtensionManifest {
     shell?: any[];
     /** Reading the host's address book: `{ target: "*" | "<group name>", action?: "read" }`. */
     contacts?: { target: string; action?: "read" }[];
+    /** Channels to frames of this extension in other vaults (`client.peers`): `{ target: "*", action?: "connect" }`. */
+    peers?: { target: "*"; action?: "connect" }[];
   };
   homepage?: string | null;
   description?: string | null;

@@ -55,6 +55,25 @@ export const MODEL_JOB_EVENTS = {
 export type ModelJobEvent = typeof MODEL_JOB_EVENTS[keyof typeof MODEL_JOB_EVENTS];
 
 /**
+ * Events of peer channels (`client.peers`, holzi spec 057). The SDK's
+ * `peers.on` takes the names without the `peers:` prefix.
+ */
+export const PEERS_EVENTS = {
+  /** The outcome of an invitation, once per invitation (inviting side). */
+  INVITE_STATUS: 'peers:invite-status',
+  /** A channel opened after the user accepted an invitation in holzi's prompt (invited side). */
+  CHANNEL_OPENED: 'peers:channel-opened',
+  /** A device joined one of this device's lobbies by code (host). */
+  JOINED: 'peers:joined',
+  /** A message on a channel; `data` is Base64 on the bridge. */
+  MESSAGE: 'peers:message',
+  /** A channel ended: closed, lost or timed out. */
+  CHANNEL_CLOSED: 'peers:channel-closed',
+} as const;
+
+export type PeersEvent = typeof PEERS_EVENTS[keyof typeof PEERS_EVENTS];
+
+/**
  * Events for external client communication (browser extensions, CLI tools, servers, etc.)
  */
 export const EXTERNAL_EVENTS = {
