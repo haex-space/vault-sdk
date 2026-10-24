@@ -1,5 +1,13 @@
 # Changelog
 
+## [4.10.0](https://github.com/haex-space/vault-sdk/compare/v4.9.0...v4.10.0) (2026-10-24)
+
+
+### Features
+
+* **models:** ask for access and open the model settings ([7e628cd](https://github.com/haex-space/vault-sdk/commit/7e628cda1997d2a822dcd3452be08d90ef053d20))
+* **models:** ask for access and open the model settings ([235d1b3](https://github.com/haex-space/vault-sdk/commit/235d1b30cc5e3ff324c609ede5365597823bc52e))
+
 ## [4.9.0](https://github.com/haex-space/vault-sdk/compare/v4.8.1...v4.9.0) (2026-10-23)
 
 
