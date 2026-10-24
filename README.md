@@ -1164,6 +1164,14 @@ unknown job rejects it with an error.
 `models.startAsync`, `models.onCompleted` and `models.cancelAsync` give you the job's id and its end
 separately. A job has no tools and sees only the input you send.
 
+The choice of models stays with the user in the host; your extension shows no model picker of its
+own. To ask before the first job, for example when your extension opens for the first time, call
+`models.requestAccessAsync({ needs: ["text", "image"], effort: "low" })`: it resolves with the
+allowed models that fit, or the host asks the user as it would for a job. It rejects with
+`no_capable_model` when no model of the host fits; offer `models.openSettingsAsync()` then, which
+opens the host's page of your extension's models. Nothing is sent to a model, and consent for a
+destination outside the device comes with the first job that sends data.
+
 ### Peers
 
 Channels between frames of your extension on devices of different vaults, for example a multiplayer

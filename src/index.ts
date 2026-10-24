@@ -54,6 +54,7 @@ export type {
 export { ModelsAPI } from "./api/models";
 export type {
   ExtensionModel,
+  ModelAccessRequest,
   ModelEffort,
   ModelJob,
   ModelJobAttempt,

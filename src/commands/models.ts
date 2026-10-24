@@ -15,6 +15,10 @@ export const MODEL_COMMANDS = {
   start: "extension_model_job_start",
   /** Cancels a running job of this frame */
   cancel: "extension_model_job_cancel",
+  /** Asks for a grant before the first job; nothing goes to a model */
+  requestAccess: "extension_model_access_request",
+  /** Opens the host's page of this extension's models */
+  openSettings: "extension_model_settings_open",
 } as const;
 
 export type ModelCommand = (typeof MODEL_COMMANDS)[keyof typeof MODEL_COMMANDS];

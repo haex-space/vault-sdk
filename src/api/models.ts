@@ -2,7 +2,12 @@ import type { HaexVaultSdk } from "../client";
 import { MODEL_COMMANDS } from "../commands/models";
 import { MODEL_JOB_EVENTS } from "../events";
 import type { EventCallback } from "../types";
-import type { ExtensionModel, ModelJob, ModelJobCompletion } from "../types/models";
+import type {
+  ExtensionModel,
+  ModelAccessRequest,
+  ModelJob,
+  ModelJobCompletion,
+} from "../types/models";
 
 /**
  * Jobs on the host's language and vision models (holzi spec 055), instead of bringing own access
@@ -12,7 +17,9 @@ import type { ExtensionModel, ModelJob, ModelJobCompletion } from "../types/mode
  *
  * The user decides at run time: the first job asks which model the extension may use and up to
  * which effort, and before data goes to a destination outside this device it asks for consent.
- * The SDK waits for these answers and starts the job again, like for every other permission.
+ * The SDK waits for these answers and starts the job again, like for every other permission. The
+ * choice stays with the host: {@link requestAccessAsync} asks before the first job, and
+ * {@link openSettingsAsync} leads the user to the host's page of this extension's models.
  */
 export class ModelsAPI {
   constructor(private client: HaexVaultSdk) {}
@@ -24,6 +31,26 @@ export class ModelsAPI {
       {},
     );
     return answer.models;
+  }
+
+  /**
+   * Asks for a grant before the first job (holzi spec 055 US9) and resolves with the allowed
+   * models that fit `needs`. Without one, the host asks the user as it would for a job, and the
+   * SDK waits for the answer. Rejects with `no_capable_model` (8001) when no model of the host
+   * fits and with a denial (1002) when the user refused. Nothing is sent to a model, and consent
+   * for a destination outside this device is asked with the first job that sends data.
+   */
+  async requestAccessAsync(request: ModelAccessRequest): Promise<ExtensionModel[]> {
+    const answer = await this.client.request<{ models: ExtensionModel[] }>(
+      MODEL_COMMANDS.requestAccess,
+      { ...request },
+    );
+    return answer.models;
+  }
+
+  /** Opens the host's page of this extension's models, where the user chooses models and effort. */
+  async openSettingsAsync(): Promise<void> {
+    await this.client.request(MODEL_COMMANDS.openSettings, {});
   }
 
   /** Starts a job; its end comes as {@link onCompleted}. Use {@link runAsync} to await it. */
