@@ -25,6 +25,13 @@ export interface ExtensionModel {
   maxEffort: ModelEffort;
 }
 
+/** What a job of the extension will need, to ask for a grant before it (holzi spec 055 US9). */
+export interface ModelAccessRequest {
+  needs: ("text" | "image")[];
+  /** The effort the extension wishes for; the user chooses the ceiling. */
+  effort?: ModelEffort;
+}
+
 /** An image as Base64, at most 25 MiB raw; at most 8 per job. */
 export interface ModelJobImage {
   mimeType: "image/jpeg" | "image/png" | "image/webp";

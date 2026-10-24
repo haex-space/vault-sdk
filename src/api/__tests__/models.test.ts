@@ -80,6 +80,34 @@ describe("ModelsAPI", () => {
     expect(requests).toEqual([{ method: "extension_model_list", params: {} }]);
   });
 
+  it("asks for a grant with what the jobs will need and opens the model settings", async () => {
+    const model = {
+      id: "m2",
+      name: "Qwen3-VL",
+      provider: "Ollama",
+      place: "this_device",
+      capabilities: { image: true, effort: "none" },
+      maxEffort: "low",
+    };
+    const { api, requests } = fake((request) =>
+      request.method === "extension_model_access_request" ? { models: [model] } : {},
+    );
+    await expect(api.requestAccessAsync({ needs: ["text", "image"], effort: "low" })).resolves.toEqual([model]);
+    await expect(api.openSettingsAsync()).resolves.toBeUndefined();
+    expect(requests).toEqual([
+      { method: "extension_model_access_request", params: { needs: ["text", "image"], effort: "low" } },
+      { method: "extension_model_settings_open", params: {} },
+    ]);
+  });
+
+  it("rejects a request for access the host refuses", async () => {
+    const refusal = { code: 8001, message: "no capable model", details: { reason: "no_capable_model" } };
+    const { api } = fake(() => {
+      throw refusal;
+    });
+    await expect(api.requestAccessAsync({ needs: ["text", "image"] })).rejects.toEqual(refusal);
+  });
+
   it("starts a job with the job as the only parameter and cancels by id", async () => {
     const { api, requests } = fake((request) =>
       request.method === "extension_model_job_start"
