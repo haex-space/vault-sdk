@@ -5,8 +5,12 @@
 /** Where a model runs. Outside this device the user consents before anything is sent. */
 export type ModelPlace = "this_device" | "network" | "cloud";
 
-/** The effort a step wishes for; the host caps it at what the user allowed. */
-export type ModelEffort = "none" | "low" | "medium" | "high";
+/**
+ * The effort a model runs with. The user chooses it per model in the host, from the levels the model
+ * has; an extension names none and the host refuses a step that does. The provenance names the one
+ * that was used.
+ */
+export type ModelEffort = "none" | "low" | "medium" | "high" | "xhigh" | "max";
 
 /** A model the user allowed to this extension. */
 export interface ExtensionModel {
@@ -21,15 +25,13 @@ export interface ExtensionModel {
     /** `levels`: low, medium and high take effect; `managed`: the model decides itself. */
     effort: "none" | "managed" | "levels";
   };
-  /** The highest effort the user allowed. */
+  /** The effort the user chose for this model (the name is from an earlier version). */
   maxEffort: ModelEffort;
 }
 
 /** What a job of the extension will need, to ask for a grant before it (holzi spec 055 US9). */
 export interface ModelAccessRequest {
   needs: ("text" | "image")[];
-  /** The effort the extension wishes for; the user chooses the ceiling. */
-  effort?: ModelEffort;
 }
 
 /** An image as Base64, at most 25 MiB raw; at most 8 per job. */
@@ -59,7 +61,6 @@ export interface ModelJobStep {
     from?: { step: string; pointer: string };
   };
   format: ModelJobFormat;
-  effort?: ModelEffort;
   /** Up to the host's limit (default 4096, at most 16384). */
   maxOutputTokens?: number;
 }

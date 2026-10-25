@@ -46,7 +46,6 @@ const job: ModelJob = {
       instruction: "Korrigiere nur Rechtschreibung.",
       input: { text: "Das ist ein Tsest." },
       format: { name: "text-fix", version: 1, schema: { type: "object" } },
-      effort: "low",
     },
   ],
 };
@@ -92,10 +91,10 @@ describe("ModelsAPI", () => {
     const { api, requests } = fake((request) =>
       request.method === "extension_model_access_request" ? { models: [model] } : {},
     );
-    await expect(api.requestAccessAsync({ needs: ["text", "image"], effort: "low" })).resolves.toEqual([model]);
+    await expect(api.requestAccessAsync({ needs: ["text", "image"] })).resolves.toEqual([model]);
     await expect(api.openSettingsAsync()).resolves.toBeUndefined();
     expect(requests).toEqual([
-      { method: "extension_model_access_request", params: { needs: ["text", "image"], effort: "low" } },
+      { method: "extension_model_access_request", params: { needs: ["text", "image"] } },
       { method: "extension_model_settings_open", params: {} },
     ]);
   });
