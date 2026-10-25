@@ -12,10 +12,11 @@ import type {
 /**
  * Jobs on the host's language and vision models (holzi spec 055), instead of bringing own access
  * and keys. The extension describes each step with its instruction, input and the format of the
- * answer; the host picks a model the user allowed for this extension, caps the effort, drops
- * broken output and returns only a result that fits the format.
+ * answer; the host picks a model the user allowed for this extension, runs it with the effort the
+ * user chose for it (an extension names none), drops broken output and returns only a result that
+ * fits the format.
  *
- * The user decides at run time: the first job asks which model the extension may use and up to
+ * The user decides at run time: the first job asks which model the extension may use and with
  * which effort, and before data goes to a destination outside this device it asks for consent.
  * The SDK waits for these answers and starts the job again, like for every other permission. The
  * choice stays with the host: {@link requestAccessAsync} asks before the first job, and
