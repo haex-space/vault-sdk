@@ -22,7 +22,7 @@ export interface ExtensionModel {
   place: ModelPlace;
   capabilities: {
     image: boolean;
-    /** `levels`: low, medium and high take effect; `managed`: the model decides itself. */
+    /** `none`: no choice; `managed`: the model decides; `levels`: the model offers named levels. */
     effort: "none" | "managed" | "levels";
   };
   /** The effort the user chose for this model (the name is from an earlier version). */

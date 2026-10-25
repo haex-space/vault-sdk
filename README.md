@@ -1125,7 +1125,8 @@ bundle. A damaged entry fails with `HostErrorCode.ENCRYPTED_DATA_DAMAGED` (3010)
 Jobs on the host's language and vision models, instead of bringing your own access and keys. You
 describe each step with its instruction, its input (text, images, or a part of an earlier step's
 result) and the format of its answer as a JSON Schema; the host picks a model the user allowed for
-your extension, runs it with the effort the user chose for that model and returns only a result that fits the format. Broken output (empty,
+your extension, runs it with the effort the user chose for that model and returns only a result that
+fits the format. Broken output (empty,
 a loop, a script switch, invalid JSON) is dropped, and the host tries the next allowed model.
 
 ```ts
@@ -1152,7 +1153,8 @@ if (end.status === "completed") console.log(end.result?.final, end.provenance);
 else console.warn(end.error?.code, end.error?.message);
 ```
 
-The user decides at run time which model your extension may use and with which effort (from the levels the model has; your extension names none, and the host refuses a step that does), and gives
+The user decides at run time which model your extension may use and with which effort (from the
+levels the model has; your extension names none, and the host refuses a step that does), and gives
 consent before anything goes to a destination outside the device; the SDK waits for these answers
 and starts the job again. `models.listAsync()` names the allowed models with their place and
 capabilities, never an address or a key. To let the user stop a job, pass a signal:
