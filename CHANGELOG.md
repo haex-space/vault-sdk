@@ -1,5 +1,16 @@
 # Changelog
 
+## [5.0.0](https://github.com/haex-space/vault-sdk/compare/v4.10.0...v5.0.0) (2026-10-25)
+
+
+### ⚠ BREAKING CHANGES
+
+* **models:** ModelJobStep.effort and ModelAccessRequest.effort are removed.
+
+### Features
+
+* **models:** leave the effort to the user ([2c9e6e3](https://github.com/haex-space/vault-sdk/commit/2c9e6e3849463c6d71df56ff9810dc3029fb11a3))
+
 ## [4.10.0](https://github.com/haex-space/vault-sdk/compare/v4.9.0...v4.10.0) (2026-10-24)
 
 
