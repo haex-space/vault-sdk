@@ -28,6 +28,8 @@ export const EXTENSION_COMMANDS = {
   tabAttention: "extension_tab_attention",
   /** Ask the user to confirm, in a dialog the host draws over this extension's tab */
   dialogConfirm: "extension_dialog_confirm",
+  /** Take the request the user gave this extension (holzi spec 063): `null` or `{ action, mail }` */
+  openerTake: "extension_opener_take",
 } as const;
 
 export type ExtensionCommand = (typeof EXTENSION_COMMANDS)[keyof typeof EXTENSION_COMMANDS];

@@ -38,6 +38,7 @@ import { MailAPI } from "./api/mail";
 import { NotificationsAPI } from "./api/notifications";
 import { TabAPI } from "./api/tab";
 import { DialogAPI } from "./api/dialog";
+import { OpenersAPI } from "./api/openers";
 import { ToolsAPI } from "./api/tools";
 import { HAEXSPACE_MESSAGE_TYPES } from "./messages";
 import { installConsoleForwarding } from "./polyfills/consoleForwarding";
@@ -127,6 +128,7 @@ export class HaexVaultSdk {
   public readonly notifications: NotificationsAPI;
   public readonly tab: TabAPI;
   public readonly dialog: DialogAPI;
+  public readonly openers: OpenersAPI;
   /** Tools the extension offers to the agent of its host (holzi spec 018). */
   public readonly tools: ToolsAPI;
 
@@ -162,6 +164,7 @@ export class HaexVaultSdk {
     this.notifications = new NotificationsAPI(this);
     this.tab = new TabAPI(this);
     this.dialog = new DialogAPI(this);
+    this.openers = new OpenersAPI(this);
     this.tools = new ToolsAPI({
       manifest: () => this.config.manifest,
       send: (message) => this.sendMcpMessage(message),
