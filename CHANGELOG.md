@@ -1,5 +1,19 @@
 # Changelog
 
+## [5.1.0](https://github.com/haex-space/vault-sdk/compare/v5.0.0...v5.1.0) (2026-10-30)
+
+
+### Features
+
+* **bundle:** check the openers block of a manifest ([cdb6609](https://github.com/haex-space/vault-sdk/commit/cdb6609cd7f40590d02d137bff543c24077b0790))
+* **openers:** register for kinds of links and take the host's requests ([517402a](https://github.com/haex-space/vault-sdk/commit/517402a94c7c2b5f2093f38e3930f4019ddbba8d))
+* **openers:** take the requests a host hands to an extension ([b3c714a](https://github.com/haex-space/vault-sdk/commit/b3c714a90c2f87239ac40f7ff3134c89000efe16))
+
+
+### Bug Fixes
+
+* **openers:** handle startup request races ([7e189ff](https://github.com/haex-space/vault-sdk/commit/7e189ff49734fcca0d1a40df840773085497a2b5))
+
 ## [5.0.0](https://github.com/haex-space/vault-sdk/compare/v4.10.0...v5.0.0) (2026-10-25)
 
 
