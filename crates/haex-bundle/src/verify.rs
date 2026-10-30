@@ -269,6 +269,9 @@ fn assert_valid_manifest(
     if let Some(tools) = field("tools") {
         crate::tools::check_tools(tools).map_err(invalid)?;
     }
+    if let Some(openers) = field("openers") {
+        crate::openers::check_openers(openers).map_err(invalid)?;
+    }
     Ok(())
 }
 

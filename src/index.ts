@@ -99,6 +99,7 @@ export type {
 export { NotificationsAPI } from "./api/notifications";
 export { TabAPI } from "./api/tab";
 export { DialogAPI, type ConfirmOptions } from "./api/dialog";
+export { OpenersAPI, type MailFields, type OpenRequest } from "./api/openers";
 export { ToolsAPI, type ToolContext, type ToolHandler } from "./api/tools";
 export type {
   DeepLink,
@@ -241,7 +242,7 @@ export {
 } from "./types/spaces";
 
 // Export event constants
-export { HAEXTENSION_EVENTS, type HaextensionEvent, EXTERNAL_EVENTS, type ExternalEvent, SHELL_EVENTS, type ShellEvent, NOTIFICATION_EVENTS, type NotificationEvent, MAIL_EVENTS, type MailEvent, MODEL_JOB_EVENTS, type ModelJobEvent, PEERS_EVENTS, type PeersEvent } from './events';
+export { HAEXTENSION_EVENTS, type HaextensionEvent, EXTERNAL_EVENTS, type ExternalEvent, SHELL_EVENTS, type ShellEvent, NOTIFICATION_EVENTS, type NotificationEvent, OPENER_EVENTS, type OpenerEvent, MAIL_EVENTS, type MailEvent, MODEL_JOB_EVENTS, type ModelJobEvent, PEERS_EVENTS, type PeersEvent } from './events';
 
 // Export message type constants
 export { HAEXSPACE_MESSAGE_TYPES, type HaexspaceMessageType } from './messages';

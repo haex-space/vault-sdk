@@ -45,6 +45,16 @@ export const NOTIFICATION_EVENTS = {
 export type NotificationEvent = typeof NOTIFICATION_EVENTS[keyof typeof NOTIFICATION_EVENTS];
 
 /**
+ * Events of the openers (`client.openers`, holzi spec 063).
+ */
+export const OPENER_EVENTS = {
+  /** A request waits for this extension: take it with `client.openers.take()`. The event carries no content. */
+  REQUEST: 'opener-request',
+} as const;
+
+export type OpenerEvent = typeof OPENER_EVENTS[keyof typeof OPENER_EVENTS];
+
+/**
  * Events of model jobs (`models.runAsync`, holzi spec 055).
  */
 export const MODEL_JOB_EVENTS = {

@@ -217,6 +217,9 @@ const tool = (overrides = {}) => ({
 });
 const toolsManifest = (tools) => minimalManifest({ tools });
 
+/** The manifest's `openers` block (holzi spec 063, contracts/manifest-openers.md). */
+const openersManifest = (openers) => minimalManifest({ openers });
+
 /** Same as minimal, plus two scripts used by the tamper vectors. */
 const scriptFiles = () => [
   ...minimalFiles(),
@@ -457,6 +460,21 @@ const VECTORS = [
   ["bad-tools-too-many", { kind: "manifest_invalid" }, "33 tools, more than 32", () =>
     buildBundle({ files: minimalFiles(),
       manifest: toolsManifest(Array.from({ length: 33 }, (_, i) => tool({ name: `tool_${i}` }))) })],
+  ["good-openers", null, "openers block with the known kind mail.compose and a kind of the right form no host knows", () =>
+    buildBundle({ files: minimalFiles(), manifest: openersManifest(["mail.compose", "tel.dial"]) })],
+  ["bad-openers-not-array", { kind: "manifest_invalid" }, "openers is an object, not an array of strings", () =>
+    buildBundle({ files: minimalFiles(), manifest: openersManifest({ "mail.compose": true }) })],
+  ["bad-openers-not-strings", { kind: "manifest_invalid" }, "openers holds a number", () =>
+    buildBundle({ files: minimalFiles(), manifest: openersManifest(["mail.compose", 1]) })],
+  ["bad-openers-too-many", { kind: "manifest_invalid" }, "9 openers, more than 8", () =>
+    buildBundle({ files: minimalFiles(),
+      manifest: openersManifest(Array.from({ length: 9 }, (_, i) => `kind.k${i}`)) })],
+  ["bad-openers-form", { kind: "manifest_invalid" }, "opener Mail.compose breaks ^[a-z][a-z0-9]*(\\.[a-z][a-z0-9]*)+$", () =>
+    buildBundle({ files: minimalFiles(), manifest: openersManifest(["Mail.compose"]) })],
+  ["bad-openers-too-long", { kind: "manifest_invalid" }, "opener kind of 33 characters", () =>
+    buildBundle({ files: minimalFiles(), manifest: openersManifest([`a.${"b".repeat(31)}`]) })],
+  ["bad-openers-duplicate", { kind: "manifest_invalid" }, "mail.compose twice", () =>
+    buildBundle({ files: minimalFiles(), manifest: openersManifest(["mail.compose", "mail.compose"]) })],
   ["bad-weak-key", { kind: "manifest_invalid" },
     "manifest and signature.json both name the small-order identity point as publicKey", () =>
       buildBundle({ files: minimalFiles(), manifest: minimalManifest({ publicKey: WEAK_PUBLIC_KEY }),

@@ -435,6 +435,13 @@ export interface ExtensionManifest {
   i18n?: Record<string, ManifestI18nEntry> | null;
   /** Tools the extension offers to the agent of its host (holzi spec 018). */
   tools?: ManifestTool[] | null;
+  /**
+   * The kinds of link the extension takes over from its host (holzi spec 063), for example
+   * `"mail.compose"`: the host offers the extension where a person writes an e-mail. At most 8 entries,
+   * each of the form `word.word` in lower case, at most 32 characters. A kind a host does not know is
+   * ignored. Registering grants no access.
+   */
+  openers?: string[] | null;
 }
 
 // Config Types
