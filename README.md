@@ -1068,14 +1068,13 @@ The host reads the link and hands the extension only the fields, once, and only 
 extension. Open your compose dialog with them and send nothing, the person has not written it yet:
 
 ```ts
-// A frame that the choice itself opened misses the event, so ask once at the start ...
-const first = await client.openers.take();
-if (first?.action === "mail.compose") openCompose(first.mail);
-
-// ... and listen while the extension is open. The SDK takes the request for you.
+// Listen first so an event during startup cannot be missed. A frame that the choice itself opened
+// may have missed the event already, so also ask once at the start ...
 client.openers.onRequest((request) => {
   if (request.action === "mail.compose") openCompose(request.mail);
 });
+const first = await client.openers.take();
+if (first?.action === "mail.compose") openCompose(first.mail);
 // request.mail: { to: string[], cc: string[], bcc: string[], subject: string, body: string }
 ```
 

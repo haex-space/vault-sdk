@@ -32,21 +32,34 @@ export class OpenersAPI {
    * the extension starts: a frame that the choice itself opened misses the event.
    */
   async take(): Promise<OpenRequest | null> {
+    await this.client.ready();
     const request = await this.client.request<OpenRequest | null>(EXTENSION_COMMANDS.openerTake, {});
     return request ?? null;
   }
 
   /**
    * Calls `handler` with each request that arrives while the extension is open; the SDK takes it
-   * for you. Returns an unsubscribe function.
+   * for you. Errors while taking a request go to `onError`, or to the SDK console log when omitted.
+   * Returns an unsubscribe function.
    */
-  onRequest(handler: (request: OpenRequest) => void): () => void {
+  onRequest(handler: (request: OpenRequest) => void, onError?: (error: unknown) => void): () => void {
+    let active = true;
     const wrapped: EventCallback = () => {
-      void this.take().then((request) => {
-        if (request) handler(request);
-      });
+      void this.take().then(
+        (request) => {
+          if (active && request) handler(request);
+        },
+        (error: unknown) => {
+          if (!active) return;
+          if (onError) onError(error);
+          else console.error("[HaexVault SDK] Failed to take opener request:", error);
+        },
+      );
     };
     this.client.on(OPENER_EVENTS.REQUEST, wrapped);
-    return () => this.client.off(OPENER_EVENTS.REQUEST, wrapped);
+    return () => {
+      active = false;
+      this.client.off(OPENER_EVENTS.REQUEST, wrapped);
+    };
   }
 }
