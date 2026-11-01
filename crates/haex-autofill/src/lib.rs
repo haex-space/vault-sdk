@@ -11,8 +11,8 @@
 //!
 //! 1. an entry key equal to the field's identifier (exact case first, then any case);
 //! 2. for a card field (`autocomplete` `cc-name`, `cc-number`, `cc-exp`, `cc-exp-month`,
-//!    `cc-exp-year`, `cc-csc`), the key whose own aliases name that token, else the key whose name
-//!    is a common name of that card field;
+//!    `cc-exp-year`, `cc-csc`), the key whose own aliases name that token, else an own alias for
+//!    the field's identifier, else the key whose name is a common name of that card field;
 //! 3. a one-time-code field gets [`Target::Otp`]: the current code, never the entry's `otp` marker;
 //! 4. the key whose aliases (the entry's own, else the defaults) name the field's identifier;
 //! 5. by the field's kind: `username`, `email`, `login` or `user` for a username or email field,

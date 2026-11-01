@@ -46,33 +46,32 @@ const USERNAME_PATTERNS: [&str; 7] = [
     "user", "login", "email", "username", "account", "nick", "handle",
 ];
 
-/// The kind of a field: its `type`, then its `autocomplete`, then words in its name, `id` or
-/// placeholder. A card field (`autocomplete` `cc-*`) is plain text, so a security code named
-/// `securityCode` is never taken for a one-time code.
+/// The kind of a field: card `autocomplete` tokens, then its `type`, then its `autocomplete`,
+/// then words in its name, `id` or placeholder. A card field is plain text even when masked as a
+/// password, so it never falls back to a login password or a one-time code.
 pub fn field_kind(field: &FieldFacts) -> FieldKind {
+    if card_token(&field.autocomplete).is_some() {
+        return FieldKind::Text;
+    }
     match field.input_type.to_lowercase().as_str() {
         "password" => return FieldKind::Password,
         "email" => return FieldKind::Email,
         _ => {}
     }
 
-    if card_token(&field.autocomplete).is_some() {
-        return FieldKind::Text;
-    }
     let autocomplete = field.autocomplete.to_lowercase();
-    if autocomplete.contains("password") {
-        return FieldKind::Password;
-    }
-    if autocomplete.contains("email") {
-        return FieldKind::Email;
-    }
-    if autocomplete.contains("username") {
-        return FieldKind::Username;
-    }
-    if autocomplete.contains("one-time-code") {
-        return FieldKind::Otp;
+    for token in autocomplete.split_ascii_whitespace() {
+        match token {
+            "current-password" | "new-password" => return FieldKind::Password,
+            "email" => return FieldKind::Email,
+            "username" => return FieldKind::Username,
+            "one-time-code" => return FieldKind::Otp,
+            _ => {}
+        }
     }
 
+    // ponytail: legacy substring heuristics can mistake names such as postal_code for OTP;
+    // replace them with token-aware name matching if fields lack reliable autocomplete hints.
     let text = format!("{} {} {}", field.name, field.id, field.placeholder).to_lowercase();
     let mentions = |patterns: &[&str]| patterns.iter().any(|pattern| text.contains(pattern));
     if mentions(&PASSWORD_PATTERNS) {

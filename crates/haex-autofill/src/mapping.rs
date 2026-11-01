@@ -105,6 +105,11 @@ pub fn map_field(field: &FieldFacts, entry: &EntryKeys) -> Option<Target> {
         let key = entry
             .typeable()
             .find(|key| entry.own_aliases_name(key, token))
+            .or_else(|| {
+                entry
+                    .typeable()
+                    .find(|key| entry.own_aliases_name(key, &identifier))
+            })
             .or_else(|| entry.typeable().find(|key| is_card_key(token, key)));
         if let Some(key) = key {
             return Some(Target::Key(key.to_owned()));
@@ -140,9 +145,15 @@ pub fn map_fields(fields: &[FieldFacts], entry: &EntryKeys) -> Vec<Option<Target
 }
 
 /// Whether the extension offers to fill `field` with one of `entries` (the entries that match the
-/// page): a one-time-code field when an entry has a TOTP, a field named like a standard key or
-/// its default aliases always, any other field when an entry has a key or an own alias for it.
+/// page): a card field when an entry maps to it, a one-time-code field when an entry has a TOTP,
+/// a field named like a standard key or its default aliases always, any other field when an
+/// entry has a key or an own alias for it.
 pub fn shows_icon(field: &FieldFacts, entries: &[EntryKeys]) -> bool {
+    if card_token(&field.autocomplete).is_some() {
+        return entries
+            .iter()
+            .any(|entry| map_field(field, entry).is_some());
+    }
     if is_otp_field(field, None)
         || entries
             .iter()
