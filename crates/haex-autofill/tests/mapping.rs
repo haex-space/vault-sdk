@@ -186,6 +186,55 @@ fn a_card_field_without_a_card_key_stays_empty() {
 }
 
 #[test]
+fn name_heuristics_do_not_fill_unrelated_fields() {
+    let login = EntryKeys {
+        has_totp: true,
+        ..entry(&["username", "password", "otp"])
+    };
+    for name in [
+        "postal_code",
+        "zip_code",
+        "promo_code",
+        "passport",
+        "passport_no",
+        "passport1",
+        "account_number",
+        "postalCode",
+        "passportNo",
+        "accountNumber",
+    ] {
+        for field in [
+            named("text", name),
+            FieldFacts {
+                id: name.into(),
+                ..FieldFacts::default()
+            },
+            FieldFacts {
+                placeholder: name.into(),
+                ..FieldFacts::default()
+            },
+        ] {
+            assert_eq!(map_field(&field, &login), None, "{field:?}");
+        }
+    }
+    for (name, expected) in [
+        ("code", Some(Target::Otp)),
+        ("appOtp", Some(Target::Otp)),
+        ("OTPCode", Some(Target::Otp)),
+        ("2FACode", Some(Target::Otp)),
+        ("otp1", Some(Target::Otp)),
+        ("OTP1", Some(Target::Otp)),
+        ("user[otp_attempt]", Some(Target::Otp)),
+        ("loginPassword", key("password")),
+        ("passwd", key("password")),
+        ("userName", key("username")),
+        ("username1", key("username")),
+    ] {
+        assert_eq!(map_field(&named("text", name), &login), expected, "{name}");
+    }
+}
+
+#[test]
 fn autocomplete_section_names_never_select_credentials() {
     let login = entry(&["username", "password"]);
     for (autocomplete, expected) in [

@@ -39,12 +39,34 @@ impl FieldKind {
     }
 }
 
-const PASSWORD_PATTERNS: [&str; 3] = ["pass", "pwd", "secret"];
-const OTP_PATTERNS: [&str; 7] = ["otp", "totp", "code", "token", "2fa", "mfa", "verification"];
+const PASSWORD_PATTERNS: [&str; 5] = ["pass", "password", "passwd", "pwd", "secret"];
+const OTP_PATTERNS: [&str; 5] = ["otp", "totp", "2fa", "mfa", "verification"];
 const EMAIL_PATTERNS: [&str; 2] = ["email", "mail"];
-const USERNAME_PATTERNS: [&str; 7] = [
-    "user", "login", "email", "username", "account", "nick", "handle",
-];
+const USERNAME_PATTERNS: [&str; 6] = ["user", "login", "username", "nick", "nickname", "handle"];
+
+fn name_tokens(text: &str) -> Vec<String> {
+    let mut separated = String::new();
+    let mut chars = text.chars().peekable();
+    let mut previous: Option<char> = None;
+    while let Some(c) = chars.next() {
+        if c.is_uppercase()
+            && previous.is_some_and(|prev| {
+                prev.is_lowercase()
+                    || ((prev.is_uppercase() || prev.is_numeric())
+                        && chars.peek().is_some_and(|next| next.is_lowercase()))
+            })
+        {
+            separated.push(' ');
+        }
+        separated.push(c);
+        previous = Some(c);
+    }
+    separated
+        .split(|c: char| !c.is_alphanumeric())
+        .filter(|token| !token.is_empty())
+        .map(str::to_lowercase)
+        .collect()
+}
 
 /// The kind of a field: card `autocomplete` tokens, then its `type`, then its `autocomplete`,
 /// then words in its name, `id` or placeholder. A card field is plain text even when masked as a
@@ -70,17 +92,34 @@ pub fn field_kind(field: &FieldFacts) -> FieldKind {
         }
     }
 
-    // ponytail: legacy substring heuristics can mistake names such as postal_code for OTP;
-    // replace them with token-aware name matching if fields lack reliable autocomplete hints.
-    let text = format!("{} {} {}", field.name, field.id, field.placeholder).to_lowercase();
-    let mentions = |patterns: &[&str]| patterns.iter().any(|pattern| text.contains(pattern));
+    let tokens = name_tokens(&format!(
+        "{} {} {}",
+        field.name, field.id, field.placeholder
+    ));
+    // Numeric suffixes index repeated inputs, including individual OTP boxes.
+    let mentions = |patterns: &[&str]| {
+        tokens
+            .iter()
+            .any(|token| patterns.contains(&token.trim_end_matches(|c: char| c.is_ascii_digit())))
+    };
+    // ponytail: word heuristics cannot infer a field's meaning; ambiguous words only count as
+    // whole attributes. Other names need explicit autocomplete or entry aliases.
+    let named = |names: &[&str]| {
+        [&field.name, &field.id, &field.placeholder]
+            .iter()
+            .any(|text| {
+                names
+                    .iter()
+                    .any(|name| text.trim().eq_ignore_ascii_case(name))
+            })
+    };
     if mentions(&PASSWORD_PATTERNS) {
         FieldKind::Password
-    } else if mentions(&OTP_PATTERNS) {
+    } else if mentions(&OTP_PATTERNS) || named(&["code", "token"]) {
         FieldKind::Otp
     } else if mentions(&EMAIL_PATTERNS) {
         FieldKind::Email
-    } else if mentions(&USERNAME_PATTERNS) {
+    } else if mentions(&USERNAME_PATTERNS) || named(&["account"]) {
         FieldKind::Username
     } else {
         FieldKind::Text
