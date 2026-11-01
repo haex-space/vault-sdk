@@ -163,6 +163,11 @@ fn an_own_alias_names_the_card_field_before_the_common_names() {
         map_field(&card("pan", "cc-number"), &own),
         key("Firmenkarte")
     );
+    let by_identifier = with_aliases(own, "Firmenkarte", &["pan"]);
+    assert_eq!(
+        map_field(&card("pan", "cc-number"), &by_identifier),
+        key("Firmenkarte")
+    );
 }
 
 #[test]
@@ -170,8 +175,64 @@ fn a_card_field_without_a_card_key_stays_empty() {
     let login = entry(&["username", "password", "otp"]);
 
     assert_eq!(map_field(&card("securityCode", "cc-csc"), &login), None);
+    let masked = FieldFacts {
+        input_type: "password".into(),
+        ..card("securityCode", "cc-csc")
+    };
+    assert_eq!(map_field(&masked, &login), None);
+    assert_eq!(map_field(&masked, &entry(&["CVC"])), key("CVC"));
     assert_eq!(card_token("billing cc-exp-year"), Some("cc-exp-year"));
     assert_eq!(card_token("cc-numbers"), None);
+}
+
+#[test]
+fn autocomplete_section_names_never_select_credentials() {
+    let login = entry(&["username", "password"]);
+    for (autocomplete, expected) in [
+        ("section-password username", key("username")),
+        ("section-email new-password", key("password")),
+        ("section-username one-time-code", Some(Target::Otp)),
+        ("section-password postal-code", None),
+    ] {
+        assert_eq!(
+            map_field(&card("x", autocomplete), &login),
+            expected,
+            "{autocomplete}"
+        );
+    }
+}
+
+#[test]
+fn shows_the_icon_for_card_keys_and_card_token_aliases() {
+    let number = card("pan", "section-pay billing cc-number");
+    assert!(shows_icon(&number, &[entry(&["Kartennummer"])]));
+    assert!(shows_icon(
+        &number,
+        &[with_aliases(
+            entry(&["Firmenkarte"]),
+            "Firmenkarte",
+            &["cc-number"]
+        )]
+    ));
+    assert!(!shows_icon(&number, &[entry(&["username", "password"])]));
+    assert!(!shows_icon(&number, &[]));
+    assert!(!shows_icon(&card("code", "cc-csc"), &[]));
+}
+
+#[test]
+fn rejects_malformed_field_and_entry_json() {
+    for json in ["{", "null", r#"{"inputType":42}"#, r#"{"name":null}"#] {
+        assert!(serde_json::from_str::<FieldFacts>(json).is_err(), "{json}");
+    }
+    for json in [
+        "{",
+        "null",
+        r#"{"keys":[42]}"#,
+        r#"{"aliases":{"username":"login"}}"#,
+        r#"{"hasTotp":"true"}"#,
+    ] {
+        assert!(serde_json::from_str::<EntryKeys>(json).is_err(), "{json}");
+    }
 }
 
 #[test]
