@@ -1,5 +1,18 @@
 # Changelog
 
+## [5.2.0](https://github.com/haex-space/vault-sdk/compare/v5.1.0...v5.2.0) (2026-11-01)
+
+
+### Features
+
+* **autofill:** add the haex-autofill crate, the one autofill rule ([fe8e4b3](https://github.com/haex-space/vault-sdk/commit/fe8e4b326d6127c7ed91b378ba43de1cd76de561))
+
+
+### Bug Fixes
+
+* **autofill:** match credential names at word boundaries ([ae3dfc7](https://github.com/haex-space/vault-sdk/commit/ae3dfc73e71395c230c4c5bf95c5e850e345d7c3))
+* **autofill:** respect card fields and explicit autocomplete mappings ([247500f](https://github.com/haex-space/vault-sdk/commit/247500fbc22e76faeb1bceb325583447bdede4a7))
+
 ## [5.1.0](https://github.com/haex-space/vault-sdk/compare/v5.0.0...v5.1.0) (2026-10-30)
 
 
