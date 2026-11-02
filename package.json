@@ -69,6 +69,34 @@
       "require": "./dist/vite.js"
     }
   },
+  "typesVersions": {
+    "*": {
+      "node": [
+        "./dist/node.d.ts"
+      ],
+      "autofill": [
+        "./dist/autofill.d.ts"
+      ],
+      "passgen": [
+        "./dist/passgen.d.ts"
+      ],
+      "vue": [
+        "./dist/vue.d.ts"
+      ],
+      "react": [
+        "./dist/react.d.ts"
+      ],
+      "svelte": [
+        "./dist/svelte.d.ts"
+      ],
+      "nuxt": [
+        "./dist/nuxt.d.ts"
+      ],
+      "vite": [
+        "./dist/vite.d.ts"
+      ]
+    }
+  },
   "bin": {
     "haex": "./dist/cli/index.js"
   },
