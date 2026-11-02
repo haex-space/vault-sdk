@@ -13,6 +13,8 @@ export default tseslint.config(
       "scripts/**",
       "examples/**",
       "src/bundle/wasm/**",
+      "src/autofill/wasm/**",
+      "src/passgen/wasm/**",
     ],
   },
   {

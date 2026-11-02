@@ -32,9 +32,11 @@ CLAUDE.md
 .claude/
 .npmrc
 
-# Rust build output and the generated WebAssembly glue (scripts/build-bundle-wasm.mjs)
+# Rust build output and the generated WebAssembly glue (scripts/build-wasm.mjs)
 crates/*/target/
 src/bundle/wasm/
+src/autofill/wasm/
+src/passgen/wasm/
 
 # Spec Kit agent skills are generated per developer by `spaex install`.
 .agents/skills/speckit-*/
