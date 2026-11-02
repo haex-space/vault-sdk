@@ -69,6 +69,16 @@
       "require": "./dist/vite.js"
     }
   },
+  "typesVersions": {
+    "*": {
+      "autofill": [
+        "./dist/autofill.d.ts"
+      ],
+      "passgen": [
+        "./dist/passgen.d.ts"
+      ]
+    }
+  },
   "bin": {
     "haex": "./dist/cli/index.js"
   },
