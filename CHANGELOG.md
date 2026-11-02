@@ -1,5 +1,14 @@
 # Changelog
 
+## [5.4.1](https://github.com/haex-space/vault-sdk/compare/v5.4.0...v5.4.1) (2026-11-02)
+
+
+### Bug Fixes
+
+* **package:** map every subpath export in typesVersions ([15dbd4e](https://github.com/haex-space/vault-sdk/commit/15dbd4e14af9276236b2b7cf1b06d72408f0dc64))
+* **wasm:** resolve the types of the browser entries under node resolution ([118d0f0](https://github.com/haex-space/vault-sdk/commit/118d0f0a80d8a301ff6a43859a501f28c68d4b42))
+* **wasm:** resolve the types of the browser entries under node resolution ([0291eb3](https://github.com/haex-space/vault-sdk/commit/0291eb3131957de50fb25b06713a76e4938efbd0))
+
 ## [5.4.0](https://github.com/haex-space/vault-sdk/compare/v5.3.0...v5.4.0) (2026-11-02)
 
 
