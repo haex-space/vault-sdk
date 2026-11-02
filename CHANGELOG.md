@@ -1,5 +1,17 @@
 # Changelog
 
+## [5.3.0](https://github.com/haex-space/vault-sdk/compare/v5.2.0...v5.3.0) (2026-11-02)
+
+
+### Features
+
+* **passgen:** add the haex-passgen crate, the one password generator ([5c91ad0](https://github.com/haex-space/vault-sdk/commit/5c91ad05ab8047c730d89365249e11ff2c84d63c))
+
+
+### Bug Fixes
+
+* **passgen:** validate random index ranges ([4f5294f](https://github.com/haex-space/vault-sdk/commit/4f5294f60b75ba0a073a7818a93464d8d8ad7c68))
+
 ## [5.2.0](https://github.com/haex-space/vault-sdk/compare/v5.1.0...v5.2.0) (2026-11-01)
 
 
