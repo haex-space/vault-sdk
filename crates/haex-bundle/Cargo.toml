@@ -10,7 +10,7 @@ publish = false
 
 # The one implementation of the bundle format. Hosts (holzi) use it natively;
 # the `haex` tool of this SDK uses its WebAssembly build (feature `wasm`,
-# `scripts/build-bundle-wasm.mjs`).
+# `scripts/build-wasm.mjs`).
 
 [lib]
 crate-type = ["rlib", "cdylib"]

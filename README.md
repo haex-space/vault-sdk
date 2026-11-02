@@ -1697,6 +1697,30 @@ different rules. From Node.js the same functions are available as `verifyBundle`
 - No way to bypass permission system
 - Audit trail for all cross-extension access
 
+## Autofill Rule & Password Generator (Browser)
+
+Two rules of haex-pass have one implementation each, a Rust crate that holzi uses natively. The
+SDK ships their WebAssembly builds as browser entries; the module is part of the entry's code, so
+they also work in a browser extension's content script. A page that runs them needs
+`'wasm-unsafe-eval'` in its `script-src`.
+
+```typescript
+import { initAutofill, mapFields } from '@haex-space/vault-sdk/autofill'
+import { generatePassword, initPassgen } from '@haex-space/vault-sdk/passgen'
+
+await initAutofill() // once; the functions are synchronous afterwards
+mapFields([{ inputType: 'email', name: 'email' }], { keys: ['username', 'password'] })
+// → [{ kind: 'key', key: 'username' }]
+
+await initPassgen()
+generatePassword({ length: 24, symbols: false }) // → { value: '…' } or { error: 'no_class' }
+```
+
+- `@haex-space/vault-sdk/autofill` (`crates/haex-autofill`): `mapFields`, `showsIcon`,
+  `isOtpField`, `fieldKind`, `fieldIdentifier`. Values never pass through the rule.
+- `@haex-space/vault-sdk/passgen` (`crates/haex-passgen`): `generatePassword`, with rejection
+  sampling, every chosen class at least once and an error code instead of an empty password.
+
 ## TypeScript Support
 
 Full TypeScript support included:
