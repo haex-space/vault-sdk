@@ -231,6 +231,12 @@ fn rejection_sampling_skips_the_biased_tail_of_the_random_range() {
 }
 
 #[test]
+fn random_index_rejects_empty_or_unrepresentable_ranges() {
+    assert!(std::panic::catch_unwind(|| random_index(0, &mut || 0)).is_err());
+    assert!(std::panic::catch_unwind(|| random_index(usize::MAX, &mut || 0)).is_err());
+}
+
+#[test]
 fn the_choice_is_uniform() {
     // Chi-square over 60,000 draws from 7 choices; 6 degrees of freedom: 22.5 is the 99.9 % point.
     // The draws are fixed, so this never flakes.

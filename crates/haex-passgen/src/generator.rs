@@ -97,7 +97,15 @@ const RANGE: u64 = 1 << 32;
 /// A uniform index in `0..max` by rejection sampling: draws that fall into the uneven tail of the
 /// 32 bit range are dropped, so no choice is more likely than another. One choice or none needs no
 /// draw.
+///
+/// # Panics
+///
+/// When `max` is zero or larger than the 32 bit random range.
 pub fn random_index(max: usize, random: &mut impl FnMut() -> u32) -> usize {
+    assert!(
+        max > 0 && (max as u128) <= RANGE as u128,
+        "max must be in 1..=2^32"
+    );
     if max <= 1 {
         return 0;
     }
