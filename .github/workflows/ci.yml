@@ -64,7 +64,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pnpm-store-
 
-      - name: Setup Rust (haex-bundle, haex-autofill and their WebAssembly builds)
+      - name: Setup Rust (haex-bundle, haex-autofill, haex-passgen and their WebAssembly builds)
         uses: dtolnay/rust-toolchain@stable
         with:
           targets: wasm32-unknown-unknown
@@ -85,6 +85,7 @@ jobs:
           workspaces: |
             crates/haex-bundle
             crates/haex-autofill
+            crates/haex-passgen
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -99,6 +100,14 @@ jobs:
 
       - name: Check haex-autofill (format, clippy, tests)
         working-directory: crates/haex-autofill
+        run: |
+          cargo fmt --check
+          cargo clippy --all-targets -- -D warnings
+          cargo clippy --target wasm32-unknown-unknown --features wasm --lib -- -D warnings
+          cargo test
+
+      - name: Check haex-passgen (format, clippy, tests)
+        working-directory: crates/haex-passgen
         run: |
           cargo fmt --check
           cargo clippy --all-targets -- -D warnings
