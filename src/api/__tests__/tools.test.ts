@@ -89,3 +89,70 @@ describe('sdk.tools over the port', () => {
     extension.close()
   })
 })
+
+/** Wraps `value` like Vue's `reactive`: every nested object read through it is a proxy too. */
+function reactiveLike<T extends object>(value: T): T {
+  return new Proxy(value, {
+    get(target, key, receiver) {
+      const found = Reflect.get(target, key, receiver)
+      return typeof found === 'object' && found !== null ? reactiveLike(found) : found
+    },
+  })
+}
+
+describe('sdk.tools with a reactive manifest (a Nuxt runtime config)', () => {
+  /** Sends as `postMessage` does: a structured clone, which refuses a proxy. */
+  const cloning = (sent: Record<string, unknown>[]) => (message: Record<string, unknown>) =>
+    sent.push(structuredClone(message))
+
+  it('a proxy cannot be cloned, so a schema read through one would not reach the host', () => {
+    expect(() => structuredClone(reactiveLike({ inputSchema: { type: 'object' } }).inputSchema)).toThrow()
+  })
+
+  it('answers tools/list with the schemas as plain data', async () => {
+    const sent: Record<string, unknown>[] = []
+    const reactive = reactiveLike(manifest)
+    const tools = new ToolsAPI({ manifest: () => reactive, send: cloning(sent) })
+    tools.register('count_unread', () => 3)
+    await tools.receive({ jsonrpc: '2.0', id: 1, method: 'tools/list' })
+    expect(sent).toEqual([
+      {
+        jsonrpc: '2.0',
+        id: 1,
+        result: {
+          tools: [
+            {
+              name: 'count_unread',
+              title: 'Count unread',
+              description: 'Counts unread mails.',
+              inputSchema: { type: 'object', properties: {} },
+            },
+          ],
+        },
+      },
+    ])
+  })
+
+  it('answers with an error, not with silence, when the answer cannot be sent', async () => {
+    const sent: Record<string, unknown>[] = []
+    let refused = false
+    const tools = new ToolsAPI({
+      manifest: () => manifest,
+      send: (message) => {
+        if ('result' in message && !refused) {
+          refused = true
+          throw new Error('port refused the message')
+        }
+        sent.push(message)
+      },
+    })
+    await tools.receive({ jsonrpc: '2.0', id: 4, method: 'tools/list' })
+    expect(sent).toEqual([
+      {
+        jsonrpc: '2.0',
+        id: 4,
+        error: { code: -32603, message: 'the answer could not be sent: port refused the message' },
+      },
+    ])
+  })
+})
