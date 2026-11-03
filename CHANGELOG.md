@@ -1,5 +1,13 @@
 # Changelog
 
+## [5.4.2](https://github.com/haex-space/vault-sdk/compare/v5.4.1...v5.4.2) (2026-11-03)
+
+
+### Bug Fixes
+
+* **tools:** send the host plain JSON so tools/list reaches it ([e67c300](https://github.com/haex-space/vault-sdk/commit/e67c300b1671b14d363b399c400086ac875d68d1))
+* **tools:** send the host plain JSON so tools/list reaches it ([728bc32](https://github.com/haex-space/vault-sdk/commit/728bc322c9a53c199ec1f3c3d0063b6001b81c43))
+
 ## [5.4.1](https://github.com/haex-space/vault-sdk/compare/v5.4.0...v5.4.1) (2026-11-02)
 
 
