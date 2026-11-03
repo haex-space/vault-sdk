@@ -17,6 +17,7 @@ export const PROTOCOL_VERSION = "2025-11-25";
 
 const METHOD_NOT_FOUND = -32601;
 const INVALID_PARAMS = -32602;
+const INTERNAL_ERROR = -32603;
 
 export type JsonRpcId = string | number;
 export type JsonRpcMessage = Record<string, unknown>;
@@ -143,11 +144,31 @@ export class ToolsServer {
     if (!controller.signal.aborted) this.reply(id, result);
   }
 
+  /**
+   * Answers `id`. An answer that cannot be sent gets an error instead, so the host never waits for
+   * an answer that will not come.
+   */
   private reply(id: JsonRpcId, result: unknown): void {
-    this.options.send({ jsonrpc: "2.0", id, result });
+    try {
+      this.send({ jsonrpc: "2.0", id, result });
+    } catch (error) {
+      const reason = error instanceof Error ? error.message : String(error);
+      console.warn(`[vault-sdk] tools: answer ${String(id)} could not be sent: ${reason}`);
+      this.error(id, INTERNAL_ERROR, `the answer could not be sent: ${reason}`);
+    }
   }
 
   private error(id: JsonRpcId, code: number, message: string): void {
-    this.options.send({ jsonrpc: "2.0", id, error: { code, message } });
+    this.send({ jsonrpc: "2.0", id, error: { code, message } });
+  }
+
+  /**
+   * Sends a JSON copy. The manifest of a Nuxt extension comes from its runtime config, a Vue
+   * reactive proxy, and `postMessage` cannot clone a proxy: the input schemas of `tools/list`
+   * would throw a `DataCloneError` and the host would never get the list. JSON-RPC is JSON, so the
+   * copy loses nothing.
+   */
+  private send(message: JsonRpcMessage): void {
+    this.options.send(JSON.parse(JSON.stringify(message)) as JsonRpcMessage);
   }
 }
