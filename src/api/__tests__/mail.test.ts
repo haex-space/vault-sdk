@@ -94,9 +94,9 @@ describe('MailAPI.createMailboxAsync', () => {
 
 describe('MailAPI.deleteMailboxAsync', () => {
   it('names the mailbox to delete', async () => {
-    const { mail, calls } = makeMailApi()
+    const { mail, calls } = makeMailApi(null)
 
-    await expect(mail.deleteMailboxAsync(imap, 'Steuer')).resolves.toBeUndefined()
+    await mail.deleteMailboxAsync(imap, 'Steuer')
 
     expect(calls).toEqual([
       { command: MAIL_COMMANDS.deleteMailbox, args: { imap, mailbox: 'Steuer' } },
@@ -106,9 +106,9 @@ describe('MailAPI.deleteMailboxAsync', () => {
 
 describe('MailAPI.renameMailboxAsync', () => {
   it('names the old and the new mailbox', async () => {
-    const { mail, calls } = makeMailApi()
+    const { mail, calls } = makeMailApi(null)
 
-    await expect(mail.renameMailboxAsync(imap, 'Steuer', 'Finanzen/Steuer')).resolves.toBeUndefined()
+    await mail.renameMailboxAsync(imap, 'Steuer', 'Finanzen/Steuer')
 
     expect(calls).toEqual([
       {
