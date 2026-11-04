@@ -6,7 +6,6 @@
 ### Features
 
 * **mail:** delete and rename a mailbox ([f61d990](https://github.com/haex-space/vault-sdk/commit/f61d99078d5af886232ba812d63f0f3f6dc85a34))
-* **mail:** delete and rename a mailbox ([78f94ff](https://github.com/haex-space/vault-sdk/commit/78f94ff36ca80c3210fb77f7ce02e1563c070e03))
 
 ## [5.4.2](https://github.com/haex-space/vault-sdk/compare/v5.4.1...v5.4.2) (2026-11-03)
 
