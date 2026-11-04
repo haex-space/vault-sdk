@@ -2,7 +2,8 @@
  * Mail Commands (IMAP fetch + SMTP send).
  *
  * Permissions are split protocol-wise: `fetch` covers all IMAP
- * operations (list/read/search/flag/move/append/create/delete), `send` covers SMTP, `poll`
+ * operations (list/read/search/flag/move/append, create/delete/rename mailbox,
+ * delete messages), `send` covers SMTP, `poll`
  * covers background new-mail watching (startWatch/stopWatch). Target
  * matches mail-server hostnames; subdomain match is supported, so
  * target="gmail.com" grants access to "imap.gmail.com" and
@@ -24,6 +25,10 @@ export const MAIL_COMMANDS = {
   search: "extension_mail_search",
   /** CREATE a mailbox (reports whether it was already there) */
   createMailbox: "extension_mail_create_mailbox",
+  /** DELETE a mailbox (never INBOX) */
+  deleteMailbox: "extension_mail_delete_mailbox",
+  /** RENAME a mailbox (never INBOX) */
+  renameMailbox: "extension_mail_rename_mailbox",
   /** Delete messages for good: `\Deleted` plus UID EXPUNGE of exactly those UIDs */
   deleteMessages: "extension_mail_delete_messages",
   /** Set or unset IMAP flags on a UID set */
