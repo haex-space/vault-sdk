@@ -92,6 +92,33 @@ describe('MailAPI.createMailboxAsync', () => {
   })
 })
 
+describe('MailAPI.deleteMailboxAsync', () => {
+  it('names the mailbox to delete', async () => {
+    const { mail, calls } = makeMailApi()
+
+    await expect(mail.deleteMailboxAsync(imap, 'Steuer')).resolves.toBeUndefined()
+
+    expect(calls).toEqual([
+      { command: MAIL_COMMANDS.deleteMailbox, args: { imap, mailbox: 'Steuer' } },
+    ])
+  })
+})
+
+describe('MailAPI.renameMailboxAsync', () => {
+  it('names the old and the new mailbox', async () => {
+    const { mail, calls } = makeMailApi()
+
+    await expect(mail.renameMailboxAsync(imap, 'Steuer', 'Finanzen/Steuer')).resolves.toBeUndefined()
+
+    expect(calls).toEqual([
+      {
+        command: MAIL_COMMANDS.renameMailbox,
+        args: { imap, from: 'Steuer', to: 'Finanzen/Steuer' },
+      },
+    ])
+  })
+})
+
 describe('MailAPI.deleteMessagesAsync', () => {
   it('names the mailbox and exactly the UIDs to delete', async () => {
     const { mail, calls } = makeMailApi()
@@ -109,5 +136,7 @@ describe('mail commands', () => {
     expect(MAIL_COMMANDS.search).toBe('extension_mail_search')
     expect(MAIL_COMMANDS.createMailbox).toBe('extension_mail_create_mailbox')
     expect(MAIL_COMMANDS.deleteMessages).toBe('extension_mail_delete_messages')
+    expect(MAIL_COMMANDS.deleteMailbox).toBe('extension_mail_delete_mailbox')
+    expect(MAIL_COMMANDS.renameMailbox).toBe('extension_mail_rename_mailbox')
   })
 })

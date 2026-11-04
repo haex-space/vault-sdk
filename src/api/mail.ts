@@ -132,6 +132,27 @@ export class MailAPI {
   }
 
   /**
+   * Delete a mailbox. `mailbox` is the IMAP-encoded name (modified UTF-7), like in every other
+   * call. `INBOX` can be neither deleted nor renamed; the host refuses it. Whether the mailbox's
+   * messages and child mailboxes go with it, and whether a missing mailbox is an error, is up to
+   * the server. Needs the same `fetch` permission as the other IMAP calls.
+   */
+  async deleteMailboxAsync(imap: ImapConfig, mailbox: string): Promise<void> {
+    return this.client.request<void>(MAIL_COMMANDS.deleteMailbox, { imap, mailbox });
+  }
+
+  /**
+   * Rename a mailbox from `from` to `to`, both IMAP-encoded names (modified UTF-7). `to` may
+   * contain the server's hierarchy delimiter to move the mailbox in the tree; `*` and `%` are not
+   * allowed. `INBOX` can be neither deleted nor renamed; the host refuses it. Whether child
+   * mailboxes follow and whether an existing `to` is an error is up to the server. Needs the same
+   * `fetch` permission as the other IMAP calls.
+   */
+  async renameMailboxAsync(imap: ImapConfig, from: string, to: string): Promise<void> {
+    return this.client.request<void>(MAIL_COMMANDS.renameMailbox, { imap, from, to });
+  }
+
+  /**
    * Delete messages for good: flags exactly these UIDs `\Deleted` and expunges exactly them, so
    * other messages marked `\Deleted` stay. Refused with an error on a server without UIDPLUS,
    * before anything is marked. If the expunge fails after marking, the messages stay in the
