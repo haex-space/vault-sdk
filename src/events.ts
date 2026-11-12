@@ -26,6 +26,10 @@ export const HAEXTENSION_EVENTS = {
   /** Tables have been updated via sync (CRDT pull from server) */
   SYNC_TABLES_UPDATED: 'haextension:sync:tables-updated',
 
+  /** The user used a control of this extension's header (holzi spec 090): `{ id, kind, value? }`.
+   *  Subscribe through `client.header.onEvent`. */
+  HEADER_EVENT: 'haextension:header:event',
+
   /** A runtime permission prompt was resolved (granted/denied) by the user.
    *  The SDK uses this to auto-retry the original request; extensions may also
    *  subscribe via `client.on(HAEXTENSION_EVENTS.PERMISSION_RESOLVED, ...)`. */
