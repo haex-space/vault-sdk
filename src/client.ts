@@ -37,6 +37,7 @@ import { PeersAPI } from "./api/peers";
 import { MailAPI } from "./api/mail";
 import { NotificationsAPI } from "./api/notifications";
 import { TabAPI } from "./api/tab";
+import { HeaderAPI } from "./api/header";
 import { DialogAPI } from "./api/dialog";
 import { OpenersAPI } from "./api/openers";
 import { ToolsAPI } from "./api/tools";
@@ -127,6 +128,7 @@ export class HaexVaultSdk {
   public readonly mail: MailAPI;
   public readonly notifications: NotificationsAPI;
   public readonly tab: TabAPI;
+  public readonly header: HeaderAPI;
   public readonly dialog: DialogAPI;
   public readonly openers: OpenersAPI;
   /** Tools the extension offers to the agent of its host (holzi spec 018). */
@@ -163,6 +165,7 @@ export class HaexVaultSdk {
     this.mail = new MailAPI(this);
     this.notifications = new NotificationsAPI(this);
     this.tab = new TabAPI(this);
+    this.header = new HeaderAPI(this);
     this.dialog = new DialogAPI(this);
     this.openers = new OpenersAPI(this);
     this.tools = new ToolsAPI({
