@@ -17,6 +17,19 @@ const DESCRIPTION: HeaderDescription = {
   end: [{ type: "search", id: "q", label: "Search", value: "" }],
 };
 
+const MENU: HeaderDescription = {
+  end: [
+    {
+      type: "menu",
+      id: "filter",
+      label: "Filter",
+      icon: "icons/filter.svg",
+      active: true,
+      items: [{ type: "item", id: "all", label: "All", checked: true }],
+    },
+  ],
+};
+
 /** Sends `description` and lets the host answer with `reply`; resolves what `set` resolves. */
 async function setWith(reply: { result: unknown } | { error: unknown }) {
   const host = await connectedAsync();
@@ -29,6 +42,16 @@ async function setWith(reply: { result: unknown } | { error: unknown }) {
 }
 
 describe("client.header.set", () => {
+  it("sends a menu with checked entries and the active dot as given", async () => {
+    const host = await connectedAsync();
+    const nextRequest = host.nextRequest();
+    const pending = sdk!.header.set(MENU);
+    const request = await nextRequest;
+    expect(request).toMatchObject({ method: "extension_header_set", params: MENU });
+    host.channel.port1.postMessage({ id: request.id, result: null });
+    await expect(pending).resolves.toBe(true);
+  });
+
   it("sends the description and resolves true when the host applied it", async () => {
     await expect(setWith({ result: null })).resolves.toBe(true);
   });
