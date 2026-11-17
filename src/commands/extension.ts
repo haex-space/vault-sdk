@@ -26,6 +26,8 @@ export const EXTENSION_COMMANDS = {
   emitSyncTables: "extension_emit_sync_tables",
   /** Ask the host to mark (or unmark) this extension's own tab as wanting attention */
   tabAttention: "extension_tab_attention",
+  /** Replace the header of this extension's own tab (holzi spec 090): `null` */
+  headerSet: "extension_header_set",
   /** Ask the user to confirm, in a dialog the host draws over this extension's tab */
   dialogConfirm: "extension_dialog_confirm",
   /** Take the request the user gave this extension (holzi spec 063): `null` or `{ action, mail }` */

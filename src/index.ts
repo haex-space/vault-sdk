@@ -98,6 +98,27 @@ export type {
 } from "./types/mail";
 export { NotificationsAPI } from "./api/notifications";
 export { TabAPI } from "./api/tab";
+export { HeaderAPI } from "./api/header";
+export type {
+  HeaderBreadcrumb,
+  HeaderButton,
+  HeaderChoice,
+  HeaderCollapse,
+  HeaderCollapseForm,
+  HeaderControl,
+  HeaderControlBase,
+  HeaderDescription,
+  HeaderEvent,
+  HeaderEventKind,
+  HeaderMenu,
+  HeaderMenuItem,
+  HeaderOption,
+  HeaderSearch,
+  HeaderSegment,
+  HeaderSeparator,
+  HeaderTitle,
+  HeaderToggle,
+} from "./types/header";
 export { DialogAPI, type ConfirmOptions } from "./api/dialog";
 export { OpenersAPI, type MailFields, type OpenRequest } from "./api/openers";
 export { ToolsAPI, type ToolContext, type ToolHandler } from "./api/tools";
