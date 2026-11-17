@@ -43,8 +43,6 @@ export type HeaderMenuItem =
       label: string;
       icon?: string;
       disabled?: boolean;
-      /** A check mark at the end of the row: the entry is a switched-on setting, not an action. */
-      checked?: boolean;
     }
   | { type: "separator" };
 
@@ -86,8 +84,6 @@ export interface HeaderMenu extends HeaderControlBase {
   type: "menu";
   items: HeaderMenuItem[];
   text?: string;
-  /** The menu's filter, sort or view is not at its default: the header draws a dot on the icon. */
-  active?: boolean;
 }
 
 /** Event: `select` with the option's id as `value`. */

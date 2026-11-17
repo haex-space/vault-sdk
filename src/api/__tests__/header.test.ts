@@ -24,8 +24,7 @@ const MENU: HeaderDescription = {
       id: "filter",
       label: "Filter",
       icon: "icons/filter.svg",
-      active: true,
-      items: [{ type: "item", id: "all", label: "All", checked: true }],
+      items: [{ type: "item", id: "all", label: "All" }],
     },
   ],
 };
@@ -42,7 +41,7 @@ async function setWith(reply: { result: unknown } | { error: unknown }) {
 }
 
 describe("client.header.set", () => {
-  it("sends a menu with checked entries and the active dot as given", async () => {
+  it("sends a menu control with its entries", async () => {
     const host = await connectedAsync();
     const nextRequest = host.nextRequest();
     const pending = sdk!.header.set(MENU);
@@ -86,23 +85,38 @@ describe("client.header.onEvent", () => {
   it("hands the event of a used control to the handler until it is unsubscribed", async () => {
     const host = await connectedAsync();
     const seen: unknown[] = [];
-    const unsubscribe = sdk!.header.onEvent((event) => seen.push(event));
+    let resolveFirstEvent!: (event: unknown) => void;
+    const firstEvent = new Promise<unknown>((resolve) => {
+      resolveFirstEvent = resolve;
+    });
+    const unsubscribe = sdk!.header.onEvent((event) => {
+      seen.push(event);
+      resolveFirstEvent(event);
+    });
 
     host.channel.port1.postMessage({
       type: HAEXTENSION_EVENTS.HEADER_EVENT,
       data: { id: "sidebar", kind: "toggle", value: false },
       timestamp: 1,
     });
-    await new Promise((resolve) => setTimeout(resolve, 10));
+    await expect(firstEvent).resolves.toEqual({ id: "sidebar", kind: "toggle", value: false });
     expect(seen).toEqual([{ id: "sidebar", kind: "toggle", value: false }]);
 
     unsubscribe();
+    let resolveBarrier!: () => void;
+    const barrier = new Promise<void>((resolve) => {
+      resolveBarrier = resolve;
+    });
+    const onBarrier = () => resolveBarrier();
+    sdk!.on("test:barrier", onBarrier);
     host.channel.port1.postMessage({
       type: HAEXTENSION_EVENTS.HEADER_EVENT,
       data: { id: "sidebar", kind: "toggle", value: true },
       timestamp: 2,
     });
-    await new Promise((resolve) => setTimeout(resolve, 10));
+    host.channel.port1.postMessage({ type: "test:barrier", timestamp: 3 });
+    await barrier;
+    sdk!.off("test:barrier", onBarrier);
     expect(seen).toHaveLength(1);
   });
 });
