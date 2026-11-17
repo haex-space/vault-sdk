@@ -1,5 +1,19 @@
 # Changelog
 
+## [5.6.0](https://github.com/haex-space/vault-sdk/compare/v5.5.0...v5.6.0) (2026-11-17)
+
+
+### Features
+
+* **header:** checked menu entries and the active dot ([192e741](https://github.com/haex-space/vault-sdk/commit/192e741548566869ce065fe27a1fe2746ab6d1e5))
+* **header:** client.header.set and client.header.onEvent ([ae59198](https://github.com/haex-space/vault-sdk/commit/ae59198141630375ff2d2159c0c13276bed7f327))
+* **header:** client.header.set and client.header.onEvent for the host window's header ([f711778](https://github.com/haex-space/vault-sdk/commit/f7117784118d2cd370514e1f38a825ac5e4a9542))
+
+
+### Bug Fixes
+
+* **header:** align menu types with host support ([96ccb88](https://github.com/haex-space/vault-sdk/commit/96ccb880a22aa32947981412e01e7cd47fc2bbb2))
+
 ## [5.5.0](https://github.com/haex-space/vault-sdk/compare/v5.4.2...v5.5.0) (2026-11-04)
 
 
