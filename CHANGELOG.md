@@ -1,5 +1,16 @@
 # Changelog
 
+## [6.0.0](https://github.com/haex-space/vault-sdk/compare/v5.6.0...v6.0.0) (2026-11-22)
+
+
+### ⚠ BREAKING CHANGES
+
+* **contacts:** ContactHolziAddresses, ContactHolziDevice and ContactDetail.holziAddresses are removed; use ContactHaexVaultAddresses, ContactHaexVaultDevice and ContactDetail.haexAddresses.
+
+### Features
+
+* **contacts:** rename the types and wire field that carried the old app name ([aaf8a57](https://github.com/haex-space/vault-sdk/commit/aaf8a57c4ec1e47960e04dc71fc33e8dc53cb838))
+
 ## [5.6.0](https://github.com/haex-space/vault-sdk/compare/v5.5.0...v5.6.0) (2026-11-17)
 
 
