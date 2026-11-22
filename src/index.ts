@@ -44,8 +44,8 @@ export type {
 export { ContactsAPI } from "./api/contacts";
 export type {
   ContactDetail,
-  ContactHolziAddresses,
-  ContactHolziDevice,
+  ContactHaexVaultAddresses,
+  ContactHaexVaultDevice,
   ContactList,
   ContactListOptions,
   ContactSummary,

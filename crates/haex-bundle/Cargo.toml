@@ -8,7 +8,7 @@ description = "The extension bundle format haextension-bundle/2: reading, writin
 repository = "https://github.com/haex-space/vault-sdk"
 publish = false
 
-# The one implementation of the bundle format. Hosts (holzi) use it natively;
+# The one implementation of the bundle format. Hosts (haex-vault) use it natively;
 # the `haex` tool of this SDK uses its WebAssembly build (feature `wasm`,
 # `scripts/build-wasm.mjs`).
 

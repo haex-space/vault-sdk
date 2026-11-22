@@ -8,7 +8,7 @@ description = "The autofill rule of haex-pass: which field of a web form gets wh
 repository = "https://github.com/haex-space/vault-sdk"
 publish = false
 
-# The one implementation of the autofill rule. Hosts (holzi) use it natively;
+# The one implementation of the autofill rule. Hosts (haex-vault) use it natively;
 # the browser extension haex-pass-browser uses its WebAssembly build (feature `wasm`).
 
 [lib]

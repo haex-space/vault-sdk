@@ -1,5 +1,5 @@
 /**
- * Types of model jobs (holzi spec 055, `contracts/job-format.md` and `contracts/bridge.md`).
+ * Types of model jobs (haex-vault spec 055, `contracts/job-format.md` and `contracts/bridge.md`).
  */
 
 /** Where a model runs. Outside this device the user consents before anything is sent. */
@@ -29,7 +29,7 @@ export interface ExtensionModel {
   maxEffort: ModelEffort;
 }
 
-/** What a job of the extension will need, to ask for a grant before it (holzi spec 055 US9). */
+/** What a job of the extension will need, to ask for a grant before it (haex-vault spec 055 US9). */
 export interface ModelAccessRequest {
   needs: ("text" | "image")[];
 }

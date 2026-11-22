@@ -1,5 +1,5 @@
 /**
- * The peers API sends the bridge methods of holzi spec 057 (`contracts/bridge.md`) with the
+ * The peers API sends the bridge methods of haex-vault spec 057 (`contracts/bridge.md`) with the
  * parameters the host reads, rejects host errors with a `details.reason` as `PeerError`, and hands
  * the extension its events with message data as bytes.
  */

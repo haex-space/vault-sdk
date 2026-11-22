@@ -71,7 +71,7 @@ describe('withPermissionRetry', () => {
     expect(send).toHaveBeenCalledTimes(2)
   })
 
-  it('waits for the permission holzi names in details', async () => {
+  it('waits for the permission haex-vault names in details', async () => {
     const reg = new PermissionWaiterRegistry()
     const asked = {
       code: PermissionErrorCode.PROMPT_REQUIRED,

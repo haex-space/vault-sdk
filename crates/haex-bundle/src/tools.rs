@@ -1,4 +1,4 @@
-//! The `tools` block of a manifest: tools an extension offers to the agent of its host (holzi spec
+//! The `tools` block of a manifest: tools an extension offers to the agent of its host (haex-vault spec
 //! 018, `contracts/manifest-tools.md`). This checks the shape every host relies on; what a host can
 //! offer (for example which JSON schemas its model connection supports) is the host's own check.
 

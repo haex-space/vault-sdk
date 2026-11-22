@@ -10,7 +10,7 @@ import type {
 } from "../types/models";
 
 /**
- * Jobs on the host's language and vision models (holzi spec 055), instead of bringing own access
+ * Jobs on the host's language and vision models (haex-vault spec 055), instead of bringing own access
  * and keys. The extension describes each step with its instruction, input and the format of the
  * answer; the host picks a model the user allowed for this extension, runs it with the effort the
  * user chose for it (an extension names none), drops broken output and returns only a result that
@@ -35,7 +35,7 @@ export class ModelsAPI {
   }
 
   /**
-   * Asks for a grant before the first job (holzi spec 055 US9) and resolves with the allowed
+   * Asks for a grant before the first job (haex-vault spec 055 US9) and resolves with the allowed
    * models that fit `needs`. Without one, the host asks the user as it would for a job, and the
    * SDK waits for the answer. Rejects with `no_capable_model` (8001) when no model of the host
    * fits and with a denial (1002) when the user refused. Nothing is sent to a model, and consent

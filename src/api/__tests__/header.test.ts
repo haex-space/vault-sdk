@@ -55,7 +55,7 @@ describe("client.header.set", () => {
     await expect(setWith({ result: null })).resolves.toBe(true);
   });
 
-  it("resolves false when holzi answers not supported (8000)", async () => {
+  it("resolves false when haex-vault answers not supported (8000)", async () => {
     await expect(setWith({ error: { code: 8000, message: "not supported" } })).resolves.toBe(false);
   });
 

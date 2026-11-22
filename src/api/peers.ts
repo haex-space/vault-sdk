@@ -105,12 +105,12 @@ function decodeEvent<T extends PeerEventType>(type: T, data: unknown): PeerEvent
 }
 
 /**
- * Channels between frames of this extension on devices of different vaults (holzi spec 057).
+ * Channels between frames of this extension on devices of different vaults (haex-vault spec 057).
  * Needs the `peers` permission (`{ target: "*", action: "connect" }`); inviting a contact also
  * needs `contacts` read access to that contact.
  *
  * A channel starts in one of two ways. An invitation goes to all devices of a contact; the user
- * accepts or declines it only in holzi's own prompt, so the SDK has no accept or decline. The
+ * accepts or declines it only in haex-vault's own prompt, so the SDK has no accept or decline. The
  * invited side gets `channel-opened`, the inviting side `invite-status`. A lobby hands out an
  * opaque join code (`haex-vault:join:…`); a device that joins with it gets the channel from
  * {@link PeersAPI.joinAsync}, the host gets `joined`.

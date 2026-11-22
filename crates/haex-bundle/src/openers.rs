@@ -1,4 +1,4 @@
-//! The `openers` block of a manifest: the kinds of link an extension takes over from its host (holzi
+//! The `openers` block of a manifest: the kinds of link an extension takes over from its host (haex-vault
 //! spec 063, `contracts/manifest-openers.md`). This checks the shape every host relies on; which
 //! kinds a host offers (today `mail.compose`) is the host's own business, so a kind of the right
 //! form that the host does not know is valid.

@@ -75,7 +75,7 @@ describe('validateInput', () => {
 })
 
 describe('isSchemaInSubset', () => {
-  it('accepts the subset holzi supports', () => {
+  it('accepts the subset haex-vault supports', () => {
     expect(isSchemaInSubset(schema)).toBe(true)
   })
 

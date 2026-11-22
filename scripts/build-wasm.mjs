@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Builds the WebAssembly form of the Rust crates whose rules the SDK shares with holzi, each the
+ * Builds the WebAssembly form of the Rust crates whose rules the SDK shares with haex-vault, each the
  * one implementation of its rule (generated, not committed):
  *
  * - `haex-bundle` (crates/haex-bundle, bundle format `haextension-bundle/2`) into

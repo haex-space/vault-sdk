@@ -1,7 +1,7 @@
 /**
  * Model Commands
  *
- * Commands for jobs on the host's language and vision models (holzi spec 055). The extension
+ * Commands for jobs on the host's language and vision models (haex-vault spec 055). The extension
  * describes the job; the host picks a model the user allowed, checks the answer against the
  * job's format and sends the result as `haextension:model-job:completed`.
  *

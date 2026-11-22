@@ -8,7 +8,7 @@ description = "The password generator of haex-pass: length, character classes, e
 repository = "https://github.com/haex-space/vault-sdk"
 publish = false
 
-# The one implementation of the password generator. Hosts (holzi) use it natively;
+# The one implementation of the password generator. Hosts (haex-vault) use it natively;
 # the browser extension haex-pass-browser uses its WebAssembly build (feature `wasm`).
 
 [lib]

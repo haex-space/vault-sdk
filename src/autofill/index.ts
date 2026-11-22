@@ -1,7 +1,7 @@
 /**
  * The autofill rule of haex-pass (`@haex-space/vault-sdk/autofill`): which field of a web form gets
  * which field of a password-manager entry. Its one implementation is the Rust crate
- * `crates/haex-autofill`, which holzi uses natively; this entry is its WebAssembly build, carried
+ * `crates/haex-autofill`, which haex-vault uses natively; this entry is its WebAssembly build, carried
  * in the entry's own code, so it works in a browser extension's content script, its pages and
  * Node.js.
  *

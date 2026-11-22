@@ -9,7 +9,7 @@ import { ToolsServer, type ToolHandler } from '../tools/server'
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Json = any
 
-/** One line of a holzi transcript (`transcripts/README.md`). */
+/** One line of a haex-vault transcript (`transcripts/README.md`). */
 type Line = { dir: 'c2s' | 's2c'; message: Json }
 
 function transcript(name: string): Line[] {
@@ -21,7 +21,7 @@ function transcript(name: string): Line[] {
 
 const text = { type: 'object', properties: { text: { type: 'string' } }, required: ['text'] } as const
 
-/** The tools of holzi's in-memory server, as an extension would declare them. */
+/** The tools of haex-vault's in-memory server, as an extension would declare them. */
 const manifestTools: ManifestTool[] = [
   { name: 'echo', description: 'Echoes the given text back', inputSchema: text },
   { name: 'slow', description: 'Waits until it is cancelled', inputSchema: text },
@@ -86,7 +86,7 @@ function expectedReplies(name: string) {
     .map((line) => line.message)
 }
 
-describe('ToolsServer replays holzi transcripts', () => {
+describe('ToolsServer replays haex-vault transcripts', () => {
   it('handshake: answers initialize with the requested version and the tools capability', async () => {
     const { sent } = await replay('handshake')
     const [expected] = expectedReplies('handshake')

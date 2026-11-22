@@ -18,7 +18,7 @@ export type OpenRequest = { action: "mail.compose"; mail: MailFields };
 
 /**
  * Requests the host hands to an extension that registered as an opener (`openers` in its manifest,
- * holzi spec 063). A request exists only because the person chose this extension, and it is taken
+ * haex-vault spec 063). A request exists only because the person chose this extension, and it is taken
  * exactly once.
  *
  * Open the dialog the request asks for, but do not send anything: the person has not written it yet.

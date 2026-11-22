@@ -1,7 +1,7 @@
 //! The password generator of haex-pass: a password from a length, character classes and excluded
 //! characters, or from a pattern.
 //!
-//! This is the one implementation of the generator. holzi uses it natively (its window and its
+//! This is the one implementation of the generator. haex-vault uses it natively (its window and its
 //! agent browser, which creates new logins), the browser extension haex-pass-browser uses its
 //! WebAssembly build (feature `wasm`).
 //!

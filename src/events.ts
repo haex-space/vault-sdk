@@ -26,7 +26,7 @@ export const HAEXTENSION_EVENTS = {
   /** Tables have been updated via sync (CRDT pull from server) */
   SYNC_TABLES_UPDATED: 'haextension:sync:tables-updated',
 
-  /** The user used a control of this extension's header (holzi spec 090): `{ id, kind, value? }`.
+  /** The user used a control of this extension's header (haex-vault spec 090): `{ id, kind, value? }`.
    *  Subscribe through `client.header.onEvent`. */
   HEADER_EVENT: 'haextension:header:event',
 
@@ -49,7 +49,7 @@ export const NOTIFICATION_EVENTS = {
 export type NotificationEvent = typeof NOTIFICATION_EVENTS[keyof typeof NOTIFICATION_EVENTS];
 
 /**
- * Events of the openers (`client.openers`, holzi spec 063).
+ * Events of the openers (`client.openers`, haex-vault spec 063).
  */
 export const OPENER_EVENTS = {
   /** A request waits for this extension: take it with `client.openers.take()`. The event carries no content. */
@@ -59,7 +59,7 @@ export const OPENER_EVENTS = {
 export type OpenerEvent = typeof OPENER_EVENTS[keyof typeof OPENER_EVENTS];
 
 /**
- * Events of model jobs (`models.runAsync`, holzi spec 055).
+ * Events of model jobs (`models.runAsync`, haex-vault spec 055).
  */
 export const MODEL_JOB_EVENTS = {
   /** A job of this frame ended: completed, failed or cancelled. */
@@ -69,13 +69,13 @@ export const MODEL_JOB_EVENTS = {
 export type ModelJobEvent = typeof MODEL_JOB_EVENTS[keyof typeof MODEL_JOB_EVENTS];
 
 /**
- * Events of peer channels (`client.peers`, holzi spec 057). The SDK's
+ * Events of peer channels (`client.peers`, haex-vault spec 057). The SDK's
  * `peers.on` takes the names without the `peers:` prefix.
  */
 export const PEERS_EVENTS = {
   /** The outcome of an invitation, once per invitation (inviting side). */
   INVITE_STATUS: 'peers:invite-status',
-  /** A channel opened after the user accepted an invitation in holzi's prompt (invited side). */
+  /** A channel opened after the user accepted an invitation in haex-vault's prompt (invited side). */
   CHANNEL_OPENED: 'peers:channel-opened',
   /** A device joined one of this device's lobbies by code (host). */
   JOINED: 'peers:joined',

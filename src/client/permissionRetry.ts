@@ -84,7 +84,7 @@ export class PermissionWaiterRegistry {
 }
 
 /**
- * The permission a prompt error names. holzi sends it in `details` (`{ code, message, details }`,
+ * The permission a prompt error names. haex-vault sends it in `details` (`{ code, message, details }`,
  * spec 017 `contracts/bridge.md`); the error's own fields are read when `details` lacks it.
  */
 function promptedKey(error: PermissionPromptError): string {

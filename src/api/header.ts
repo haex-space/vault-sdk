@@ -4,11 +4,11 @@ import { HAEXTENSION_EVENTS } from "../events";
 import type { EventCallback } from "../types";
 import type { HeaderDescription, HeaderEvent } from "../types/header";
 
-/** The host's answer to a method it does not offer (holzi). */
+/** The host's answer to a method it does not offer (haex-vault). */
 const NOT_SUPPORTED = 8000;
 
 /**
- * Whether the host does not offer the method: holzi answers code 8000, haex-vault 2.x a plain
+ * Whether the host does not offer the method: haex-vault 3.x answers code 8000, haex-vault 2.x (Legacy) a plain
  * `Unknown method: <method>` error.
  */
 function isUnknownMethod(error: unknown): boolean {

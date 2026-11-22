@@ -128,7 +128,7 @@ export enum PermissionErrorCode {
 
 /**
  * Numeric `code` of an error the host answers a request with
- * (`{ code, message, details? }`), as holzi sends it. The permission codes are
+ * (`{ code, message, details? }`), as haex-vault sends it. The permission codes are
  * the same as in {@link PermissionErrorCode}.
  */
 export enum HostErrorCode {
@@ -175,7 +175,7 @@ export interface PermissionErrorBase {
   resourceType: string;
   target: string;
   action: string;
-  /** holzi names the permission here: `resourceType`, `action` and `target`. */
+  /** haex-vault names the permission here: `resourceType`, `action` and `target`. */
   details?: Record<string, unknown>;
 }
 
@@ -369,12 +369,12 @@ export interface ManifestI18nEntry {
 }
 
 // Manifest Types
-/** How a tool affects the user's data; the host's approval follows it (holzi spec 018). */
+/** How a tool affects the user's data; the host's approval follows it (haex-vault spec 018). */
 export type ManifestToolEffect = "read" | "change" | "destructive";
 
 /**
  * A tool an extension offers to the agent of its host, declared in the signed manifest and served
- * by `sdk.tools` (holzi spec 018, `contracts/manifest-tools.md`). The bundle check enforces the
+ * by `sdk.tools` (haex-vault spec 018, `contracts/manifest-tools.md`). The bundle check enforces the
  * limits: a name of `[a-z][a-z0-9_]{0,31}`, titles of 1–80 characters, a description of 1–1024,
  * 1–10 examples per language of 1–200 characters each, at most 32 tools. The manifest is canonical
  * JSON without fractions, so the schema holds integers only.
@@ -433,10 +433,10 @@ export interface ExtensionManifest {
    * Key is locale code (e.g. "de", "en"), value contains localized fields.
    */
   i18n?: Record<string, ManifestI18nEntry> | null;
-  /** Tools the extension offers to the agent of its host (holzi spec 018). */
+  /** Tools the extension offers to the agent of its host (haex-vault spec 018). */
   tools?: ManifestTool[] | null;
   /**
-   * The kinds of link the extension takes over from its host (holzi spec 063), for example
+   * The kinds of link the extension takes over from its host (haex-vault spec 063), for example
    * `"mail.compose"`: the host offers the extension where a person writes an e-mail. At most 8 entries,
    * each of the form `word.word` in lower case, at most 32 characters. A kind a host does not know is
    * ignored. Registering grants no access.
