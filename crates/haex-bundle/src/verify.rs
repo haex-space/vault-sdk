@@ -55,7 +55,7 @@ pub(crate) fn is_legacy_manifest(bytes: &[u8]) -> bool {
         .is_ok_and(|v| v.as_object().is_some_and(|o| o.contains_key("signature")))
 }
 
-/// FR-004 of holzi spec 017: lower-case letters, digits and hyphens, starting with a letter, no `__`.
+/// FR-004 of haex-vault spec 017: lower-case letters, digits and hyphens, starting with a letter, no `__`.
 pub fn is_valid_extension_name(name: &str) -> bool {
     let mut chars = name.chars();
     chars.next().is_some_and(|c| c.is_ascii_lowercase())

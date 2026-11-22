@@ -1,5 +1,5 @@
 //! The generator with a deterministic random source, so every run draws the same numbers. These
-//! are the checks holzi ran on its TypeScript generator (spec 034, FR-013, FR-014, SC-004).
+//! are the checks haex-vault ran on its TypeScript generator (spec 034, FR-013, FR-014, SC-004).
 
 use haex_passgen::{
     generate_password, generate_with, random_index, GeneratorConfig, GeneratorError,

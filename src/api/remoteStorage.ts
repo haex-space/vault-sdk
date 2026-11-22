@@ -42,11 +42,11 @@ export interface S3BackendInfo extends StorageBackendInfoBase {
   type: "s3";
   /** Bucket of the storage */
   bucket: string;
-  /** @deprecated Not sent by hosts that keep credentials to themselves (holzi). */
+  /** @deprecated Not sent by hosts that keep credentials to themselves (haex-vault). */
   enabled?: boolean;
-  /** @deprecated Not sent by hosts that keep credentials to themselves (holzi). */
+  /** @deprecated Not sent by hosts that keep credentials to themselves (haex-vault). */
   createdAt?: string;
-  /** @deprecated Not sent by hosts that keep credentials to themselves (holzi). */
+  /** @deprecated Not sent by hosts that keep credentials to themselves (haex-vault). */
   config?: S3PublicConfig;
 }
 
@@ -125,7 +125,7 @@ export interface S3Proposal {
  * S3-compatible backend configuration with credentials.
  *
  * @deprecated Credentials are entered in the host, never passed by an
- * extension: holzi refuses a request that carries `accessKeyId`,
+ * extension: haex-vault refuses a request that carries `accessKeyId`,
  * `secretAccessKey` or `sessionToken`. Use {@link S3Proposal}. Removed in the
  * next major version.
  */

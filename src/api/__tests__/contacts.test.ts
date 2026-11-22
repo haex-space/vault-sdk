@@ -1,5 +1,5 @@
 /**
- * The address book API sends the bridge methods of holzi's `extensions/contacts.rs` with the
+ * The address book API sends the bridge methods of haex-vault's `extensions/contacts.rs` with the
  * parameters the host reads, and unwraps its answers.
  */
 

@@ -1,7 +1,7 @@
 //! The extension bundle format `haextension-bundle/2`: the one implementation of reading,
 //! writing, signing and verifying `.xt` archives.
 //!
-//! Hosts (holzi) use this crate natively; the `haex` tool of the vault-sdk uses its WebAssembly
+//! Hosts (haex-vault) use this crate natively; the `haex` tool of the vault-sdk uses its WebAssembly
 //! build (feature `wasm`). The rules are described in `test-vectors/bundles/README.md`; the test
 //! vectors there are generated independently of this crate by
 //! `scripts/generate-bundle-vectors.mjs` and pin every error kind.

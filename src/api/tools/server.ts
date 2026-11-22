@@ -1,5 +1,5 @@
 /**
- * A minimal MCP server for the tools an extension offers to the agent of its host (holzi spec 018,
+ * A minimal MCP server for the tools an extension offers to the agent of its host (haex-vault spec 018,
  * `contracts/mcp-port.md`). It speaks the part of MCP a host needs to list and call tools:
  * `initialize`, `notifications/initialized`, `ping`, `tools/list`, `tools/call` and
  * `notifications/cancelled`; every other request is answered with "method not found". It sends no
@@ -12,7 +12,7 @@
 import type { ExtensionManifest } from "../../types";
 import { validateInput, type JsonSchema } from "./schema";
 
-/** The MCP version of the tool connection; the host pins the same (holzi `link.rs`). */
+/** The MCP version of the tool connection; the host pins the same (haex-vault `link.rs`). */
 export const PROTOCOL_VERSION = "2025-11-25";
 
 const METHOD_NOT_FOUND = -32601;

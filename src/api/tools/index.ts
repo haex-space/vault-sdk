@@ -1,5 +1,5 @@
 /**
- * `sdk.tools`: tools an extension offers to the agent of its host (holzi spec 018). Each tool is
+ * `sdk.tools`: tools an extension offers to the agent of its host (haex-vault spec 018). Each tool is
  * declared in the signed manifest (`tools`) with its title, description, input schema and effect;
  * the extension's code only registers the function that runs it:
  *

@@ -265,7 +265,7 @@ export class MailAPI {
    * interval for servers without IDLE. Listen for results via `onNewMessages`.
    *
    * `imap` is optional for hosts that resolve the credentials themselves from
-   * `accountId`; holzi requires it.
+   * `accountId`; haex-vault requires it.
    */
   async startWatchingAsync(
     accountId: string,

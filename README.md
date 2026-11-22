@@ -1646,7 +1646,7 @@ checks the bundle exactly like the host does and names the first failing rule (f
 rejected with `legacy_signature_format`: re-sign them with `haex sign`. Shared test vectors for hosts are in
 `test-vectors/bundles/`.
 
-The format has exactly one implementation: the Rust crate `crates/haex-bundle`. Hosts such as holzi use it
+The format has exactly one implementation: the Rust crate `crates/haex-bundle`. Hosts such as haex-vault use it
 natively, and `haex sign` / `haex verify` call its WebAssembly build, so the tool and the hosts cannot apply
 different rules. From Node.js the same functions are available as `verifyBundle` and `buildBundle` from
 `@haex-space/vault-sdk/node`.
@@ -1699,7 +1699,7 @@ different rules. From Node.js the same functions are available as `verifyBundle`
 
 ## Autofill Rule & Password Generator (Browser)
 
-Two rules of haex-pass have one implementation each, a Rust crate that holzi uses natively. The
+Two rules of haex-pass have one implementation each, a Rust crate that haex-vault uses natively. The
 SDK ships their WebAssembly builds as browser entries; the module is part of the entry's code, so
 they also work in a browser extension's content script. A page that runs them needs
 `'wasm-unsafe-eval'` in its `script-src`.

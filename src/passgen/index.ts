@@ -1,7 +1,7 @@
 /**
  * The password generator of haex-pass (`@haex-space/vault-sdk/passgen`): length, character
  * classes and excluded characters, or a pattern. Its one implementation is the Rust crate
- * `crates/haex-passgen`, which holzi uses natively; this entry is its WebAssembly build, carried in
+ * `crates/haex-passgen`, which haex-vault uses natively; this entry is its WebAssembly build, carried in
  * the entry's own code. The randomness comes from `crypto.getRandomValues`.
  *
  * Call `initPassgen()` once and await it; `generatePassword` is synchronous afterwards and throws

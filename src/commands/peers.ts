@@ -2,9 +2,9 @@
  * Peer Commands
  *
  * Commands for channels between frames of the same extension on devices of
- * different vaults (holzi spec 057, `contracts/bridge.md`). Every method needs
+ * different vaults (haex-vault spec 057, `contracts/bridge.md`). Every method needs
  * the `peers` permission (`action` = `connect`, `target` = "*"). There is no
- * command to accept or decline an invitation: that happens only in holzi's
+ * command to accept or decline an invitation: that happens only in haex-vault's
  * own prompt.
  *
  * Naming convention: `extension_peers_<action>`

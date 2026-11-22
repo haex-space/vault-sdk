@@ -131,7 +131,7 @@ export class HaexVaultSdk {
   public readonly header: HeaderAPI;
   public readonly dialog: DialogAPI;
   public readonly openers: OpenersAPI;
-  /** Tools the extension offers to the agent of its host (holzi spec 018). */
+  /** Tools the extension offers to the agent of its host (haex-vault spec 018). */
   public readonly tools: ToolsAPI;
 
   /** Unified action system - register handlers that work for both Bridge and AI requests */

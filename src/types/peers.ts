@@ -1,5 +1,5 @@
 /**
- * Types of peer channels (holzi spec 057, `contracts/bridge.md` and `contracts/sdk.md`): channels
+ * Types of peer channels (haex-vault spec 057, `contracts/bridge.md` and `contracts/sdk.md`): channels
  * between frames of the same extension on devices of different vaults.
  */
 
@@ -20,7 +20,7 @@ export interface PeerInviteStatus {
 }
 
 /**
- * A channel opened by an invitation the user accepted in holzi's prompt (`peers:channel-opened`),
+ * A channel opened by an invitation the user accepted in haex-vault's prompt (`peers:channel-opened`),
  * on the invited side.
  */
 export interface PeerChannelOpened {

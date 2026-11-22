@@ -1,7 +1,7 @@
 //! The autofill rule of haex-pass: which field of a web form gets which field of a
 //! password-manager entry.
 //!
-//! This is the one implementation of the rule. holzi uses it natively (its agent browser fills
+//! This is the one implementation of the rule. haex-vault uses it natively (its agent browser fills
 //! logins, bank and card data), the browser extension haex-pass-browser uses its WebAssembly build
 //! (feature `wasm`). Values never pass through the rule: the input is what a page tells about its
 //! fields ([`FieldFacts`]) and the keys of an entry ([`EntryKeys`]); the output says which key goes

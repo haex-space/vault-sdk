@@ -33,7 +33,7 @@ export const HAEXSPACE_MESSAGE_TYPES = {
   PORT_READY: 'haexspace:port:ready',
 
   /**
-   * One MCP message of the tool connection (holzi spec 018), in both directions over the
+   * One MCP message of the tool connection (haex-vault spec 018), in both directions over the
    * MessagePort: the host calls the extension's tools, `sdk.tools` answers.
    *
    * Payload: `{ type: MCP, message }`, where `message` is a JSON-RPC 2.0 object.

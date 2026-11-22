@@ -1,5 +1,5 @@
 /**
- * What an extension hands the host for its window's header (holzi spec 090): three areas of
+ * What an extension hands the host for its window's header (haex-vault spec 090): three areas of
  * controls, drawn by the host in the header of the extension's own tab. The description replaces
  * the previous one whole; the host keeps nothing between page loads.
  *

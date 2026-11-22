@@ -1,7 +1,7 @@
 /**
  * Types for the host's address book.
  *
- * Mirrors the answers of `src-tauri/src/extensions/contacts.rs` in holzi. The
+ * Mirrors the answers of `src-tauri/src/extensions/contacts.rs` in haex-vault. The
  * extension's view is scoped by its `contacts` permissions: a contact outside
  * them answers exactly like a missing one (`PermissionErrorCode.DENIED`).
  */
@@ -31,7 +31,7 @@ export interface ContactValue {
 }
 
 /** A device of a vault, from its Visitenkarte. */
-export interface ContactHolziDevice {
+export interface ContactHaexVaultDevice {
   /** Hex. */
   devicePubkey: string;
   /** The iroh endpoint id, hex. */
@@ -39,13 +39,13 @@ export interface ContactHolziDevice {
   irohRelay?: string;
 }
 
-/** The confirmed holzi addresses of a contact, from its Visitenkarte. */
-export interface ContactHolziAddresses {
+/** The confirmed haex-vault addresses of a contact, from its Visitenkarte. */
+export interface ContactHaexVaultAddresses {
   /** The vault identity, hex. */
   vault: string;
   /** The vault identity as `npub1…`. */
   npub: string;
-  devices: ContactHolziDevice[];
+  devices: ContactHaexVaultDevice[];
   nostrRelays: string[];
 }
 
@@ -66,7 +66,7 @@ export interface ContactDetail {
   /** Group names. */
   groups: string[];
   photo?: string;
-  holziAddresses?: ContactHolziAddresses;
+  haexAddresses?: ContactHaexVaultAddresses;
   updatedAt: string;
 }
 

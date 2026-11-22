@@ -1,7 +1,7 @@
 /**
  * Bundle format `haextension-bundle/2` for the `haex` tool (Node.js only).
  *
- * Every rule lives in the Rust crate `crates/haex-bundle`, which hosts such as holzi use natively;
+ * Every rule lives in the Rust crate `crates/haex-bundle`, which hosts such as haex-vault use natively;
  * this module only calls its WebAssembly build (`pnpm build:wasm`). Nothing of the format is
  * implemented here, so the tool and the hosts cannot drift apart.
  */

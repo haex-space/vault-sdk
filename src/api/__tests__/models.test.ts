@@ -1,5 +1,5 @@
 /**
- * The model API sends the bridge methods of holzi's `model_jobs/bridge.rs` (spec 055,
+ * The model API sends the bridge methods of haex-vault's `model_jobs/bridge.rs` (spec 055,
  * `contracts/bridge.md`) and hands the extension the end of its own job, also when the event
  * arrives before the start answers.
  */

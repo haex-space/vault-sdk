@@ -1,9 +1,9 @@
 /**
- * The JSON-schema subset of tool inputs (holzi spec 018): `type` (`object`, `string`, `number`,
+ * The JSON-schema subset of tool inputs (haex-vault spec 018): `type` (`object`, `string`, `number`,
  * `integer`, `boolean`, `array`), `description`, `properties`, `required`, `items`, `enum`. An
  * object with declared `properties` is strict; without them it takes any object. The same subset
- * and the same error fields as holzi's action validator (`src/lib/actions/schema.ts` in holzi), so
- * the model gets the same kind of correction from an extension tool as from a holzi action.
+ * and the same error fields as haex-vault's action validator (`src/lib/actions/schema.ts` in haex-vault), so
+ * the model gets the same kind of correction from an extension tool as from a haex-vault action.
  */
 
 export type JsonSchema = {
