@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "checked": {
-    "source_hash": "bdf3cc62cb4f6d2130675f7f31a010316bd8a8a34c5cc8bbafe9b02af078adaf",
+    "source_hash": "fa31708764f047bc57eeb4cf0ab9847ef8218bff7d51c6268e574c7ba02311ed",
     "prompt_hash": "aad1b9eb44b8d38d2bb92a30d9806c85710edad91159543012d0d3a0c686372a"
   },
   "decisions": {
@@ -25,6 +25,27 @@
       },
       "asked_at": "2026-11-23T07:31:43Z",
       "answered_at": "2026-11-23T07:31:43Z"
+    },
+    "c97355e811a5542df4696e34001394201a40d3853da7953789e3adc1601b4aeb": {
+      "kind": "duplicate",
+      "summary": "Both require unit-test implementations to live in dedicated files separate from production code, allowing only a test-module declaration to remain in the production file.",
+      "passages": [
+        {
+          "scoped_id": "com.github.haexmas.atoms.coding-guideline-rust/rust-testing",
+          "text_hash": "a1218443de08bc595174335b4ccde4044b7707b16718b710d48a58334f1519c3",
+          "text": "- Put focused unit-test implementations in dedicated files separate from\n  production code. For module-private unit tests, a small declaration such as\n  `#[cfg(test)] mod tests;` may remain in the module under test, with the test\n  implementation in the separate test file. Use integration tests under\n  `tests/` to exercise the public API as an external consumer would. Use\n  documentation tests for public examples that should compile and remain\n  correct."
+        },
+        {
+          "scoped_id": "com.github.haexmas.atoms.general-coding/general-coding",
+          "text_hash": "2e66d07f47a07bcc5c5a7ea82b9c9d617b778f1e446d92e2fdc19739960dba91",
+          "text": "- Test code MUST be maintained in files separate from production code in every\n  language. This applies to unit, integration, contract, and end-to-end tests.\n  A language-required test-module declaration or registration may remain in\n  the production file, but test bodies and test-only helpers MUST live in\n  dedicated test files. Do not place inline test modules or test functions in\n  production files. Follow the repository's convention for test-file placement\n  and naming."
+        }
+      ],
+      "choice": {
+        "kind": "keep_all"
+      },
+      "asked_at": "2026-11-23T11:55:37Z",
+      "answered_at": "2026-11-23T11:55:37Z"
     }
   }
 }
